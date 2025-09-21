@@ -1,0 +1,63 @@
+name: Code Health Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: 22
+
+jobs:
+  setup:
+    name: Set up Node.js and Dependencies Cache
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@main
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci
+
+  checks:
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        check:
+          - name: Typecheck
+            command: typecheck
+          - name: ESLint
+            command: eslint:check
+          - name: Prettier
+            command: prettier:check
+      fail-fast: false
+    name: ${{ matrix.check.name }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@main
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Restore node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('package-lock.json') }}
+
+      - run: npm run ${{ matrix.check.command }}
