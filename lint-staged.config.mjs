@@ -8,6 +8,10 @@ const config = {
   '*.{ts,tsx}': () => {
     return 'npm run typecheck';
   },
+  '**/package.json': [
+    'npm run sort-package-json:check',
+    'npm run prettier:check',
+  ],
 };
 
 export default config;
