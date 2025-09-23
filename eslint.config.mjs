@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
+import stylistic from '@stylistic/eslint-plugin';
 import perfectionist from 'eslint-plugin-perfectionist';
 import switchCase from 'eslint-plugin-switch-case';
 import unusedImports from 'eslint-plugin-unused-imports';
@@ -33,6 +34,7 @@ const eslintConfig = [
   ),
   {
     plugins: {
+      '@stylistic': stylistic,
       perfectionist,
       'switch-case': switchCase,
       'unused-imports': unusedImports,
@@ -42,6 +44,7 @@ const eslintConfig = [
       '@typescript-eslint/consistent-type-imports': 'error',
       'arrow-body-style': ['error', 'always'],
       curly: 'error',
+      'func-style': ['error', 'declaration', { allowTypeAnnotation: true }],
       'import/no-duplicates': 'error',
       'import/order': 'off',
       'no-undef': 'off',
@@ -49,6 +52,11 @@ const eslintConfig = [
       'object-shorthand': 'error',
       'react/react-in-jsx-scope': 'off',
       'switch-case/no-case-curly': 'off',
+
+      '@stylistic/jsx-curly-brace-presence': [
+        'error',
+        { children: 'never', propElementValues: 'always', props: 'never' },
+      ],
 
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -135,7 +143,10 @@ const eslintConfig = [
 
       'react/boolean-prop-naming': [
         'error',
-        { propTypeNames: ['bool', 'mutuallyExclusiveTrueProps'] },
+        {
+          propTypeNames: ['bool', 'mutuallyExclusiveTrueProps'],
+          rule: '^(is|as|has)[A-Z]([A-Za-z0-9]?)+',
+        },
       ],
 
       'switch-case/newline-between-switch-case': [
