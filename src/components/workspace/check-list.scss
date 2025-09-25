@@ -1,0 +1,83 @@
+$checkbox-size: 0.9em;
+$min-height: 1.5em;
+$margin-horizontal: 0.5em;
+$padding-horizontal: 1.5em;
+$border-color-unchecked: #999;
+$border-color-checked: var(--color-sky-800);
+$background-color-checked: var(--color-sky-500);
+$focus-shadow-color: #a6cdfe;
+$checkmark-color: #fff;
+$checkmark-thickness: 0.1em;
+
+li:not([role='checkbox']):before {
+  display: none;
+}
+
+.editor-list-item-checked,
+.editor-list-item-unchecked {
+  position: relative;
+  margin-left: $margin-horizontal;
+  margin-right: $margin-horizontal;
+  padding-left: $padding-horizontal;
+  padding-right: $padding-horizontal;
+  list-style-type: none;
+  outline: none;
+  display: block;
+  min-height: $min-height;
+
+  span {
+    display: inline-block;
+    min-height: $min-height;
+  }
+
+  &:before {
+    content: '\200B';
+    width: $checkbox-size;
+    height: $checkbox-size;
+    top: 50%;
+    left: 0;
+    cursor: pointer;
+    display: block;
+    background-size: cover;
+    position: absolute;
+    transform: translateY(-50%);
+  }
+
+  &:focus:before {
+    box-shadow: 0 0 0 2px $focus-shadow-color;
+    border-radius: 2px;
+  }
+}
+
+.editor-list-item-unchecked {
+  &:before {
+    border: 1px solid $border-color-unchecked;
+    border-radius: 2px;
+  }
+}
+
+.editor-list-item-checked {
+  text-decoration: line-through;
+
+  &:before {
+    border: 1px solid $border-color-checked;
+    border-radius: 2px;
+    background-color: $background-color-checked;
+    background-repeat: no-repeat;
+  }
+
+  &:after {
+    content: '';
+    cursor: pointer;
+    border-color: $checkmark-color;
+    border-style: solid;
+    position: absolute;
+    display: block;
+    top: 45%;
+    width: 0.2em;
+    left: 0.35em;
+    height: 0.4em;
+    transform: translateY(-50%) rotate(45deg);
+    border-width: 0 $checkmark-thickness $checkmark-thickness 0;
+  }
+}
