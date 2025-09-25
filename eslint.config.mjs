@@ -30,6 +30,7 @@ const eslintConfig = [
     'plugin:switch-case/recommended',
     'plugin:import/recommended',
     'plugin:jsx-a11y/recommended',
+    'plugin:@lexical/recommended',
     'prettier'
   ),
   {
@@ -41,6 +42,7 @@ const eslintConfig = [
     },
 
     rules: {
+      '@lexical/rules-of-lexical': 'error',
       '@typescript-eslint/consistent-type-imports': 'error',
       'arrow-body-style': ['error', 'always'],
       curly: 'error',

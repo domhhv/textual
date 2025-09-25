@@ -1,15 +1,38 @@
 import { openai } from '@ai-sdk/openai';
-import type { UIMessage } from 'ai';
-import { streamText, convertToModelMessages } from 'ai';
+import {
+  streamText,
+  stepCountIs,
+  type UIMessage,
+  convertToModelMessages,
+} from 'ai';
 
-export const maxDuration = 30;
+import {
+  EditParagraphTool,
+  InsertParagraphTool,
+} from '@/lib/models/editor-commands';
+import wrapEditorPrompt from '@/lib/utils/wrap-editor-prompt';
+
+export const maxDuration = 300;
+
+type RequestBody = {
+  editorMarkdownContent: string;
+  editorRootChildren: string;
+  messages: UIMessage[];
+};
 
 export async function POST(req: Request) {
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  const { editorMarkdownContent, editorRootChildren, messages }: RequestBody =
+    await req.json();
 
   const result = streamText({
     messages: convertToModelMessages(messages),
     model: openai('gpt-4o'),
+    stopWhen: stepCountIs(5),
+    system: wrapEditorPrompt(editorMarkdownContent, editorRootChildren),
+    tools: {
+      editParagraph: EditParagraphTool,
+      insertParagraph: InsertParagraphTool,
+    },
   });
 
   return result.toUIMessageStreamResponse();
