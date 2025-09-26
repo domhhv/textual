@@ -1,10 +1,6 @@
 import { CodeNode } from '@lexical/code';
 import { LinkNode, AutoLinkNode } from '@lexical/link';
 import { ListNode, ListItemNode } from '@lexical/list';
-import {
-  CHECK_LIST,
-  TRANSFORMERS as BASE_TRANSFORMERS,
-} from '@lexical/markdown';
 import type { InitialConfigType } from '@lexical/react/LexicalComposer';
 import { HorizontalRuleNode } from '@lexical/react/LexicalHorizontalRuleNode';
 import { QuoteNode, HeadingNode } from '@lexical/rich-text';
@@ -14,7 +10,7 @@ import { toast } from 'sonner';
 
 import getErrorMessage from '@/lib/utils/get-error-message';
 
-export const INITIAL_CONFIG: InitialConfigType = {
+const CONFIG: InitialConfigType = {
   namespace: 'MyEditor',
   onError: (error) => {
     toast('An error occurred in the editor', {
@@ -36,11 +32,11 @@ export const INITIAL_CONFIG: InitialConfigType = {
     HorizontalRuleNode,
   ],
   theme: {
-    hr: 'border-t border-slate-200',
+    hr: 'border-t border-slate-200 my-4',
     link: 'text-sky-500 underline hover:text-blue-600',
     paragraph: 'my-2',
     quote: 'italic text-slate-500 border-l-4 border-slate-500 pl-2',
-    table: 'border-collapse border border-slate-200',
+    table: 'border-collapse border border-slate-200 my-4',
     tableCell: 'border border-slate-200 p-2',
     tableRow: 'border-t border-slate-200',
     heading: {
@@ -85,4 +81,4 @@ export const INITIAL_CONFIG: InitialConfigType = {
   },
 };
 
-export const TRANSFORMERS = [CHECK_LIST, ...BASE_TRANSFORMERS];
+export default CONFIG;

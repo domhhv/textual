@@ -16,6 +16,16 @@ A check list:
 - [ ] Task 2
 - [ ] Task 3
 
+A table:
+
+| Month    | Savings |
+| -------- | ------- |
+| January  | $250    |
+| February | $80     |
+| March    | $420    |
+
 > "Markdown is a lightweight markup language with plain-text-formatting syntax." - Wikipedia
+
+---
 
 This editor supports inline markdown rendering, making it easy to visualize your content as you write.

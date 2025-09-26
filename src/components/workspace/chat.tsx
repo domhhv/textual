@@ -10,7 +10,8 @@ import * as React from 'react';
 import { useState } from 'react';
 
 import { Input } from '@/components/ui/input';
-import { TRANSFORMERS } from '@/lib/constants/editor.constants';
+import { ChatStatusContext } from '@/components/workspace/chat-status-provider';
+import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
 import type { EditorCommandTools } from '@/lib/models/editor-commands';
 import cn from '@/lib/utils/cn';
 import executeEditorCommand from '@/lib/utils/execute-editor-command';
@@ -18,37 +19,38 @@ import $getEditorRootChildren from '@/lib/utils/get-editor-root-children';
 
 export default function Chat() {
   const [editor] = useLexicalComposerContext();
+  const { setStatus } = React.use(ChatStatusContext);
   const [input, setInput] = useState('');
   const { addToolResult, messages, sendMessage, status } = useChat<
     UIMessage<unknown, UIDataTypes, EditorCommandTools>
   >({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
-    onToolCall({ toolCall }) {
+    async onToolCall({ toolCall }) {
       if (toolCall.dynamic) {
         return;
       }
 
       if (toolCall.toolName === 'insertParagraph') {
-        executeEditorCommand(editor, {
+        const result = await executeEditorCommand(editor, {
           ...toolCall.input,
           type: 'insertParagraph',
         });
 
         void addToolResult({
-          output: 'success',
+          output: result,
           tool: toolCall.toolName,
           toolCallId: toolCall.toolCallId,
         });
       }
 
       if (toolCall.toolName === 'editParagraph') {
-        executeEditorCommand(editor, {
+        const result = await executeEditorCommand(editor, {
           ...toolCall.input,
           type: 'editParagraph',
         });
 
         void addToolResult({
-          output: 'success',
+          output: result,
           tool: toolCall.toolName,
           toolCallId: toolCall.toolCallId,
         });
@@ -56,13 +58,17 @@ export default function Chat() {
     },
   });
 
+  React.useEffect(() => {
+    setStatus(status);
+  }, [status, setStatus]);
+
   const submitMessage = React.useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
       editor.read(() => {
         const editorRootChildren = JSON.stringify($getEditorRootChildren());
         const editorMarkdownContent = $convertToMarkdownString(
-          TRANSFORMERS,
+          ENHANCED_LEXICAL_TRANSFORMERS,
           undefined,
           true
         );
@@ -83,8 +89,8 @@ export default function Chat() {
   );
 
   return (
-    <div className="flex h-full flex-col justify-between overflow-x-auto pr-4">
-      <div className="flex flex-col gap-4">
+    <div className="flex h-full flex-col justify-between overflow-x-auto p-2">
+      <div className="flex flex-col gap-4 pt-2 pl-2">
         {messages.map((message) => {
           return (
             <div
@@ -106,7 +112,9 @@ export default function Chat() {
                     return (
                       <div
                         key={`${message.id}-${i}`}
-                        className={cn(message.role === 'user' && 'px-2')}
+                        className={cn(
+                          message.role === 'user' ? 'px-2' : 'py-4'
+                        )}
                       >
                         {part.text}
                       </div>
@@ -219,10 +227,11 @@ export default function Chat() {
         )}
       </div>
 
-      <form className="mt-4" onSubmit={submitMessage}>
+      <form className="m-2 mt-4" onSubmit={submitMessage}>
         <Input
           value={input}
-          placeholder="Say something..."
+          disabled={status === 'submitted'}
+          placeholder="Add a paragraph or edit existing content..."
           onChange={(e) => {
             return setInput(e.currentTarget.value);
           }}
