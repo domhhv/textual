@@ -1,7 +1,6 @@
 'use client';
 
 import { useChat } from '@ai-sdk/react';
-import { $convertToMarkdownString } from '@lexical/markdown';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import type { UIMessage, UIDataTypes } from 'ai';
 import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
@@ -11,11 +10,11 @@ import { useState } from 'react';
 
 import { Input } from '@/components/ui/input';
 import { ChatStatusContext } from '@/components/workspace/chat-status-provider';
-import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
 import type { EditorCommandTools } from '@/lib/models/editor-commands';
 import cn from '@/lib/utils/cn';
 import executeEditorCommand from '@/lib/utils/execute-editor-command';
-import $getEditorRootChildren from '@/lib/utils/get-editor-root-children';
+import $getNextEditorState from '@/lib/utils/get-next-editor-state';
+import retrieveTextNodes from '@/lib/utils/retrieve-text-nodes';
 
 export default function Chat() {
   const [editor] = useLexicalComposerContext();
@@ -26,33 +25,71 @@ export default function Chat() {
   >({
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
     async onToolCall({ toolCall }) {
-      if (toolCall.dynamic) {
+      const { dynamic, input, toolCallId, toolName } = toolCall;
+
+      if (dynamic) {
         return;
       }
 
-      if (toolCall.toolName === 'insertParagraph') {
+      if (toolName === 'insertParagraph') {
         const result = await executeEditorCommand(editor, {
-          ...toolCall.input,
+          ...input,
           type: 'insertParagraph',
         });
 
         void addToolResult({
           output: result,
-          tool: toolCall.toolName,
-          toolCallId: toolCall.toolCallId,
+          tool: toolName,
+          toolCallId,
         });
       }
 
-      if (toolCall.toolName === 'editParagraph') {
+      if (toolName === 'editParagraph') {
         const result = await executeEditorCommand(editor, {
-          ...toolCall.input,
+          ...input,
           type: 'editParagraph',
         });
 
         void addToolResult({
           output: result,
-          tool: toolCall.toolName,
-          toolCallId: toolCall.toolCallId,
+          tool: toolName,
+          toolCallId,
+        });
+      }
+
+      if (toolName === 'getAllTextNodes') {
+        const result = await retrieveTextNodes(editor, input.nodeKey);
+
+        void addToolResult({
+          output: result,
+          tool: toolName,
+          toolCallId,
+        });
+      }
+
+      if (toolName === 'setRangeSelection') {
+        const result = await executeEditorCommand(editor, {
+          ...input,
+          type: 'setRangeSelection',
+        });
+
+        void addToolResult({
+          output: result,
+          tool: toolName,
+          toolCallId,
+        });
+      }
+
+      if (toolName === 'formatText') {
+        const result = await executeEditorCommand(editor, {
+          ...input,
+          type: 'formatText',
+        });
+
+        void addToolResult({
+          output: result,
+          tool: toolName,
+          toolCallId,
         });
       }
     },
@@ -66,12 +103,10 @@ export default function Chat() {
     async (e: React.FormEvent) => {
       e.preventDefault();
       editor.read(() => {
-        const editorRootChildren = JSON.stringify($getEditorRootChildren());
-        const editorMarkdownContent = $convertToMarkdownString(
-          ENHANCED_LEXICAL_TRANSFORMERS,
-          undefined,
-          true
-        );
+        const {
+          nextEditorMarkdownContent: editorMarkdownContent,
+          nextEditorRootChildren: editorRootChildren,
+        } = $getNextEditorState();
 
         void sendMessage(
           { text: input },

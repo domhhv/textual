@@ -1,15 +1,16 @@
-import { $convertToMarkdownString } from '@lexical/markdown';
 import type { LexicalEditor } from 'lexical';
 import {
   $getRoot,
+  $setSelection,
   $getNodeByKey,
   $createTextNode,
+  FORMAT_TEXT_COMMAND,
   $createParagraphNode,
+  $createRangeSelection,
 } from 'lexical';
 
-import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
 import type { EditorCommand } from '@/lib/models/editor-commands';
-import $getEditorRootChildren from '@/lib/utils/get-editor-root-children';
+import $getNextEditorState from '@/lib/utils/get-next-editor-state';
 
 type Success = {
   nextEditorMarkdownContent: string;
@@ -30,7 +31,7 @@ export default function executeEditorCommand(
 ): Promise<Success | Failure> {
   switch (command.type) {
     case 'insertParagraph':
-      return new Promise<Success | Failure>((resolve) => {
+      return new Promise((resolve) => {
         editor.update(() => {
           const root = $getRoot();
           const paragraphNode = $createParagraphNode();
@@ -42,14 +43,9 @@ export default function executeEditorCommand(
             root.insertAfter(paragraphNode);
 
             return resolve({
-              nextEditorRootChildren: JSON.stringify($getEditorRootChildren()),
+              ...$getNextEditorState(),
               reason: `Anchor node with key ${anchorNodeKey} not found. Inserted at end of document instead.`,
               status: 'failure',
-              nextEditorMarkdownContent: $convertToMarkdownString(
-                ENHANCED_LEXICAL_TRANSFORMERS,
-                undefined,
-                true
-              ),
             });
           }
 
@@ -62,32 +58,22 @@ export default function executeEditorCommand(
           }
 
           resolve({
-            nextEditorRootChildren: JSON.stringify($getEditorRootChildren()),
+            ...$getNextEditorState(),
             status: 'success',
-            nextEditorMarkdownContent: $convertToMarkdownString(
-              ENHANCED_LEXICAL_TRANSFORMERS,
-              undefined,
-              true
-            ),
           });
         });
       });
 
     case 'editParagraph':
-      return new Promise<Success | Failure>((resolve) => {
+      return new Promise((resolve) => {
         editor.update(() => {
           const nodeToEdit = $getNodeByKey(command.nodeKey);
 
           if (!nodeToEdit) {
             return resolve({
-              nextEditorRootChildren: JSON.stringify($getEditorRootChildren()),
+              ...$getNextEditorState(),
               reason: `Node with key ${command.nodeKey} not found.`,
               status: 'failure',
-              nextEditorMarkdownContent: $convertToMarkdownString(
-                ENHANCED_LEXICAL_TRANSFORMERS,
-                undefined,
-                true
-              ),
             });
           }
 
@@ -95,13 +81,47 @@ export default function executeEditorCommand(
           newParagraphNode.append($createTextNode(command.newText));
           nodeToEdit.replace(newParagraphNode);
           resolve({
-            nextEditorRootChildren: JSON.stringify($getEditorRootChildren()),
+            ...$getNextEditorState(),
             status: 'success',
-            nextEditorMarkdownContent: $convertToMarkdownString(
-              ENHANCED_LEXICAL_TRANSFORMERS,
-              undefined,
-              true
-            ),
+          });
+        });
+      });
+
+    case 'setRangeSelection':
+      return new Promise((resolve) => {
+        editor.update(() => {
+          const node = $getNodeByKey(command.parentNodeKey);
+
+          const nodeTextContent = node?.getTextContent() ?? '';
+
+          const anchorOffset = nodeTextContent.indexOf(
+            command.textPartToSelect
+          );
+          const focusOffset = anchorOffset + command.textPartToSelect.length;
+
+          const rangeSelection = $createRangeSelection();
+          rangeSelection.anchor.set(
+            command.parentNodeKey,
+            anchorOffset,
+            'text'
+          );
+          rangeSelection.focus.set(command.parentNodeKey, focusOffset, 'text');
+          $setSelection(rangeSelection);
+          resolve({
+            ...$getNextEditorState(),
+            status: 'success',
+          });
+        });
+      });
+
+    case 'formatText':
+      return new Promise((resolve) => {
+        editor.dispatchCommand(FORMAT_TEXT_COMMAND, command.format);
+
+        editor.read(() => {
+          resolve({
+            ...$getNextEditorState(),
+            status: 'success',
           });
         });
       });

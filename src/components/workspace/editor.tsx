@@ -13,7 +13,7 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { FORMAT_TEXT_COMMAND } from 'lexical';
 
-import '@/lib/styles/check-list.scss';
+import '@/lib/styles/editor-check-list.scss';
 
 import {
   BoldIcon,
