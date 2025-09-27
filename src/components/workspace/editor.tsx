@@ -13,16 +13,24 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { FORMAT_TEXT_COMMAND } from 'lexical';
 
-import './check-list.scss';
+import '@/lib/styles/check-list.scss';
 
-import { BoldIcon, ItalicIcon, UnderlineIcon } from 'lucide-react';
+import {
+  BoldIcon,
+  ItalicIcon,
+  UnderlineIcon,
+  StrikethroughIcon,
+} from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
-import { TRANSFORMERS } from '@/lib/constants/editor.constants';
+import { ChatStatusContext } from '@/components/workspace/chat-status-provider';
+import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
 
 export default function Editor() {
   const [editor] = useLexicalComposerContext();
+  const [isFocused, setIsFocused] = React.useState(false);
+  const { status } = React.use(ChatStatusContext);
 
   React.useEffect(() => {
     fetch('/sample-content.md')
@@ -31,14 +39,19 @@ export default function Editor() {
       })
       .then((text) => {
         editor.update(() => {
-          $convertFromMarkdownString(text, TRANSFORMERS, undefined, true);
+          $convertFromMarkdownString(
+            text,
+            ENHANCED_LEXICAL_TRANSFORMERS,
+            undefined,
+            true
+          );
         });
       });
   }, [editor]);
 
   return (
-    <div className="h-full space-y-2 p-4">
-      <div className="space-x-2">
+    <div className="h-full p-4 pl-2">
+      <div className="border-border space-x-2 rounded-t-md border border-b-0 p-2">
         <Button
           size="icon"
           variant="ghost"
@@ -66,12 +79,37 @@ export default function Editor() {
         >
           <UnderlineIcon />
         </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => {
+            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
+          }}
+        >
+          <StrikethroughIcon />
+        </Button>
       </div>
       <RichTextPlugin
         ErrorBoundary={LexicalErrorBoundary}
         contentEditable={
-          <div className="border-border has-[:focus]:border-ring has-[:focus]:ring-ring/50 h-[calc(100%-44px)] overflow-y-auto rounded-md border focus-visible:ring-[3px] has-[:focus]:ring-[3px]">
-            <ContentEditable className="rounded-md p-4 outline-none" />
+          <div className="border-border has-[:focus]:border-ring has-[:focus]:ring-ring/50 relative h-[calc(100%-52px)] overflow-y-auto rounded-b-md border focus-visible:ring-[3px] has-[:focus]:ring-[3px]">
+            <ContentEditable
+              className="rounded-b-md p-4 outline-none"
+              onFocus={() => {
+                setIsFocused(true);
+              }}
+              onBlur={() => {
+                setIsFocused(false);
+              }}
+            />
+            {isFocused &&
+              (status === 'submitted' || status === 'streaming') && (
+                <div className="absolute right-0 bottom-0 left-0 px-3 py-2">
+                  <p className="text-red-500">
+                    Please do not edit the document while AI is working...
+                  </p>
+                </div>
+              )}
           </div>
         }
       />
@@ -80,7 +118,7 @@ export default function Editor() {
       <CheckListPlugin />
       <ListPlugin />
       <TabIndentationPlugin />
-      <MarkdownShortcutPlugin />
+      <MarkdownShortcutPlugin transformers={ENHANCED_LEXICAL_TRANSFORMERS} />
     </div>
   );
 }

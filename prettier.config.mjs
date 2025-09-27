@@ -4,7 +4,7 @@ const config = {
   semi: true,
   singleQuote: true,
   tabWidth: 2,
-  tailwindFunctions: ['cn', 'clsx', 'twJoin', 'twMerge'],
+  tailwindFunctions: ['cn', 'cva', 'clsx', 'twJoin', 'twMerge'],
   trailingComma: 'es5',
 };
 

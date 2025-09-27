@@ -1,3 +1,4 @@
+import { $convertToMarkdownString } from '@lexical/markdown';
 import type { LexicalEditor } from 'lexical';
 import {
   $getRoot,
@@ -6,44 +7,103 @@ import {
   $createParagraphNode,
 } from 'lexical';
 
+import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
 import type { EditorCommand } from '@/lib/models/editor-commands';
+import $getEditorRootChildren from '@/lib/utils/get-editor-root-children';
+
+type Success = {
+  nextEditorMarkdownContent: string;
+  nextEditorRootChildren: string;
+  status: 'success';
+};
+
+type Failure = {
+  nextEditorMarkdownContent: string;
+  nextEditorRootChildren: string;
+  reason: string;
+  status: 'failure';
+};
 
 export default function executeEditorCommand(
   editor: LexicalEditor,
   command: EditorCommand
-) {
+): Promise<Success | Failure> {
   switch (command.type) {
     case 'insertParagraph':
-      return editor.update(() => {
-        const paragraphNode = $createParagraphNode();
-        paragraphNode.append($createTextNode(command.content));
+      return new Promise<Success | Failure>((resolve) => {
+        editor.update(() => {
+          const root = $getRoot();
+          const paragraphNode = $createParagraphNode();
+          paragraphNode.append($createTextNode(command.content));
+          const { anchorNodeKey, position } = command.location;
+          const anchorNode = $getNodeByKey(anchorNodeKey);
 
-        const { anchorNodeKey, position } = command.location;
+          if (!anchorNode) {
+            root.insertAfter(paragraphNode);
 
-        const anchorNode = $getNodeByKey(anchorNodeKey);
+            return resolve({
+              nextEditorRootChildren: JSON.stringify($getEditorRootChildren()),
+              reason: `Anchor node with key ${anchorNodeKey} not found. Inserted at end of document instead.`,
+              status: 'failure',
+              nextEditorMarkdownContent: $convertToMarkdownString(
+                ENHANCED_LEXICAL_TRANSFORMERS,
+                undefined,
+                true
+              ),
+            });
+          }
 
-        if (!anchorNode) {
-          return $getRoot().insertAfter(paragraphNode);
-        }
+          if (position === 'before') {
+            anchorNode.insertBefore(paragraphNode);
+          }
 
-        if (position === 'before') {
-          return anchorNode.insertBefore(paragraphNode);
-        }
+          if (position === 'after') {
+            anchorNode.insertAfter(paragraphNode);
+          }
 
-        return anchorNode.insertAfter(paragraphNode);
+          resolve({
+            nextEditorRootChildren: JSON.stringify($getEditorRootChildren()),
+            status: 'success',
+            nextEditorMarkdownContent: $convertToMarkdownString(
+              ENHANCED_LEXICAL_TRANSFORMERS,
+              undefined,
+              true
+            ),
+          });
+        });
       });
 
     case 'editParagraph':
-      return editor.update(() => {
-        const nodeToEdit = $getNodeByKey(command.nodeKey);
+      return new Promise<Success | Failure>((resolve) => {
+        editor.update(() => {
+          const nodeToEdit = $getNodeByKey(command.nodeKey);
 
-        if (!nodeToEdit) {
-          return;
-        }
+          if (!nodeToEdit) {
+            return resolve({
+              nextEditorRootChildren: JSON.stringify($getEditorRootChildren()),
+              reason: `Node with key ${command.nodeKey} not found.`,
+              status: 'failure',
+              nextEditorMarkdownContent: $convertToMarkdownString(
+                ENHANCED_LEXICAL_TRANSFORMERS,
+                undefined,
+                true
+              ),
+            });
+          }
 
-        const newParagraphNode = $createParagraphNode();
-        newParagraphNode.append($createTextNode(command.newText));
-        nodeToEdit.replace(newParagraphNode);
+          const newParagraphNode = $createParagraphNode();
+          newParagraphNode.append($createTextNode(command.newText));
+          nodeToEdit.replace(newParagraphNode);
+          resolve({
+            nextEditorRootChildren: JSON.stringify($getEditorRootChildren()),
+            status: 'success',
+            nextEditorMarkdownContent: $convertToMarkdownString(
+              ENHANCED_LEXICAL_TRANSFORMERS,
+              undefined,
+              true
+            ),
+          });
+        });
       });
   }
 }

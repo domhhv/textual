@@ -2,6 +2,23 @@ import type { InferUITool } from 'ai';
 import { tool } from 'ai';
 import { z } from 'zod';
 
+const EditorCommandOutputSchema = z.object({
+  reason: z.string().optional().describe('Reason for failure, if applicable'),
+  nextEditorMarkdownContent: z
+    .string()
+    .describe(
+      'The updated markdown content of the editor after command execution'
+    ),
+  nextEditorRootChildren: z
+    .string()
+    .describe(
+      'A JSON string representing the updated structure of the editor root children after command execution'
+    ),
+  status: z
+    .enum(['success', 'failure'])
+    .describe('Status of the command execution'),
+});
+
 const InsertParagraphToolInputSchema = z.object({
   content: z.string().describe('Text content for the new paragraph'),
   location: z
@@ -17,18 +34,6 @@ const InsertParagraphToolInputSchema = z.object({
     .describe('Position relative to the anchor node'),
 });
 
-export const InsertParagraphTool = tool({
-  description: 'Insert a new paragraph into the editor at a specified location',
-  inputSchema: InsertParagraphToolInputSchema,
-  outputSchema: z
-    .enum(['success', 'failure'])
-    .describe('Result of the insertion operation'),
-});
-
-type InsertParagraphCommand = z.infer<typeof InsertParagraphToolInputSchema> & {
-  type: 'insertParagraph';
-};
-
 const EditParagraphToolInputSchema = z.object({
   nodeKey: z.string().describe('The key of the paragraph node to edit'),
   newText: z
@@ -39,21 +44,34 @@ const EditParagraphToolInputSchema = z.object({
     .describe('The current text content of the paragraph to be replaced'),
 });
 
-export const EditParagraphTool = tool({
+const insertParagraphTool = tool({
+  description: 'Insert a new paragraph into the editor at a specified location',
+  inputSchema: InsertParagraphToolInputSchema,
+  outputSchema: EditorCommandOutputSchema,
+});
+
+const editParagraphTool = tool({
   description: 'Edit an existing paragraph in the editor',
   inputSchema: EditParagraphToolInputSchema,
-  outputSchema: z
-    .enum(['success', 'failure'])
-    .describe('Result of the edit operation'),
+  outputSchema: EditorCommandOutputSchema,
 });
+
+export type EditorCommandTools = {
+  editParagraph: InferUITool<typeof editParagraphTool>;
+  insertParagraph: InferUITool<typeof insertParagraphTool>;
+};
+
+export const tools = {
+  editParagraph: editParagraphTool,
+  insertParagraph: insertParagraphTool,
+};
+
+type InsertParagraphCommand = z.infer<typeof InsertParagraphToolInputSchema> & {
+  type: 'insertParagraph';
+};
 
 type EditParagraphCommand = z.infer<typeof EditParagraphToolInputSchema> & {
   type: 'editParagraph';
 };
 
 export type EditorCommand = InsertParagraphCommand | EditParagraphCommand;
-
-export type EditorCommandTools = {
-  editParagraph: InferUITool<typeof EditParagraphTool>;
-  insertParagraph: InferUITool<typeof InsertParagraphTool>;
-};

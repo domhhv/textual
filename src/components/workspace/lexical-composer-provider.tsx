@@ -3,14 +3,12 @@
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import * as React from 'react';
 
-import { INITIAL_CONFIG } from '@/lib/constants/editor.constants';
+import CONFIG from '@/lib/constants/editor-config';
 
 export default function LexicalComposerProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <LexicalComposer initialConfig={INITIAL_CONFIG}>{children}</LexicalComposer>
-  );
+  return <LexicalComposer initialConfig={CONFIG}>{children}</LexicalComposer>;
 }

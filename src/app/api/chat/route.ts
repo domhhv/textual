@@ -6,10 +6,7 @@ import {
   convertToModelMessages,
 } from 'ai';
 
-import {
-  EditParagraphTool,
-  InsertParagraphTool,
-} from '@/lib/models/editor-commands';
+import { tools } from '@/lib/models/editor-commands';
 import wrapEditorPrompt from '@/lib/utils/wrap-editor-prompt';
 
 export const maxDuration = 300;
@@ -29,10 +26,7 @@ export async function POST(req: Request) {
     model: openai('gpt-4o'),
     stopWhen: stepCountIs(5),
     system: wrapEditorPrompt(editorMarkdownContent, editorRootChildren),
-    tools: {
-      editParagraph: EditParagraphTool,
-      insertParagraph: InsertParagraphTool,
-    },
+    tools,
   });
 
   return result.toUIMessageStreamResponse();
