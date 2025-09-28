@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 
 import getErrorMessage from '@/lib/utils/get-error-message';
 
-const CONFIG: InitialConfigType = {
+const INITIAL_EDITOR_CONFIG: InitialConfigType = {
   namespace: 'MyEditor',
   onError: (error) => {
     toast('An error occurred in the editor', {
@@ -58,10 +58,10 @@ const CONFIG: InitialConfigType = {
       },
       olDepth: [
         'p-0 m-0 list-outside',
-        'p-0 m-0 list-outside list-[upper-alpha]',
-        'p-0 m-0 list-outside list-[lower-alpha]',
-        'p-0 m-0 list-outside list-[upper-roman]',
-        'p-0 m-0 list-outside list-[lower-roman]',
+        'p-0 m-0 list-outside list-[upper-alpha]!',
+        'p-0 m-0 list-outside list-[lower-alpha]!',
+        'p-0 m-0 list-outside list-[upper-roman]!',
+        'p-0 m-0 list-outside list-[lower-roman]!',
       ],
     },
     text: {
@@ -81,4 +81,4 @@ const CONFIG: InitialConfigType = {
   },
 };
 
-export default CONFIG;
+export default INITIAL_EDITOR_CONFIG;

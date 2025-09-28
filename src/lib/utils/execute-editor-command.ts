@@ -29,6 +29,8 @@ export default function executeEditorCommand(
   editor: LexicalEditor,
   command: EditorCommand
 ): Promise<Success | Failure> {
+  console.log('executeEditorCommand', command);
+
   switch (command.type) {
     case 'insertParagraph':
       return new Promise((resolve) => {
@@ -87,7 +89,7 @@ export default function executeEditorCommand(
         });
       });
 
-    case 'setRangeSelection':
+    case 'formatText':
       return new Promise((resolve) => {
         editor.update(() => {
           const node = $getNodeByKey(command.parentNodeKey);
@@ -105,20 +107,13 @@ export default function executeEditorCommand(
             anchorOffset,
             'text'
           );
+
           rangeSelection.focus.set(command.parentNodeKey, focusOffset, 'text');
+
           $setSelection(rangeSelection);
-          resolve({
-            ...$getNextEditorState(),
-            status: 'success',
-          });
-        });
-      });
 
-    case 'formatText':
-      return new Promise((resolve) => {
-        editor.dispatchCommand(FORMAT_TEXT_COMMAND, command.format);
+          editor.dispatchCommand(FORMAT_TEXT_COMMAND, command.format);
 
-        editor.read(() => {
           resolve({
             ...$getNextEditorState(),
             status: 'success',

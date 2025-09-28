@@ -3,12 +3,10 @@
 import type { ChatStatus } from 'ai';
 import * as React from 'react';
 
-type ChatStatusContextType = {
+export const ChatStatusContext = React.createContext<{
   setStatus: React.Dispatch<React.SetStateAction<ChatStatus>>;
   status: ChatStatus;
-};
-
-export const ChatStatusContext = React.createContext<ChatStatusContextType>({
+}>({
   status: 'ready',
   setStatus: () => {},
 });

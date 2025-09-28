@@ -8,13 +8,12 @@ import { User as UserIcon, LoaderPinwheelIcon } from 'lucide-react';
 import * as React from 'react';
 import { useState } from 'react';
 
+import { ChatStatusContext } from '@/components/providers/chat-status-provider';
 import { Input } from '@/components/ui/input';
-import { ChatStatusContext } from '@/components/workspace/chat-status-provider';
 import type { EditorCommandTools } from '@/lib/models/editor-commands';
 import cn from '@/lib/utils/cn';
 import executeEditorCommand from '@/lib/utils/execute-editor-command';
 import $getNextEditorState from '@/lib/utils/get-next-editor-state';
-import retrieveTextNodes from '@/lib/utils/retrieve-text-nodes';
 
 export default function Chat() {
   const [editor] = useLexicalComposerContext();
@@ -57,29 +56,6 @@ export default function Chat() {
         });
       }
 
-      if (toolName === 'getAllTextNodes') {
-        const result = await retrieveTextNodes(editor, input.nodeKey);
-
-        void addToolResult({
-          output: result,
-          tool: toolName,
-          toolCallId,
-        });
-      }
-
-      if (toolName === 'setRangeSelection') {
-        const result = await executeEditorCommand(editor, {
-          ...input,
-          type: 'setRangeSelection',
-        });
-
-        void addToolResult({
-          output: result,
-          tool: toolName,
-          toolCallId,
-        });
-      }
-
       if (toolName === 'formatText') {
         const result = await executeEditorCommand(editor, {
           ...input,
@@ -97,7 +73,11 @@ export default function Chat() {
 
   React.useEffect(() => {
     setStatus(status);
-  }, [status, setStatus]);
+
+    if (status === 'ready') {
+      console.log({ messages });
+    }
+  }, [status, setStatus, messages]);
 
   const submitMessage = React.useCallback(
     async (e: React.FormEvent) => {
@@ -133,7 +113,7 @@ export default function Chat() {
               className={cn(
                 'whitespace-pre-wrap',
                 message.role === 'user' &&
-                  'border-foreground flex items-start gap-2 rounded-md border p-4'
+                  'border-foreground flex items-start gap-2 rounded-lg border p-4'
               )}
             >
               {message.role === 'user' && (
@@ -188,7 +168,7 @@ export default function Chat() {
                           <div key={`${message.id}-${i}`}>
                             <b>Inserted new paragraph with content:</b>
                             <br />
-                            {part.input?.content}
+                            {part.input.content}
                           </div>
                         );
                     }
@@ -244,11 +224,61 @@ export default function Chat() {
                             </b>
                             <br />
                             <b>Old text:</b> <br />
-                            {part.input?.oldText}
+                            {part.input.oldText}
                             <br />
                             <b>New text:</b>
                             <br />
-                            {part.input?.newText}
+                            {part.input.newText}
+                          </div>
+                        );
+                    }
+
+                  case 'tool-formatText':
+                    switch (part.state) {
+                      case 'input-streaming':
+                        return (
+                          <div key={`${message.id}-${i}`}>
+                            <b>Applying text format...</b>
+                            <br />
+                            {part.input?.format}
+                            <br />
+                            {part.input?.parentNodeKey}
+                            <br />
+                            {part.input?.textPartToSelect}
+                          </div>
+                        );
+
+                      case 'input-available':
+                        return (
+                          <div key={`${message.id}-${i}`}>
+                            <b>Applied text format:</b>
+                            <br />
+                            {part.input.format}
+                            <br />
+                            {part.input.parentNodeKey}
+                            <br />
+                            {part.input.textPartToSelect}
+                          </div>
+                        );
+
+                      case 'output-error':
+                        return (
+                          <div key={`${message.id}-${i}`}>
+                            Error: {part.errorText}
+                          </div>
+                        );
+
+                      case 'output-available':
+                      default:
+                        return (
+                          <div key={`${message.id}-${i}`}>
+                            <b>Applied text format:</b>
+                            <br />
+                            {part.input.format}
+                            <br />
+                            {part.input.parentNodeKey}
+                            <br />
+                            {part.input.textPartToSelect}
                           </div>
                         );
                     }

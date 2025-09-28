@@ -44,45 +44,18 @@ const EditParagraphToolInputSchema = z.object({
     .describe('The current text content of the paragraph to be replaced'),
 });
 
-const GetAllTextNodesToolInputSchema = z.object({
-  nodeKey: z.string().describe('The key of the node to get text nodes from'),
-});
-
-const GetAllTextNodesToolOutputSchema = z
-  .array(
-    z
-      .object({
-        key: z.string().describe('The key of the text node'),
-        text: z.string().describe('The text content of the text node'),
-      })
-      .describe('All child text nodes of the requested node')
-  )
-  .or(
-    EditorCommandToolOutputSchema.omit({
-      nextEditorMarkdownContent: true,
-      nextEditorRootChildren: true,
-    })
-  );
-
-export type GetAllTextNodesToolOutput = z.infer<
-  typeof GetAllTextNodesToolOutputSchema
->;
-
-const SetRangeSelectionToolInputSchema = z.object({
+const FormatTextToolInputSchema = z.object({
+  format: z
+    .enum(['bold', 'italic', 'underline', 'strikethrough', 'code'])
+    .describe('The text format to apply'),
   parentNodeKey: z
     .string()
     .describe(
-      'Parent text node key that contains text part you want to select. This must be a TextNode key.'
+      'Parent text node key that contains text part you want to format. This must be a TextNode key.'
     ),
   textPartToSelect: z
     .string()
-    .describe('The exact text part you want to select within the parent node'),
-});
-
-const FormatTextToolInputSchema = z.object({
-  format: z
-    .enum(['bold', 'italic', 'underline', 'strikethrough'])
-    .describe('The text format to apply'),
+    .describe('The exact text part you want to format within the parent node'),
 });
 
 const insertParagraphTool = tool({
@@ -97,22 +70,8 @@ const editParagraphTool = tool({
   outputSchema: EditorCommandToolOutputSchema,
 });
 
-const getAllTextNodesTool = tool({
-  inputSchema: GetAllTextNodesToolInputSchema,
-  outputSchema: GetAllTextNodesToolOutputSchema,
-  description:
-    'Get all child TextNodes of a specified node in the editor by its key',
-});
-
-const setRangeSelectionTool = tool({
-  inputSchema: SetRangeSelectionToolInputSchema,
-  outputSchema: EditorCommandToolOutputSchema,
-  description:
-    'Set a RangeSelection in the editor given anchor and focus points',
-});
-
 const formatTextTool = tool({
-  description: 'Format the currently selected text in the editor',
+  description: 'Format a piece of text in the editor',
   inputSchema: FormatTextToolInputSchema,
   outputSchema: EditorCommandToolOutputSchema,
 });
@@ -120,17 +79,13 @@ const formatTextTool = tool({
 export type EditorCommandTools = {
   editParagraph: InferUITool<typeof editParagraphTool>;
   formatText: InferUITool<typeof formatTextTool>;
-  getAllTextNodes: InferUITool<typeof getAllTextNodesTool>;
   insertParagraph: InferUITool<typeof insertParagraphTool>;
-  setRangeSelection: InferUITool<typeof setRangeSelectionTool>;
 };
 
 export const tools = {
   editParagraph: editParagraphTool,
   formatText: formatTextTool,
-  getAllTextNodes: getAllTextNodesTool,
   insertParagraph: insertParagraphTool,
-  setRangeSelection: setRangeSelectionTool,
 };
 
 type InsertParagraphCommand = z.infer<typeof InsertParagraphToolInputSchema> & {
@@ -141,12 +96,6 @@ type EditParagraphCommand = z.infer<typeof EditParagraphToolInputSchema> & {
   type: 'editParagraph';
 };
 
-type SetRangeSelectionCommand = z.infer<
-  typeof SetRangeSelectionToolInputSchema
-> & {
-  type: 'setRangeSelection';
-};
-
 type FormatTextCommand = z.infer<typeof FormatTextToolInputSchema> & {
   type: 'formatText';
 };
@@ -154,5 +103,4 @@ type FormatTextCommand = z.infer<typeof FormatTextToolInputSchema> & {
 export type EditorCommand =
   | InsertParagraphCommand
   | EditParagraphCommand
-  | SetRangeSelectionCommand
   | FormatTextCommand;
