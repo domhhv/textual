@@ -5,6 +5,7 @@ import { Ubuntu, Montserrat } from 'next/font/google';
 import './globals.css';
 import type { ReactNode } from 'react';
 
+import { ApiKeyProvider } from '@/components/providers/api-key-provider';
 import Toaster from '@/components/ui/sonner';
 
 const ubuntu = Ubuntu({
@@ -39,8 +40,10 @@ export default function RootLayout({
           defaultTheme="system"
           disableTransitionOnChange
         >
-          <main className="bg-background h-screen">{children}</main>
-          <Toaster richColors duration={10_000} />
+          <ApiKeyProvider>
+            <main className="bg-background h-screen">{children}</main>
+            <Toaster richColors duration={10_000} />
+          </ApiKeyProvider>
         </ThemeProvider>
       </body>
     </html>

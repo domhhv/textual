@@ -54,7 +54,6 @@ const eslintConfig = [
       'object-shorthand': 'error',
       'react/react-in-jsx-scope': 'off',
       'switch-case/no-case-curly': 'off',
-
       '@stylistic/jsx-curly-brace-presence': [
         'error',
         { children: 'never', propElementValues: 'always', props: 'never' },
@@ -64,6 +63,7 @@ const eslintConfig = [
         'error',
         {
           argsIgnorePattern: '^_',
+          caughtErrors: 'none',
           varsIgnorePattern: '^_',
         },
       ],

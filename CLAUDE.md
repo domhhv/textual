@@ -15,7 +15,7 @@ npm run prettier:check  # Format checking (runs in prebuild)
 npm run prettier:write  # Auto-format code
 ```
 
-**Important**: Always run `npm run typecheck` and `npm run eslint:check` after making changes. These are part of the prebuild process and must pass for production builds.
+**Important**: Always run `npm run typecheck` and `npm run eslint:check` and `npm run prettier:fix` after making changes. These are part of the prebuild process and must pass for production builds.
 
 ## Architecture Overview
 
@@ -42,10 +42,11 @@ src/
 │   ├── editor/            # Lexical editor + plugins
 │   ├── providers/         # Context providers (chat, toolbar)
 │   └── ui/                # shadcn/ui components
+|   |__ custom/            # Custom UI components
 └── lib/
     ├── models/editor-commands.ts  # AI tool definitions
-    ├── constants/         # Editor configuration
-    └── utils/            # Editor commands and utilities
+    ├── constants/         # Various constant variables
+    └── utils/            # Various utility functions
 ```
 
 ## AI Tool Integration
@@ -91,3 +92,5 @@ The project has comprehensive linting and formatting:
 - **Components**: Function declarations preferred over arrow functions
 - **Types**: Consistent type import patterns
 - **Colors**: Use OKLCH color system with CSS custom properties
+- **Export Style**: Default exports preferred for both components, utils, and constants
+- **Component Location**: Keep shadcn primitives in `ui/`, custom components that build upon them in `ui/custom/`
