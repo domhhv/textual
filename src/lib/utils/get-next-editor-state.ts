@@ -1,6 +1,8 @@
 import { $isListNode } from '@lexical/list';
 import { $convertToMarkdownString } from '@lexical/markdown';
-import { $getRoot, $isElementNode } from 'lexical';
+import { $isHeadingNode } from '@lexical/rich-text';
+import { $isTableNode } from '@lexical/table';
+import { $getRoot, $isElementNode, $isParagraphNode } from 'lexical';
 
 import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
 
@@ -30,6 +32,18 @@ export default function $getNextEditorState() {
             prevSiblingNodeKey: n.getPreviousSibling()?.getKey() ?? null,
             style: $isElementNode(n) ? n.getStyle() : null,
             textStyle: $isElementNode(n) ? n.getTextStyle() : null,
+            textNodes:
+              $isParagraphNode(n) ||
+              $isListNode(n) ||
+              $isHeadingNode(n) ||
+              $isTableNode(n)
+                ? n.getAllTextNodes().map((textNode) => {
+                    return {
+                      key: textNode.getKey(),
+                      text: textNode.getTextContent(),
+                    };
+                  })
+                : null,
           };
         })
     ),

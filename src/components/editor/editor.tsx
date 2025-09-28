@@ -9,23 +9,21 @@ import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
-import { FORMAT_TEXT_COMMAND } from 'lexical';
 
 import '@/lib/styles/editor-check-list.scss';
 
-import {
-  BoldIcon,
-  ItalicIcon,
-  UnderlineIcon,
-  StrikethroughIcon,
-} from 'lucide-react';
+import type { EditorState } from 'lexical';
+import { FileWarningIcon } from 'lucide-react';
 import * as React from 'react';
 
-import { Button } from '@/components/ui/button';
-import { ChatStatusContext } from '@/components/workspace/chat-status-provider';
+import ToolbarPlugin from '@/components/editor/plugins/toolbar-plugin/toolbar-editor-plugin';
+import { ChatStatusContext } from '@/components/providers/chat-status-provider';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
+import $getNextEditorState from '@/lib/utils/get-next-editor-state';
 
 export default function Editor() {
   const [editor] = useLexicalComposerContext();
@@ -49,52 +47,23 @@ export default function Editor() {
       });
   }, [editor]);
 
+  const logEditorChange = React.useCallback((editorState: EditorState) => {
+    editorState.read(() => {
+      const children = JSON.parse($getNextEditorState().nextEditorRootChildren);
+
+      console.info('Editor State Updated: ', { children, editorState });
+    });
+  }, []);
+
   return (
     <div className="h-full p-4 pl-2">
-      <div className="border-border space-x-2 rounded-t-md border border-b-0 p-2">
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => {
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
-          }}
-        >
-          <BoldIcon />
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => {
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
-          }}
-        >
-          <ItalicIcon />
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => {
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
-          }}
-        >
-          <UnderlineIcon />
-        </Button>
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => {
-            editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
-          }}
-        >
-          <StrikethroughIcon />
-        </Button>
-      </div>
+      <ToolbarPlugin />
       <RichTextPlugin
         ErrorBoundary={LexicalErrorBoundary}
         contentEditable={
-          <div className="border-border has-[:focus]:border-ring has-[:focus]:ring-ring/50 relative h-[calc(100%-52px)] overflow-y-auto rounded-b-md border focus-visible:ring-[3px] has-[:focus]:ring-[3px]">
+          <div className="border-border has-[:focus]:border-ring has-[:focus]:ring-ring/50 relative h-[calc(100%-52px)] overflow-y-auto rounded-b-lg border focus-visible:ring-[3px] has-[:focus]:ring-[3px]">
             <ContentEditable
-              className="rounded-b-md p-4 outline-none"
+              className="rounded-b-lg p-4 outline-none"
               onFocus={() => {
                 setIsFocused(true);
               }}
@@ -104,10 +73,17 @@ export default function Editor() {
             />
             {isFocused &&
               (status === 'submitted' || status === 'streaming') && (
-                <div className="absolute right-0 bottom-0 left-0 px-3 py-2">
-                  <p className="text-red-500">
-                    Please do not edit the document while AI is working...
-                  </p>
+                <div className="absolute right-0 bottom-0 left-0 p-2">
+                  <Alert variant="destructive">
+                    <FileWarningIcon />
+                    <AlertTitle>
+                      Please don&apos; make edits to the document yet
+                    </AlertTitle>
+                    <AlertDescription>
+                      The editor content is managed by the AI at this moment.
+                      Making manual edits may lead to unexpected behavior.
+                    </AlertDescription>
+                  </Alert>
                 </div>
               )}
           </div>
@@ -118,6 +94,7 @@ export default function Editor() {
       <CheckListPlugin />
       <ListPlugin />
       <TabIndentationPlugin />
+      <OnChangePlugin onChange={logEditorChange} />
       <MarkdownShortcutPlugin transformers={ENHANCED_LEXICAL_TRANSFORMERS} />
     </div>
   );

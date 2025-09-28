@@ -24,7 +24,7 @@ A table:
 | February | $80     |
 | March    | $420    |
 
-> "Markdown is a lightweight markup language with plain-text-formatting syntax." - Wikipedia
+> "Markdown is a lightweight **markup** language with plain-text-formatting syntax." - Wikipedia
 
 ---
 
