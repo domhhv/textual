@@ -23,7 +23,7 @@ export default function ToolbarEditorPlugin() {
   return (
     <div className="border-border flex flex-wrap items-center gap-2 rounded-t-lg border border-b-0 p-2 md:flex-nowrap md:overflow-x-auto">
       <Button
-        size="sm"
+        size="icon"
         variant="ghost"
         disabled={!toolbarState.canUndo}
         onClick={() => {
@@ -33,7 +33,7 @@ export default function ToolbarEditorPlugin() {
         <UndoIcon />
       </Button>
       <Button
-        size="sm"
+        size="icon"
         variant="ghost"
         disabled={!toolbarState.canRedo}
         onClick={() => {
@@ -43,7 +43,7 @@ export default function ToolbarEditorPlugin() {
         <RedoIcon />
       </Button>
 
-      <div className="h-8 border-l border-[#EEF0F2]" />
+      <div className="h-6 border-l border-[#EEF0F2]" />
 
       <Button
         size="icon"
