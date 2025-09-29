@@ -174,7 +174,7 @@ We welcome contributions! This project demonstrates cutting-edge AI integration 
 
 ## 📝 License
 
-MIT License - see [LICENSE](https://github.com/domhhv/textual/LICENSE.md) file for details.
+MIT License - see [LICENSE](https://github.com/domhhv/textual/blob/main/LICENSE.md) file for details.
 
 ## 🐛 Issues
 
