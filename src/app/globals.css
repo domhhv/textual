@@ -1,5 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Sansation:wght@700&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
+
+.sansation-bold {
+  font-family: 'Sansation', sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
 
 @custom-variant dark (&:is(.dark *));
 

@@ -43,7 +43,7 @@ export function ApiKeyManagerButton({
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          size="icon"
+          size="sm"
           variant="outline"
           title="Manage API Key"
           className={cn(
@@ -51,7 +51,7 @@ export function ApiKeyManagerButton({
             className
           )}
         >
-          <Key className="h-4 w-4" />
+          <Key className="size-3.5" />
         </Button>
       </PopoverTrigger>
       <PopoverContent

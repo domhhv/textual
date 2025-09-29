@@ -9,8 +9,8 @@ import * as React from 'react';
 import { useState } from 'react';
 
 import { ChatEmptyState } from '@/components/chat/chat-empty-state';
+import ChatHeader from '@/components/chat/chat-header';
 import { ApiKeyDialog } from '@/components/custom/api-key-dialog';
-import { ApiKeyManagerButton } from '@/components/custom/api-key-manager-button';
 import { useApiKey } from '@/components/providers/api-key-provider';
 import { ChatStatusContext } from '@/components/providers/chat-status-provider';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -126,6 +126,11 @@ export default function Chat() {
   if (!hasApiKey) {
     return (
       <>
+        <ChatHeader
+          onApiKeyEditClick={() => {
+            return setShowApiKeyDialog(true);
+          }}
+        />
         <ChatEmptyState
           onSetApiKey={() => {
             return setShowApiKeyDialog(true);
@@ -145,16 +150,24 @@ export default function Chat() {
 
   return (
     <>
-      <div className="flex h-full flex-col justify-between overflow-x-auto p-2 pb-2">
-        <ApiKeyManagerButton
-          className="fixed m-4"
-          onEditClick={() => {
+      <ApiKeyDialog
+        isOpen={showApiKeyDialog}
+        onOpenChange={setShowApiKeyDialog}
+        onApiKeySet={(key) => {
+          setApiKey(key);
+          setShowApiKeyDialog(false);
+        }}
+      />
+
+      <div className="flex h-full flex-col overflow-x-auto">
+        <ChatHeader
+          onApiKeyEditClick={() => {
             return setShowApiKeyDialog(true);
           }}
         />
 
-        <div className="flex-1 overflow-y-auto">
-          <div className="flex flex-col gap-4 pt-2 pl-2">
+        <div className="flex flex-1 flex-col justify-between overflow-y-auto p-4">
+          <div className="flex flex-col gap-4 pt-2">
             {error && (
               <Alert variant="destructive">
                 <AlertTitle>Error</AlertTitle>
@@ -346,28 +359,19 @@ export default function Chat() {
               <LoaderPinwheelIcon className="mx-auto animate-spin" />
             )}
           </div>
+
+          <form className="m-2 mt-4" onSubmit={submitMessage}>
+            <Input
+              value={input}
+              disabled={status === 'submitted'}
+              placeholder="Add a paragraph or edit existing content..."
+              onChange={(e) => {
+                return setInput(e.currentTarget.value);
+              }}
+            />
+          </form>
         </div>
-
-        <form className="m-2 mt-4" onSubmit={submitMessage}>
-          <Input
-            value={input}
-            disabled={status === 'submitted'}
-            placeholder="Add a paragraph or edit existing content..."
-            onChange={(e) => {
-              return setInput(e.currentTarget.value);
-            }}
-          />
-        </form>
       </div>
-
-      <ApiKeyDialog
-        isOpen={showApiKeyDialog}
-        onOpenChange={setShowApiKeyDialog}
-        onApiKeySet={(key) => {
-          setApiKey(key);
-          setShowApiKeyDialog(false);
-        }}
-      />
     </>
   );
 }

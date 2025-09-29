@@ -1,5 +1,4 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import type { HeadingTagType } from '@lexical/rich-text';
 import { REDO_COMMAND, UNDO_COMMAND, FORMAT_TEXT_COMMAND } from 'lexical';
 import {
   BoldIcon,
@@ -8,12 +7,6 @@ import {
   RedoIcon,
   TypeIcon,
   ItalicIcon,
-  Heading1Icon,
-  Heading2Icon,
-  Heading3Icon,
-  Heading4Icon,
-  Heading5Icon,
-  Heading6Icon,
   UnderlineIcon,
   ChevronDownIcon,
   TextInitialIcon,
@@ -38,53 +31,10 @@ import {
   TooltipProvider,
 } from '@/components/ui/tooltip';
 import EDITOR_SHORTCUTS from '@/lib/constants/editor-shortcuts';
+import headings from '@/lib/constants/editor-toolbar-headings';
 import useEditorToolbarSync from '@/lib/hooks/use-editor-toolbar-sync';
 import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
 import { formatHeading, formatParagraph } from '@/lib/utils/editor-formatters';
-
-const headingLevels: {
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  label: string;
-  shortcut: string;
-  value: HeadingTagType;
-}[] = [
-  {
-    icon: Heading1Icon,
-    label: 'Heading 1',
-    shortcut: EDITOR_SHORTCUTS.HEADING1,
-    value: 'h1',
-  },
-  {
-    icon: Heading2Icon,
-    label: 'Heading 2',
-    shortcut: EDITOR_SHORTCUTS.HEADING2,
-    value: 'h2',
-  },
-  {
-    icon: Heading3Icon,
-    label: 'Heading 3',
-    shortcut: EDITOR_SHORTCUTS.HEADING3,
-    value: 'h3',
-  },
-  {
-    icon: Heading4Icon,
-    label: 'Heading 4',
-    shortcut: EDITOR_SHORTCUTS.HEADING4,
-    value: 'h4',
-  },
-  {
-    icon: Heading5Icon,
-    label: 'Heading 5',
-    shortcut: EDITOR_SHORTCUTS.HEADING5,
-    value: 'h5',
-  },
-  {
-    icon: Heading6Icon,
-    label: 'Heading 6',
-    shortcut: EDITOR_SHORTCUTS.HEADING6,
-    value: 'h6',
-  },
-];
 
 export default function ToolbarEditorPlugin() {
   const [editor] = useLexicalComposerContext();
@@ -95,7 +45,7 @@ export default function ToolbarEditorPlugin() {
   return (
     <div
       onMouseLeave={tooltipGroup.onGroupMouseLeave}
-      className="border-border flex flex-wrap items-center gap-2 rounded-t-lg border border-b-0 p-2 md:flex-nowrap md:overflow-x-auto"
+      className="flex flex-wrap items-center gap-2 p-2 md:flex-nowrap md:overflow-x-auto"
     >
       <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
         <TooltipProvider>
@@ -272,14 +222,14 @@ export default function ToolbarEditorPlugin() {
         <DropdownMenuTrigger asChild className="w-40 justify-between">
           <Button size="sm" variant="outline">
             <TypeIcon className="mr-1 h-4 w-4" />
-            {headingLevels.find((h) => {
+            {headings.find((h) => {
               return h.value === toolbarState.blockType;
             })?.label || 'Normal text'}
             <ChevronDownIcon className="ml-1 h-3 w-3" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          {headingLevels.map((heading) => {
+          {headings.map((heading) => {
             return (
               <DropdownMenuItem
                 key={heading.value}

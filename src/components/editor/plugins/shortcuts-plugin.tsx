@@ -43,7 +43,6 @@ import {
   isClearFormatting,
   isFormatCheckList,
   isFormatParagraph,
-  isInsertCodeBlock,
   isDecreaseFontSize,
   isFormatBulletList,
   isIncreaseFontSize,
@@ -98,8 +97,6 @@ export default function ShortcutsPlugin(): null {
         editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'subscript');
       } else if (isSuperscript(event)) {
         editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'superscript');
-      } else if (isInsertCodeBlock(event)) {
-        editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code');
       } else if (isIncreaseFontSize(event)) {
         updateFontSize(
           editor,

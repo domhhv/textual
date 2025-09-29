@@ -58,14 +58,14 @@ export default function Editor() {
   }, []);
 
   return (
-    <div className="h-full p-4 pl-2">
+    <div className="h-full">
       <ToolbarPlugin />
       <RichTextPlugin
         ErrorBoundary={LexicalErrorBoundary}
         contentEditable={
-          <div className="border-border has-[:focus]:border-ring has-[:focus]:ring-ring/50 relative h-[calc(100%-52px)] overflow-y-auto rounded-b-lg border focus-visible:ring-[3px] has-[:focus]:ring-[3px]">
+          <div className="border-border relative h-[calc(100%-52px)] overflow-y-auto border-t p-0.5 pr-1">
             <ContentEditable
-              className="rounded-b-lg p-4 outline-none"
+              className="focus:outline-foreground h-full p-4 focus:outline-2"
               onFocus={() => {
                 setIsFocused(true);
               }}
