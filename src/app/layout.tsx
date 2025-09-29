@@ -1,3 +1,5 @@
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
 import { ThemeProvider } from 'next-themes';
 import { Ubuntu, Montserrat } from 'next/font/google';
@@ -42,6 +44,8 @@ export default function RootLayout({
         >
           <ApiKeyProvider>
             <main className="bg-background h-screen">{children}</main>
+            <Analytics />
+            <SpeedInsights />
             <Toaster richColors duration={10_000} />
           </ApiKeyProvider>
         </ThemeProvider>

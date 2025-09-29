@@ -19,6 +19,7 @@ import type { EditorState } from 'lexical';
 import { FileWarningIcon } from 'lucide-react';
 import * as React from 'react';
 
+import ShortcutsPlugin from '@/components/editor/plugins/shortcuts-plugin';
 import ToolbarPlugin from '@/components/editor/plugins/toolbar-plugin/toolbar-editor-plugin';
 import { ChatStatusContext } from '@/components/providers/chat-status-provider';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -90,10 +91,11 @@ export default function Editor() {
           </div>
         }
       />
+      <ListPlugin />
       <HistoryPlugin />
+      <ShortcutsPlugin />
       <AutoFocusPlugin />
       <CheckListPlugin />
-      <ListPlugin />
       <TabIndentationPlugin />
       <OnChangePlugin onChange={logEditorChange} />
       <MarkdownShortcutPlugin transformers={ENHANCED_LEXICAL_TRANSFORMERS} />
