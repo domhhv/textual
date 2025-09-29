@@ -34,7 +34,7 @@ const INITIAL_EDITOR_CONFIG: InitialConfigType = {
   theme: {
     hr: 'border-t border-slate-200 my-4',
     link: 'text-sky-500 underline hover:text-blue-600',
-    paragraph: 'my-2',
+    paragraph: 'my-2 text-base',
     quote: 'italic text-slate-500 border-l-4 border-slate-500 pl-2',
     table: 'border-collapse border border-slate-200 my-4',
     tableCell: 'border border-slate-200 p-2',
@@ -67,7 +67,7 @@ const INITIAL_EDITOR_CONFIG: InitialConfigType = {
     text: {
       bold: 'font-bold',
       capitalize: 'capitalize',
-      code: 'font-mono bg-slate-100 text-slate-900 rounded px-1 py-0.5',
+      code: 'bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold',
       highlight: 'bg-yellow-300',
       italic: 'italic',
       lowercase: 'lowercase',
