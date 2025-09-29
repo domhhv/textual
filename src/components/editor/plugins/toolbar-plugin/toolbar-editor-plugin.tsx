@@ -3,6 +3,7 @@ import { REDO_COMMAND, UNDO_COMMAND, FORMAT_TEXT_COMMAND } from 'lexical';
 import {
   BoldIcon,
   CodeIcon,
+  ListIcon,
   UndoIcon,
   RedoIcon,
   TypeIcon,
@@ -32,9 +33,16 @@ import {
 } from '@/components/ui/tooltip';
 import EDITOR_SHORTCUTS from '@/lib/constants/editor-shortcuts';
 import headings from '@/lib/constants/editor-toolbar-headings';
+import lists from '@/lib/constants/editor-toolbar-lists';
 import useEditorToolbarSync from '@/lib/hooks/use-editor-toolbar-sync';
 import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
-import { formatHeading, formatParagraph } from '@/lib/utils/editor-formatters';
+import {
+  formatHeading,
+  formatCheckList,
+  formatParagraph,
+  formatBulletList,
+  formatNumberedList,
+} from '@/lib/utils/editor-formatters';
 
 export default function ToolbarEditorPlugin() {
   const [editor] = useLexicalComposerContext();
@@ -263,6 +271,45 @@ export default function ToolbarEditorPlugin() {
               {EDITOR_SHORTCUTS.NORMAL}
             </span>
           </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild className="w-44 justify-between">
+          <Button size="sm" variant="outline">
+            <ListIcon className="mr-1 h-4 w-4" />
+            {lists.find((l) => {
+              return l.value === toolbarState.blockType;
+            })?.label || 'Insert list'}
+            <ChevronDownIcon className="ml-1 h-3 w-3" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {lists.map((list) => {
+            return (
+              <DropdownMenuItem
+                key={list.value}
+                className="flex justify-between gap-4"
+                onClick={() => {
+                  if (list.value === 'bullet') {
+                    formatBulletList(editor, toolbarState.blockType);
+                  } else if (list.value === 'number') {
+                    formatNumberedList(editor, toolbarState.blockType);
+                  } else if (list.value === 'check') {
+                    formatCheckList(editor, toolbarState.blockType);
+                  }
+                }}
+              >
+                <div className="flex items-center">
+                  <list.icon className="mr-2 h-4 w-4" />
+                  <span>{list.label}</span>
+                </div>
+                <span className="text-muted-foreground min-w-14 text-xs">
+                  {list.shortcut}
+                </span>
+              </DropdownMenuItem>
+            );
+          })}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
