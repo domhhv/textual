@@ -1,5 +1,5 @@
 {
-  "name": "editor-assistant",
+  "name": "textual",
   "version": "0.1.0",
   "private": true,
   "description": "An AI-powered rich-text editor assistant that helps you write better content.",
@@ -12,12 +12,13 @@
     "tailwindcss",
     "typescript"
   ],
+  "homepage": "https://textual.chat",
   "bugs": {
-    "url": "https://github.com/domhhv/editor-assistant/issues"
+    "url": "https://github.com/domhhv/textual/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/domhhv/editor-assistant.git"
+    "url": "https://github.com/domhhv/textual.git"
   },
   "license": "MIT",
   "author": "Dominik Hryshaiev <domhryshaiev@gmail.com>",

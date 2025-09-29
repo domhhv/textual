@@ -1,8 +1,10 @@
-# Editor Assistant
+# Textual
 
 **An AI-powered rich text editor that transforms how you write and edit content.**
 
-Editor Assistant combines a professional-grade rich text editor with OpenAI's GPT-4o to provide intelligent writing assistance. Unlike traditional AI writing tools that generate entire documents, this application focuses on precise, contextual editing within your existing content.
+Textual combines a professional-grade rich text editor with OpenAI's GPT-4o to provide intelligent writing assistance. Unlike traditional AI writing tools that generate entire documents, this application focuses on precise, contextual editing within your existing content.
+
+🌐 **[Try it live at textual.chat](https://textual.chat)**
 
 ## ✨ What Makes It Special
 
@@ -35,7 +37,7 @@ Most AI writing tools either:
 - Generate entire documents from scratch (losing your voice and style)
 - Provide generic suggestions that don't understand context
 
-Editor Assistant takes a different approach:
+Textual takes a different approach:
 
 - **Precision Editing**: Make specific changes to exact locations in your text
 - **Contextual Understanding**: AI sees your entire document for better suggestions
@@ -85,7 +87,8 @@ Editor Assistant takes a different approach:
 
 ### Prerequisites
 
-- Node.js 24.8.0 or higher
+- Node.js 22.20.0 or higher
+- npm 10.9.3 or higher
 - OpenAI API key
 
 ### Setup
@@ -93,8 +96,8 @@ Editor Assistant takes a different approach:
 1. **Clone the repository**
 
    ```bash
-   git clone [your-repo-url]
-   cd editor-assistant
+   git clone https://github.com/domhhv/textual.git
+   cd textual
    ```
 
 2. **Install dependencies**
@@ -124,27 +127,31 @@ Editor Assistant takes a different approach:
 ### Essential Commands
 
 ```bash
-npm run dev              # Start development server
+npm run dev              # Start development server with Turbopack
 npm run build           # Build for production
 npm run typecheck       # TypeScript checking
 npm run eslint:check    # Code linting
-npm run prettier:check  # Code formatting
+npm run eslint:fix      # Auto-fix linting issues
+npm run prettier:check  # Code formatting check
+npm run prettier:write  # Auto-format code
 ```
+
+**Important**: Always run `npm run typecheck`, `npm run eslint:check`, and `npm run prettier:check` after making changes. These are part of the prebuild process and must pass for production builds.
 
 ### Architecture Overview
 
 - **Frontend**: Next.js 15 with App Router and React Server Components
-- **Editor**: Lexical (Facebook's rich text editor framework)
+- **Editor**: Lexical 0.35.0 (Facebook's rich text editor framework)
 - **AI Integration**: Vercel AI SDK with OpenAI GPT-4o
 - **Styling**: Tailwind CSS v4 with OKLCH color system
-- **UI Components**: Radix UI primitives with shadcn/ui
+- **UI Components**: Radix UI primitives with shadcn/ui (New York style)
 
 ### Key Features
 
 - **Tool Calling**: AI uses structured commands to manipulate text precisely
 - **Real-time Streaming**: Live updates during AI processing
-- **State Management**: Synchronized editor and chat state
-- **Theme Support**: Complete dark/light mode implementation
+- **State Management**: Synchronized editor and chat state via React Context
+- **Theme Support**: Complete dark/light mode implementation with next-themes
 
 ## 🤝 Contributing
 
@@ -158,10 +165,23 @@ We welcome contributions! This project demonstrates cutting-edge AI integration 
 - **Performance**: Optimization and caching improvements
 - **Documentation**: Guides and examples for developers
 
+### Development Guidelines
+
+- **Code Quality**: All PRs must pass TypeScript checking, ESLint, and Prettier
+- **Commit Messages**: Follow conventional commit format (enforced by commitlint)
+- **Testing**: Ensure changes work in both light and dark themes
+- **Documentation**: Update relevant documentation for new features
+
 ## 📝 License
 
-[Add your license here]
+MIT License - see [LICENSE](https://github.com/domhhv/textual/LICENSE.md) file for details.
+
+## 🐛 Issues
+
+Found a bug or have a feature request? Please [open an issue](https://github.com/domhhv/textual/issues).
 
 ---
 
-**Editor Assistant represents the future of AI-powered writing tools: intelligent, precise, and designed to enhance rather than replace human creativity.**
+**Textual represents the future of AI-powered writing tools: intelligent, precise, and designed to enhance rather than replace human creativity.**
+
+Visit [textual.chat](https://textual.chat) to experience it yourself.
