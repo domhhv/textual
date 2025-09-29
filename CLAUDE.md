@@ -7,12 +7,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 # Development
 npm run dev              # Start dev server with Turbopack
-npm run build           # Production build
-npm run typecheck       # TypeScript checking
-npm run eslint:check    # Linting (runs in prebuild)
-npm run eslint:fix      # Auto-fix linting issues
-npm run prettier:check  # Format checking (runs in prebuild)
-npm run prettier:write  # Auto-format code
+npm run build            # Production build
+npm run typecheck        # TypeScript checking
+npm run eslint:check     # Linting (runs in prebuild)
+npm run eslint:fix       # Auto-fix linting issues
+npm run prettier:check   # Format checking (runs in prebuild)
+npm run prettier:write   # Auto-format code
 ```
 
 **Important**: Always run `npm run typecheck` and `npm run eslint:check` and `npm run prettier:fix` after making changes. These are part of the prebuild process and must pass for production builds.
@@ -45,8 +45,9 @@ src/
 |   |__ custom/            # Custom UI components
 └── lib/
     ├── models/editor-commands.ts  # AI tool definitions
-    ├── constants/         # Various constant variables
-    └── utils/            # Various utility functions
+    ├── constants/                 # Various constant variables: editor configs, UI texts, etc.
+    ├── utils/                     # Utility functions (API calls, editor commands)
+    └── hooks/                     # Custom React hooks
 ```
 
 ## AI Tool Integration
@@ -90,7 +91,8 @@ The project has comprehensive linting and formatting:
 
 - **Imports**: Use `@/*` path aliases, alphabetical sorting required
 - **Components**: Function declarations preferred over arrow functions
-- **Types**: Consistent type import patterns
 - **Colors**: Use OKLCH color system with CSS custom properties
-- **Export Style**: Default exports preferred for both components, utils, and constants
+- **Export Style**: Default exports preferred for components, utils, hooks, and constants
 - **Component Location**: Keep shadcn primitives in `ui/`, custom components that build upon them in `ui/custom/`
+- **File Naming**: Use lowercase with hyphens for files and directories
+- **Types Inference**: Prefer inferred types over explicit annotations where possible
