@@ -79,9 +79,6 @@ export default function Chat() {
     },
   });
 
-  console.log('chat error', error);
-  console.log('chat status', status);
-
   React.useEffect(() => {
     setStatus(status);
   }, [status, setStatus, messages]);

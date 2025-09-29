@@ -12,7 +12,7 @@ import * as React from 'react';
 
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
 
-export default function useToolbar() {
+export default function useEditorToolbarSync() {
   const [editor] = useLexicalComposerContext();
   const { updateToolbarState } = React.use(ToolbarStateContext);
 

@@ -29,8 +29,6 @@ export default function executeEditorCommand(
   editor: LexicalEditor,
   command: EditorCommand
 ): Promise<Success | Failure> {
-  console.log('executeEditorCommand', command);
-
   switch (command.type) {
     case 'insertParagraph':
       return new Promise((resolve) => {

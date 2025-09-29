@@ -51,6 +51,7 @@ export default function Editor() {
     editorState.read(() => {
       const children = JSON.parse($getNextEditorState().nextEditorRootChildren);
 
+      // eslint-disable-next-line no-console
       console.info('Editor State Updated: ', { children, editorState });
     });
   }, []);
