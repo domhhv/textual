@@ -18,9 +18,12 @@ export const blockTypeToBlockName = {
 };
 
 const INITIAL_TOOLBAR_STATE = {
+  backgroundColor: '#fff',
   blockType: 'paragraph' as keyof typeof blockTypeToBlockName,
   canRedo: false,
   canUndo: false,
+  fontColor: '#000',
+  fontFamily: 'Arial',
   fontSize: `${DEFAULT_FONT_SIZE}px`,
   fontSizeInputValue: `${DEFAULT_FONT_SIZE}`,
   isBold: false,

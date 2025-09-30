@@ -24,7 +24,6 @@ export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
   const { setTheme, theme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   const tooltipGroup = useTooltipGroup();
-  console.log({ theme });
 
   React.useEffect(() => {
     setMounted(true);

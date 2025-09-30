@@ -1,6 +1,7 @@
 import { ListNode, $isListNode } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
+import { $getSelectionStyleValueForProperty } from '@lexical/selection';
 import { $isTableSelection } from '@lexical/table';
 import {
   mergeRegister,
@@ -82,6 +83,23 @@ export default function useEditorToolbarSync() {
           $handleHeadingNode(element);
         }
       }
+
+      updateToolbarState(
+        'fontColor',
+        $getSelectionStyleValueForProperty(selection, 'color', '#000')
+      );
+      updateToolbarState(
+        'backgroundColor',
+        $getSelectionStyleValueForProperty(
+          selection,
+          'background-color',
+          '#fff'
+        )
+      );
+      updateToolbarState(
+        'fontFamily',
+        $getSelectionStyleValueForProperty(selection, 'font-family', 'Arial')
+      );
     }
 
     if ($isRangeSelection(selection) || $isTableSelection(selection)) {
