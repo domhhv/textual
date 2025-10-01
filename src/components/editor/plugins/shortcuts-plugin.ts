@@ -49,7 +49,7 @@ import {
   isFormatNumberedList,
 } from '@/lib/utils/editor-shortcut-handlers';
 
-export default function ShortcutsPlugin(): null {
+export default function ShortcutsPlugin() {
   const [editor] = useLexicalComposerContext();
   const { toolbarState } = React.use(ToolbarStateContext);
 

@@ -34,7 +34,7 @@ function getTableColumnsSize(table: TableNode) {
   return $isTableRowNode(row) ? row.getChildrenSize() : 0;
 }
 
-function $createTableCell(textContent: string): TableCellNode {
+function $createTableCell(textContent: string) {
   textContent = textContent.replace(/\\n/g, '\n');
   const cell = $createTableCellNode(TableCellHeaderStates.NO_STATUS);
   $convertFromMarkdownString(textContent, BASE_LEXICAL_TRANSFORMERS, cell);
@@ -42,7 +42,7 @@ function $createTableCell(textContent: string): TableCellNode {
   return cell;
 }
 
-function mapToTableCells(textContent: string): Array<TableCellNode> | null {
+function mapToTableCells(textContent: string) {
   const match = textContent.match(TABLE_ROW_REG_EXP);
 
   if (!match || !match[1]) {

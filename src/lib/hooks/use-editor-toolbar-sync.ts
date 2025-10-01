@@ -12,13 +12,7 @@ import {
   $findMatchingParent,
   $getNearestNodeOfType,
 } from '@lexical/utils';
-import type {
-  TextNode,
-  ElementNode,
-  LexicalNode,
-  RangeSelection,
-  ElementFormatType,
-} from 'lexical';
+import type { LexicalNode, RangeSelection, ElementFormatType } from 'lexical';
 import {
   $getSelection,
   $isElementNode,
@@ -32,11 +26,6 @@ import * as React from 'react';
 
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
 import { blockTypeToBlockName } from '@/lib/constants/initial-editor-toolbar-state';
-
-type Alignment = Extract<
-  ElementFormatType,
-  'left' | 'center' | 'right' | 'justify'
->;
 
 function $findTopLevelElement(node: LexicalNode) {
   let topLevelElement =
@@ -55,9 +44,7 @@ function $findTopLevelElement(node: LexicalNode) {
   return topLevelElement;
 }
 
-export function getSelectedNode(
-  selection: RangeSelection
-): TextNode | ElementNode {
+function getSelectedNode(selection: RangeSelection) {
   const anchor = selection.anchor;
   const focus = selection.focus;
   const anchorNode = selection.anchor.getNode();
@@ -74,6 +61,18 @@ export function getSelectedNode(
   } else {
     return $isAtNodeEnd(anchor) ? anchorNode : focusNode;
   }
+}
+
+function normalizeFormatType(format: ElementFormatType) {
+  if (format === '' || format === 'start') {
+    return 'left';
+  }
+
+  if (format === 'end') {
+    return 'right';
+  }
+
+  return format;
 }
 
 export default function useEditorToolbarSync() {
@@ -142,9 +141,7 @@ export default function useEditorToolbarSync() {
         });
       }
 
-      const elementFormatValue: ElementFormatType = $isElementNode(
-        matchingParent
-      )
+      const elementFormatValue = $isElementNode(matchingParent)
         ? matchingParent.getFormatType()
         : $isElementNode(node)
           ? node.getFormatType()
@@ -152,7 +149,7 @@ export default function useEditorToolbarSync() {
 
       updateToolbarState(
         'elementFormat',
-        (elementFormatValue === '' ? 'left' : elementFormatValue) as Alignment
+        normalizeFormatType(elementFormatValue)
       );
 
       if (elementDOM !== null) {

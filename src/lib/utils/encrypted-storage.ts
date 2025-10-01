@@ -12,7 +12,7 @@ export interface DecryptionResult {
   message?: string;
 }
 
-export function setEncryptedApiKey(apiKey: string): void {
+export function setEncryptedApiKey(apiKey: string) {
   try {
     const encrypted = CryptoJS.AES.encrypt(apiKey, SECRET_KEY).toString();
     localStorage.setItem(STORAGE_KEY, encrypted);
@@ -82,7 +82,7 @@ export function getDecryptedApiKeyWithValidation(): DecryptionResult {
   }
 }
 
-export function removeApiKey(): void {
+export function removeApiKey() {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
