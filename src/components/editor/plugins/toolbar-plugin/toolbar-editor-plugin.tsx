@@ -7,6 +7,10 @@ import {
   HISTORIC_TAG,
   $getSelection,
   FORMAT_TEXT_COMMAND,
+  type TextFormatType,
+  FORMAT_ELEMENT_COMMAND,
+  INDENT_CONTENT_COMMAND,
+  OUTDENT_CONTENT_COMMAND,
 } from 'lexical';
 import {
   XIcon,
@@ -16,13 +20,17 @@ import {
   UndoIcon,
   RedoIcon,
   TypeIcon,
+  QuoteIcon,
+  IndentIcon,
   ItalicIcon,
+  EraserIcon,
   BaselineIcon,
   UnderlineIcon,
   ChevronDownIcon,
   TextInitialIcon,
   PaintBucketIcon,
   StrikethroughIcon,
+  IndentDecreaseIcon,
 } from 'lucide-react';
 import * as React from 'react';
 
@@ -56,14 +64,19 @@ import {
   TooltipProvider,
 } from '@/components/ui/tooltip';
 import EDITOR_SHORTCUTS from '@/lib/constants/editor-shortcuts';
+import type { Alignment } from '@/lib/constants/editor-toolbar-alignments';
+import ELEMENT_FORMAT_OPTIONS from '@/lib/constants/editor-toolbar-alignments';
 import headings from '@/lib/constants/editor-toolbar-headings';
 import lists from '@/lib/constants/editor-toolbar-lists';
+import TEXT_FORMAT_OPTIONS from '@/lib/constants/editor-toolbar-text-formats';
 import useEditorToolbarSync from '@/lib/hooks/use-editor-toolbar-sync';
 import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
 import {
+  formatQuote,
   formatHeading,
   formatCheckList,
   formatParagraph,
+  clearFormatting,
   formatBulletList,
   formatNumberedList,
 } from '@/lib/utils/editor-formatters';
@@ -167,12 +180,12 @@ export default function ToolbarEditorPlugin() {
   }, [isFontColorPickerOpen, isBackgroundColorPickerOpen]);
 
   return (
-    <div
-      onMouseLeave={tooltipGroup.onGroupMouseLeave}
-      className="flex flex-wrap items-center gap-2 p-2 md:flex-nowrap md:overflow-x-auto"
-    >
-      <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
-        <TooltipProvider>
+    <TooltipProvider>
+      <div
+        onMouseLeave={tooltipGroup.onGroupMouseLeave}
+        className="flex flex-wrap items-center gap-2 p-2 md:flex-nowrap md:overflow-x-auto"
+      >
+        <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
           <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
             <TooltipTrigger
               asChild
@@ -219,16 +232,14 @@ export default function ToolbarEditorPlugin() {
               <span className="text-sm">Redo</span>
             </TooltipContent>
           </Tooltip>
-        </TooltipProvider>
-      </div>
+        </div>
 
-      <Separator
-        orientation="vertical"
-        className="h-6! self-center justify-self-center"
-      />
+        <Separator
+          orientation="vertical"
+          className="h-6! self-center justify-self-center"
+        />
 
-      <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
-        <TooltipProvider>
+        <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
           <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
             <TooltipTrigger
               asChild
@@ -339,230 +350,425 @@ export default function ToolbarEditorPlugin() {
               <span className="text-sm">Code</span>
             </TooltipContent>
           </Tooltip>
-        </TooltipProvider>
-      </div>
+        </div>
 
-      <Select value={toolbarState.fontFamily} onValueChange={applyFontFamily}>
-        <SelectTrigger size="sm" className="w-40">
-          <SelectValue placeholder="Font family" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="Arial">Arial</SelectItem>
-          <SelectItem value="Courier New">Courier New</SelectItem>
-          <SelectItem value="Georgia">Georgia</SelectItem>
-          <SelectItem value="Times New Roman">Times New Roman</SelectItem>
-          <SelectItem value="Verdana">Verdana</SelectItem>
-          <SelectItem value="Ubuntu">Ubuntu</SelectItem>
-          <SelectItem value="Montserrat">Montserrat</SelectItem>
-          <SelectItem value="Roboto">Roboto</SelectItem>
-          <SelectItem value="Open Sans">Open Sans</SelectItem>
-          <SelectItem value="Lora">Lora</SelectItem>
-        </SelectContent>
-      </Select>
+        <Separator
+          orientation="vertical"
+          className="h-6! self-center justify-self-center"
+        />
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild className="w-40 justify-between">
-          <Button size="sm" variant="secondary">
-            <TypeIcon className="mr-1 h-4 w-4" />
-            {headings.find((h) => {
-              return h.value === toolbarState.blockType;
-            })?.label || 'Normal text'}
-            <ChevronDownIcon className="ml-1 h-3 w-3" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          {headings.map((heading) => {
-            return (
-              <DropdownMenuItem
-                key={heading.value}
-                className="flex justify-between gap-4"
-                onClick={() => {
-                  formatHeading(editor, toolbarState.blockType, heading.value);
-                }}
-              >
-                <div className="flex items-center">
-                  <heading.icon className="mr-2 h-4 w-4" />
-                  <span>{heading.label}</span>
-                </div>
-                <span className="text-muted-foreground min-w-14 text-xs">
-                  {heading.shortcut}
-                </span>
-              </DropdownMenuItem>
-            );
-          })}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            className="flex justify-between gap-4"
-            onClick={() => {
-              return formatParagraph(editor);
+        <Select value={toolbarState.fontFamily} onValueChange={applyFontFamily}>
+          <SelectTrigger size="sm" className="w-40">
+            <SelectValue placeholder="Font family" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Arial">Arial</SelectItem>
+            <SelectItem value="Courier New">Courier New</SelectItem>
+            <SelectItem value="Georgia">Georgia</SelectItem>
+            <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+            <SelectItem value="Verdana">Verdana</SelectItem>
+            <SelectItem value="Ubuntu">Ubuntu</SelectItem>
+            <SelectItem value="Montserrat">Montserrat</SelectItem>
+            <SelectItem value="Roboto">Roboto</SelectItem>
+            <SelectItem value="Open Sans">Open Sans</SelectItem>
+            <SelectItem value="Lora">Lora</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild className="w-40 justify-between">
+            <Button size="sm" variant="secondary">
+              <TypeIcon className="mr-1 h-4 w-4" />
+              {headings.find((h) => {
+                return h.value === toolbarState.blockType;
+              })?.label || 'Normal text'}
+              <ChevronDownIcon className="ml-1 h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {headings.map((heading) => {
+              return (
+                <DropdownMenuItem
+                  key={heading.value}
+                  className="flex justify-between gap-4"
+                  onClick={() => {
+                    formatHeading(
+                      editor,
+                      toolbarState.blockType,
+                      heading.value
+                    );
+                  }}
+                >
+                  <div className="flex items-center">
+                    <heading.icon className="mr-2 h-4 w-4" />
+                    <span>{heading.label}</span>
+                  </div>
+                  <span className="text-muted-foreground min-w-14 text-xs">
+                    {heading.shortcut}
+                  </span>
+                </DropdownMenuItem>
+              );
+            })}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="flex justify-between gap-4"
+              onClick={() => {
+                return formatParagraph(editor);
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <TextInitialIcon />
+                <span>Normal text</span>
+              </div>
+              <span className="text-muted-foreground ml-auto text-xs">
+                {EDITOR_SHORTCUTS.NORMAL}
+              </span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild className="w-44 justify-between">
+            <Button size="sm" variant="secondary">
+              <ListIcon className="mr-1 h-4 w-4" />
+              {lists.find((l) => {
+                return l.value === toolbarState.blockType;
+              })?.label || 'Insert list'}
+              <ChevronDownIcon className="ml-1 h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {lists.map((list) => {
+              return (
+                <DropdownMenuItem
+                  key={list.value}
+                  className="flex justify-between gap-4"
+                  onClick={() => {
+                    if (list.value === 'bullet') {
+                      formatBulletList(editor, toolbarState.blockType);
+                    } else if (list.value === 'number') {
+                      formatNumberedList(editor, toolbarState.blockType);
+                    } else if (list.value === 'check') {
+                      formatCheckList(editor, toolbarState.blockType);
+                    }
+                  }}
+                >
+                  <div className="flex items-center">
+                    <list.icon className="mr-2 h-4 w-4" />
+                    <span>{list.label}</span>
+                  </div>
+                  <span className="text-muted-foreground min-w-14 text-xs">
+                    {list.shortcut}
+                  </span>
+                </DropdownMenuItem>
+              );
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Separator
+          orientation="vertical"
+          className="h-6! self-center justify-self-center"
+        />
+
+        <Popover
+          open={isFontColorPickerOpen}
+          onOpenChange={handleFontColorOpenChange}
+        >
+          <PopoverTrigger asChild>
+            <Button size="sm" variant="secondary" className="gap-0 space-x-2">
+              <div className="flex items-center gap-2">
+                <BaselineIcon />
+                <div
+                  className="h-4 w-4 rounded"
+                  style={{
+                    backgroundColor: Color(fontColor).alpha(0.8).string(),
+                  }}
+                />
+              </div>
+              <ChevronDownIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            asChild
+            onInteractOutside={(event) => {
+              event.preventDefault();
             }}
           >
-            <div className="flex items-center gap-2">
-              <TextInitialIcon />
-              <span>Normal text</span>
-            </div>
-            <span className="text-muted-foreground ml-auto text-xs">
-              {EDITOR_SHORTCUTS.NORMAL}
-            </span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild className="w-44 justify-between">
-          <Button size="sm" variant="secondary">
-            <ListIcon className="mr-1 h-4 w-4" />
-            {lists.find((l) => {
-              return l.value === toolbarState.blockType;
-            })?.label || 'Insert list'}
-            <ChevronDownIcon className="ml-1 h-3 w-3" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          {lists.map((list) => {
-            return (
-              <DropdownMenuItem
-                key={list.value}
-                className="flex justify-between gap-4"
-                onClick={() => {
-                  if (list.value === 'bullet') {
-                    formatBulletList(editor, toolbarState.blockType);
-                  } else if (list.value === 'number') {
-                    formatNumberedList(editor, toolbarState.blockType);
-                  } else if (list.value === 'check') {
-                    formatCheckList(editor, toolbarState.blockType);
-                  }
-                }}
-              >
-                <div className="flex items-center">
-                  <list.icon className="mr-2 h-4 w-4" />
-                  <span>{list.label}</span>
-                </div>
-                <span className="text-muted-foreground min-w-14 text-xs">
-                  {list.shortcut}
-                </span>
-              </DropdownMenuItem>
-            );
-          })}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <Popover
-        open={isFontColorPickerOpen}
-        onOpenChange={handleFontColorOpenChange}
-      >
-        <PopoverTrigger asChild>
-          <Button size="sm" variant="secondary" className="gap-0 space-x-2">
-            <div className="flex items-center gap-2">
-              <BaselineIcon />
-              <div
-                className="h-4 w-4 rounded"
-                style={{
-                  backgroundColor: Color(fontColor).alpha(0.8).string(),
-                }}
-              />
-            </div>
-            <ChevronDownIcon />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          asChild
-          onInteractOutside={(event) => {
-            event.preventDefault();
-          }}
-        >
-          <div className="w-[305px] space-y-4">
-            <div className="text-muted-foreground flex items-center justify-between">
-              <p className="text-sm">Font color</p>
+            <div className="w-[305px] space-y-4">
+              <div className="text-muted-foreground flex items-center justify-between">
+                <p className="text-sm">Font color</p>
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  onClick={() => {
+                    setIsFontColorPickerOpen(false);
+                  }}
+                >
+                  <XIcon className="size-4" />
+                </Button>
+              </div>
+              <EditorColorPicker value={fontColor} onChange={setFontColor} />
               <Button
-                size="xs"
-                variant="ghost"
+                variant="outline"
+                className="w-full"
                 onClick={() => {
                   setIsFontColorPickerOpen(false);
                 }}
               >
-                <XIcon className="size-4" />
+                <div className="rounded border border-current px-1 py-0.5 text-xs">
+                  Esc
+                </div>
+                <span>Cancel</span>
+              </Button>
+              <Button className="w-full" onClick={applyFontColor}>
+                Apply
               </Button>
             </div>
-            <EditorColorPicker value={fontColor} onChange={setFontColor} />
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => {
-                setIsFontColorPickerOpen(false);
-              }}
-            >
-              <div className="rounded border border-current px-1 py-0.5 text-xs">
-                Esc
-              </div>
-              <span>Cancel</span>
-            </Button>
-            <Button className="w-full" onClick={applyFontColor}>
-              Apply
-            </Button>
-          </div>
-        </PopoverContent>
-      </Popover>
+          </PopoverContent>
+        </Popover>
 
-      <Popover
-        open={isBackgroundColorPickerOpen}
-        onOpenChange={handleBackgroundColorOpenChange}
-      >
-        <PopoverTrigger asChild>
-          <Button size="sm" variant="secondary" className="gap-0 space-x-2">
-            <div className="flex items-center gap-2">
-              <PaintBucketIcon />
-              <div
-                className="h-4 w-4 rounded"
-                style={{
-                  backgroundColor: Color(backgroundColor).alpha(0.8).string(),
-                }}
-              />
-            </div>
-            <ChevronDownIcon />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          asChild
-          onInteractOutside={(event) => {
-            event.preventDefault();
-          }}
+        <Popover
+          open={isBackgroundColorPickerOpen}
+          onOpenChange={handleBackgroundColorOpenChange}
         >
-          <div className="w-[305px] space-y-4">
-            <div className="text-muted-foreground flex items-center justify-between">
-              <p className="text-sm">Background color</p>
+          <PopoverTrigger asChild>
+            <Button size="sm" variant="secondary" className="gap-0 space-x-2">
+              <div className="flex items-center gap-2">
+                <PaintBucketIcon />
+                <div
+                  className="h-4 w-4 rounded"
+                  style={{
+                    backgroundColor: Color(backgroundColor).alpha(0.8).string(),
+                  }}
+                />
+              </div>
+              <ChevronDownIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent
+            asChild
+            onInteractOutside={(event) => {
+              event.preventDefault();
+            }}
+          >
+            <div className="w-[305px] space-y-4">
+              <div className="text-muted-foreground flex items-center justify-between">
+                <p className="text-sm">Background color</p>
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  onClick={() => {
+                    setIsBackgroundColorPickerOpen(false);
+                  }}
+                >
+                  <XIcon className="size-4" />
+                </Button>
+              </div>
+              <EditorColorPicker
+                value={backgroundColor}
+                onChange={setBackgroundColor}
+              />
               <Button
-                size="xs"
-                variant="ghost"
+                variant="outline"
+                className="w-full"
                 onClick={() => {
                   setIsBackgroundColorPickerOpen(false);
                 }}
               >
-                <XIcon className="size-4" />
+                <div className="rounded border border-current px-1 py-0.5 text-xs">
+                  Esc
+                </div>
+                <span>Cancel</span>
+              </Button>
+              <Button className="w-full" onClick={applyBackgroundColor}>
+                <span>Apply</span>
               </Button>
             </div>
-            <EditorColorPicker
-              value={backgroundColor}
-              onChange={setBackgroundColor}
-            />
+          </PopoverContent>
+        </Popover>
+
+        <Separator
+          orientation="vertical"
+          className="h-6! self-center justify-self-center"
+        />
+
+        <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
+          {(Object.keys(ELEMENT_FORMAT_OPTIONS) as Alignment[]).map(
+            (alignment) => {
+              const { icon: Icon, name } = ELEMENT_FORMAT_OPTIONS[alignment];
+
+              return (
+                <Tooltip
+                  key={alignment}
+                  delayDuration={tooltipGroup.getTooltipProps().delayDuration}
+                >
+                  <TooltipTrigger
+                    asChild
+                    onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
+                  >
+                    <Button
+                      size="icon"
+                      aria-label={name}
+                      variant={
+                        toolbarState.elementFormat === alignment
+                          ? 'secondary'
+                          : 'ghost'
+                      }
+                      onClick={() => {
+                        editor.dispatchCommand(
+                          FORMAT_ELEMENT_COMMAND,
+                          alignment
+                        );
+                      }}
+                    >
+                      <Icon />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <span className="text-sm">{name}</span>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            }
+          )}
+        </div>
+
+        <Separator
+          orientation="vertical"
+          className="h-6! self-center justify-self-center"
+        />
+
+        <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
+          <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
+            <TooltipTrigger
+              asChild
+              onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
+            >
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
+                }}
+              >
+                <IndentDecreaseIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <span className="text-sm">
+                Outdent ({EDITOR_SHORTCUTS.OUTDENT})
+              </span>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
+            <TooltipTrigger
+              asChild
+              onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
+            >
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => {
+                  editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined);
+                }}
+              >
+                <IndentIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <span className="text-sm">
+                Indent ({EDITOR_SHORTCUTS.INDENT})
+              </span>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+
+        <Separator
+          orientation="vertical"
+          className="h-6! self-center justify-self-center"
+        />
+
+        <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
+          <TooltipTrigger
+            asChild
+            onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
+          >
             <Button
-              variant="outline"
-              className="w-full"
+              size="icon"
               onClick={() => {
-                setIsBackgroundColorPickerOpen(false);
+                formatQuote(editor, toolbarState.blockType);
+              }}
+              variant={
+                toolbarState.blockType === 'quote' ? 'secondary' : 'ghost'
+              }
+            >
+              <QuoteIcon />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <span className="text-sm">Quote ({EDITOR_SHORTCUTS.QUOTE})</span>
+          </TooltipContent>
+        </Tooltip>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild className="w-44 justify-between">
+            <Button size="sm" variant="secondary">
+              <TypeIcon className="mr-1 h-4 w-4" />
+              {Object.entries(TEXT_FORMAT_OPTIONS).find(([, option]) => {
+                return toolbarState[option.key];
+              })?.[1]?.name || 'Text format'}
+              <ChevronDownIcon className="ml-1 h-3 w-3" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {(
+              Object.keys(TEXT_FORMAT_OPTIONS) as Array<
+                keyof typeof TEXT_FORMAT_OPTIONS
+              >
+            ).map((format) => {
+              const option = TEXT_FORMAT_OPTIONS[format];
+              const Icon = option.icon;
+
+              return (
+                <DropdownMenuItem
+                  key={format}
+                  className="flex justify-between gap-4"
+                  onClick={() => {
+                    editor.dispatchCommand(
+                      FORMAT_TEXT_COMMAND,
+                      format as TextFormatType
+                    );
+                  }}
+                >
+                  <div className="flex items-center">
+                    <Icon className="mr-2 h-4 w-4" />
+                    <span>{option.name}</span>
+                  </div>
+                  <span className="text-muted-foreground min-w-14 text-xs">
+                    {option.shortcut}
+                  </span>
+                </DropdownMenuItem>
+              );
+            })}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="flex justify-between gap-4"
+              onClick={() => {
+                clearFormatting(editor);
               }}
             >
-              <div className="rounded border border-current px-1 py-0.5 text-xs">
-                Esc
+              <div className="flex items-center gap-2">
+                <EraserIcon className="h-4 w-4" />
+                <span>Clear formatting</span>
               </div>
-              <span>Cancel</span>
-            </Button>
-            <Button className="w-full" onClick={applyBackgroundColor}>
-              <span>Apply</span>
-            </Button>
-          </div>
-        </PopoverContent>
-      </Popover>
-    </div>
+              <span className="text-muted-foreground ml-auto text-xs">
+                {EDITOR_SHORTCUTS.CLEAR_FORMATTING}
+              </span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </TooltipProvider>
   );
 }

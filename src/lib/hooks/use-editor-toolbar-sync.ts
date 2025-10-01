@@ -1,16 +1,27 @@
+import { $isLinkNode } from '@lexical/link';
 import { ListNode, $isListNode } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
-import { $getSelectionStyleValueForProperty } from '@lexical/selection';
+import {
+  $isAtNodeEnd,
+  $getSelectionStyleValueForProperty,
+} from '@lexical/selection';
 import { $isTableSelection } from '@lexical/table';
 import {
   mergeRegister,
   $findMatchingParent,
   $getNearestNodeOfType,
 } from '@lexical/utils';
-import type { LexicalNode } from 'lexical';
+import type {
+  TextNode,
+  ElementNode,
+  LexicalNode,
+  RangeSelection,
+  ElementFormatType,
+} from 'lexical';
 import {
   $getSelection,
+  $isElementNode,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   $isRangeSelection,
@@ -21,6 +32,11 @@ import * as React from 'react';
 
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
 import { blockTypeToBlockName } from '@/lib/constants/initial-editor-toolbar-state';
+
+type Alignment = Extract<
+  ElementFormatType,
+  'left' | 'center' | 'right' | 'justify'
+>;
 
 function $findTopLevelElement(node: LexicalNode) {
   let topLevelElement =
@@ -37,6 +53,27 @@ function $findTopLevelElement(node: LexicalNode) {
   }
 
   return topLevelElement;
+}
+
+export function getSelectedNode(
+  selection: RangeSelection
+): TextNode | ElementNode {
+  const anchor = selection.anchor;
+  const focus = selection.focus;
+  const anchorNode = selection.anchor.getNode();
+  const focusNode = selection.focus.getNode();
+
+  if (anchorNode === focusNode) {
+    return anchorNode;
+  }
+
+  const isBackward = selection.isBackward();
+
+  if (isBackward) {
+    return $isAtNodeEnd(focus) ? anchorNode : focusNode;
+  } else {
+    return $isAtNodeEnd(anchor) ? anchorNode : focusNode;
+  }
 }
 
 export default function useEditorToolbarSync() {
@@ -63,7 +100,6 @@ export default function useEditorToolbarSync() {
     const selection = $getSelection();
     const nativeSelection = window.getSelection();
     const selectedElement = nativeSelection?.focusNode?.parentElement;
-
     const [selectedNode] = selection?.getNodes() ?? [];
 
     if (selectedNode && selectedElement) {
@@ -92,6 +128,32 @@ export default function useEditorToolbarSync() {
       const element = $findTopLevelElement(anchorNode);
       const elementKey = element.getKey();
       const elementDOM = editor.getElementByKey(elementKey);
+
+      const node = getSelectedNode(selection);
+      const parent = node.getParent();
+      const isLink = $isLinkNode(parent) || $isLinkNode(node);
+      updateToolbarState('isLink', isLink);
+
+      let matchingParent;
+
+      if ($isLinkNode(parent)) {
+        matchingParent = $findMatchingParent(node, (parentNode) => {
+          return $isElementNode(parentNode) && !parentNode.isInline();
+        });
+      }
+
+      const elementFormatValue: ElementFormatType = $isElementNode(
+        matchingParent
+      )
+        ? matchingParent.getFormatType()
+        : $isElementNode(node)
+          ? node.getFormatType()
+          : parent?.getFormatType() || 'left';
+
+      updateToolbarState(
+        'elementFormat',
+        (elementFormatValue === '' ? 'left' : elementFormatValue) as Alignment
+      );
 
       if (elementDOM !== null) {
         if ($isListNode(element)) {
@@ -132,6 +194,12 @@ export default function useEditorToolbarSync() {
         'isStrikethrough',
         selection.hasFormat('strikethrough')
       );
+      updateToolbarState('isSubscript', selection.hasFormat('subscript'));
+      updateToolbarState('isSuperscript', selection.hasFormat('superscript'));
+      updateToolbarState('isHighlight', selection.hasFormat('highlight'));
+      updateToolbarState('isLowercase', selection.hasFormat('lowercase'));
+      updateToolbarState('isUppercase', selection.hasFormat('uppercase'));
+      updateToolbarState('isCapitalize', selection.hasFormat('capitalize'));
     }
   }, [updateToolbarState, editor, $handleHeadingNode]);
 
