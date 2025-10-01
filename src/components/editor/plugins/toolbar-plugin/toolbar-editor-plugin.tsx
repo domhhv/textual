@@ -1,6 +1,15 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { REDO_COMMAND, UNDO_COMMAND, FORMAT_TEXT_COMMAND } from 'lexical';
+import { $patchStyleText } from '@lexical/selection';
+import Color from 'color';
 import {
+  REDO_COMMAND,
+  UNDO_COMMAND,
+  HISTORIC_TAG,
+  $getSelection,
+  FORMAT_TEXT_COMMAND,
+} from 'lexical';
+import {
+  XIcon,
   BoldIcon,
   CodeIcon,
   ListIcon,
@@ -8,13 +17,16 @@ import {
   RedoIcon,
   TypeIcon,
   ItalicIcon,
+  BaselineIcon,
   UnderlineIcon,
   ChevronDownIcon,
   TextInitialIcon,
+  PaintBucketIcon,
   StrikethroughIcon,
 } from 'lucide-react';
 import * as React from 'react';
 
+import EditorColorPicker from '@/components/custom/editor-color-picker';
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,6 +36,11 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import {
   Tooltip,
@@ -48,7 +65,84 @@ export default function ToolbarEditorPlugin() {
   const [editor] = useLexicalComposerContext();
   const { toolbarState } = React.use(ToolbarStateContext);
   const tooltipGroup = useTooltipGroup();
+  const [isFontColorPickerOpen, setIsFontColorPickerOpen] =
+    React.useState(false);
+  const [isBackgroundColorPickerOpen, setIsBackgroundColorPickerOpen] =
+    React.useState(false);
+  const [fontColor, setFontColor] = React.useState<string>('#000000');
+  const [backgroundColor, setBackgroundColor] =
+    React.useState<string>('#000000');
   useEditorToolbarSync();
+
+  React.useEffect(() => {
+    setFontColor(toolbarState.fontColor || '#000000');
+  }, [toolbarState.fontColor]);
+
+  React.useEffect(() => {
+    setBackgroundColor(toolbarState.backgroundColor || '#ffffff');
+  }, [toolbarState.backgroundColor]);
+
+  const applyStyleText = React.useCallback(
+    (styles: Record<string, string>) => {
+      editor.update(
+        () => {
+          const selection = $getSelection();
+
+          if (selection !== null) {
+            $patchStyleText(selection, styles);
+          }
+        },
+        { tag: HISTORIC_TAG }
+      );
+    },
+    [editor]
+  );
+
+  const applyFontColor = React.useCallback(() => {
+    setIsFontColorPickerOpen(false);
+    applyStyleText({ color: fontColor });
+  }, [applyStyleText, fontColor]);
+
+  const applyBackgroundColor = React.useCallback(() => {
+    setIsBackgroundColorPickerOpen(false);
+    applyStyleText({ 'background-color': backgroundColor });
+  }, [applyStyleText, backgroundColor]);
+
+  const handleFontColorOpenChange = React.useCallback((open: boolean) => {
+    setIsFontColorPickerOpen(open);
+    setIsBackgroundColorPickerOpen(false);
+  }, []);
+
+  const handleBackgroundColorOpenChange = React.useCallback((open: boolean) => {
+    setIsBackgroundColorPickerOpen(open);
+    setIsFontColorPickerOpen(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isFontColorPickerOpen && !isBackgroundColorPickerOpen) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Escape') {
+        return;
+      }
+
+      if (isFontColorPickerOpen) {
+        setIsFontColorPickerOpen(false);
+      }
+
+      if (isBackgroundColorPickerOpen) {
+        setIsBackgroundColorPickerOpen(false);
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFontColorPickerOpen, isBackgroundColorPickerOpen]);
 
   return (
     <div
@@ -228,7 +322,7 @@ export default function ToolbarEditorPlugin() {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild className="w-40 justify-between">
-          <Button size="sm" variant="outline">
+          <Button size="sm" variant="secondary">
             <TypeIcon className="mr-1 h-4 w-4" />
             {headings.find((h) => {
               return h.value === toolbarState.blockType;
@@ -276,7 +370,7 @@ export default function ToolbarEditorPlugin() {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild className="w-44 justify-between">
-          <Button size="sm" variant="outline">
+          <Button size="sm" variant="secondary">
             <ListIcon className="mr-1 h-4 w-4" />
             {lists.find((l) => {
               return l.value === toolbarState.blockType;
@@ -312,6 +406,123 @@ export default function ToolbarEditorPlugin() {
           })}
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Popover
+        open={isFontColorPickerOpen}
+        onOpenChange={handleFontColorOpenChange}
+      >
+        <PopoverTrigger asChild>
+          <Button size="sm" variant="secondary" className="gap-0 space-x-2">
+            <div className="flex items-center gap-2">
+              <BaselineIcon />
+              <div
+                className="h-4 w-4 rounded"
+                style={{
+                  backgroundColor: Color(fontColor).alpha(0.8).string(),
+                }}
+              />
+            </div>
+            <ChevronDownIcon />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          asChild
+          onInteractOutside={(event) => {
+            event.preventDefault();
+          }}
+        >
+          <div className="w-[305px] space-y-4">
+            <div className="text-muted-foreground flex items-center justify-between">
+              <p className="text-sm">Font color</p>
+              <Button
+                size="xs"
+                variant="ghost"
+                onClick={() => {
+                  setIsFontColorPickerOpen(false);
+                }}
+              >
+                <XIcon className="size-4" />
+              </Button>
+            </div>
+            <EditorColorPicker value={fontColor} onChange={setFontColor} />
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                setIsFontColorPickerOpen(false);
+              }}
+            >
+              <div className="rounded border border-current px-1 py-0.5 text-xs">
+                Esc
+              </div>
+              <span>Cancel</span>
+            </Button>
+            <Button className="w-full" onClick={applyFontColor}>
+              Apply
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
+
+      <Popover
+        open={isBackgroundColorPickerOpen}
+        onOpenChange={handleBackgroundColorOpenChange}
+      >
+        <PopoverTrigger asChild>
+          <Button size="sm" variant="secondary" className="gap-0 space-x-2">
+            <div className="flex items-center gap-2">
+              <PaintBucketIcon />
+              <div
+                className="h-4 w-4 rounded"
+                style={{
+                  backgroundColor: Color(backgroundColor).alpha(0.8).string(),
+                }}
+              />
+            </div>
+            <ChevronDownIcon />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          asChild
+          onInteractOutside={(event) => {
+            event.preventDefault();
+          }}
+        >
+          <div className="w-[305px] space-y-4">
+            <div className="text-muted-foreground flex items-center justify-between">
+              <p className="text-sm">Background color</p>
+              <Button
+                size="xs"
+                variant="ghost"
+                onClick={() => {
+                  setIsBackgroundColorPickerOpen(false);
+                }}
+              >
+                <XIcon className="size-4" />
+              </Button>
+            </div>
+            <EditorColorPicker
+              value={backgroundColor}
+              onChange={setBackgroundColor}
+            />
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                setIsBackgroundColorPickerOpen(false);
+              }}
+            >
+              <div className="rounded border border-current px-1 py-0.5 text-xs">
+                Esc
+              </div>
+              <span>Cancel</span>
+            </Button>
+            <Button className="w-full" onClick={applyBackgroundColor}>
+              <span>Apply</span>
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }
