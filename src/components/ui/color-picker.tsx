@@ -1,6 +1,7 @@
 'use client';
 
 import * as Slider from '@radix-ui/react-slider';
+import type { ColorLike } from 'color';
 import Color from 'color';
 import { PipetteIcon } from 'lucide-react';
 import * as React from 'react';
@@ -59,8 +60,20 @@ function ColorPicker({
   value,
   ...props
 }: ColorPickerProps) {
-  const selectedColor = Color(value);
-  const defaultColor = Color(defaultValue);
+  let selectedColor: ColorLike;
+  let defaultColor: ColorLike;
+
+  try {
+    selectedColor = Color(value);
+  } catch {
+    selectedColor = Color(defaultValue);
+  }
+
+  try {
+    defaultColor = Color(defaultValue);
+  } catch {
+    defaultColor = Color('#000000');
+  }
 
   const [hue, setHue] = React.useState(
     selectedColor.hue() || defaultColor.hue() || 0
@@ -105,7 +118,12 @@ function ColorPicker({
       const color = Color.hsl(hue, saturation, lightness).alpha(alpha / 100);
       const rgba = color.rgb().array();
 
-      onChangeRef.current([rgba[0], rgba[1], rgba[2], alpha / 100]);
+      onChangeRef.current([
+        Math.round(rgba[0]),
+        Math.round(rgba[1]),
+        Math.round(rgba[2]),
+        alpha / 100,
+      ]);
     }
   }, [hue, saturation, lightness, alpha]);
 
@@ -317,12 +335,15 @@ export type ColorPickerOutputProps = ComponentProps<typeof SelectTrigger>;
 
 const formats = ['hex', 'rgb', 'css', 'hsl'];
 
-function ColorPickerOutput(props: ColorPickerOutputProps) {
+function ColorPickerOutput({ className, ...props }: ColorPickerOutputProps) {
   const { mode, setMode } = React.use(ColorPickerContext);
 
   return (
     <Select value={mode} onValueChange={setMode}>
-      <SelectTrigger className="h-8 w-20 shrink-0 text-xs" {...props}>
+      <SelectTrigger
+        className={cn('h-8 w-20 shrink-0 text-xs', className)}
+        {...props}
+      >
         <SelectValue placeholder="Mode" />
       </SelectTrigger>
       <SelectContent>
@@ -345,10 +366,10 @@ function PercentageInput({ className, ...props }: PercentageInputProps) {
     <div className="relative">
       <Input
         readOnly
-        type="text"
+        type="number"
         {...props}
         className={cn(
-          'bg-secondary h-8 w-[3.25rem] rounded-l-none px-2 text-xs shadow-none',
+          'bg-secondary h-8 w-[3.5rem] rounded-l-none px-2 text-xs shadow-none',
           className
         )}
       />
@@ -372,7 +393,7 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
     return (
       <div
         className={cn(
-          'relative flex w-full items-center -space-x-px rounded-md shadow-sm',
+          'relative flex w-full items-center justify-end -space-x-px rounded-md shadow-sm',
           className
         )}
         {...props}
@@ -381,7 +402,7 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
           readOnly
           type="text"
           value={hex}
-          className="bg-secondary h-8 rounded-r-none px-2 text-xs shadow-none"
+          className="bg-secondary h-8 w-36 rounded-r-none px-2 text-xs shadow-none"
         />
         <PercentageInput value={alpha} />
       </div>
@@ -412,7 +433,7 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
               type="text"
               value={value}
               className={cn(
-                'bg-secondary h-8 rounded-r-none px-2 text-xs shadow-none',
+                'bg-secondary h-8 w-12 rounded-r-none px-2 text-xs shadow-none',
                 index && 'rounded-l-none',
                 className
               )}
@@ -438,7 +459,7 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
           readOnly
           type="text"
           value={`rgba(${rgb.join(', ')}, ${alpha}%)`}
-          className="bg-secondary h-8 w-full px-2 text-xs shadow-none"
+          className="bg-secondary h-8 w-48 px-2 text-xs shadow-none"
           {...props}
         />
       </div>
@@ -469,7 +490,7 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
               type="text"
               value={value}
               className={cn(
-                'bg-secondary h-8 rounded-r-none px-2 text-xs shadow-none',
+                'bg-secondary h-8 w-12 rounded-r-none px-2 text-xs shadow-none',
                 index && 'rounded-l-none',
                 className
               )}

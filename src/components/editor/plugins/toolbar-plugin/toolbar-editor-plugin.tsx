@@ -1,6 +1,5 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $patchStyleText } from '@lexical/selection';
-import type { ColorLike } from 'color';
 import Color from 'color';
 import {
   REDO_COMMAND,
@@ -10,6 +9,7 @@ import {
   FORMAT_TEXT_COMMAND,
 } from 'lexical';
 import {
+  XIcon,
   BoldIcon,
   CodeIcon,
   ListIcon,
@@ -69,9 +69,9 @@ export default function ToolbarEditorPlugin() {
     React.useState(false);
   const [isBackgroundColorPickerOpen, setIsBackgroundColorPickerOpen] =
     React.useState(false);
-  const [fontColor, setFontColor] = React.useState<ColorLike>('#000000');
+  const [fontColor, setFontColor] = React.useState<string>('#000000');
   const [backgroundColor, setBackgroundColor] =
-    React.useState<ColorLike>('#000000');
+    React.useState<string>('#000000');
   useEditorToolbarSync();
 
   const applyStyleText = React.useCallback(
@@ -121,6 +121,26 @@ export default function ToolbarEditorPlugin() {
   React.useEffect(() => {
     setBackgroundColor(toolbarState.backgroundColor || '#ffffff');
   }, [toolbarState.backgroundColor]);
+
+  React.useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        if (isFontColorPickerOpen) {
+          setIsFontColorPickerOpen(false);
+        }
+
+        if (isBackgroundColorPickerOpen) {
+          setIsBackgroundColorPickerOpen(false);
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isFontColorPickerOpen, isBackgroundColorPickerOpen]);
 
   return (
     <div
@@ -407,18 +427,44 @@ export default function ToolbarEditorPlugin() {
             event.preventDefault();
           }}
         >
-          <EditorColorPicker
-            className="h-96"
-            value={fontColor}
-            label="Font Color"
-            onChange={setFontColor}
-            onClose={() => {
-              setIsFontColorPickerOpen(false);
-            }}
-            onSubmit={() => {
-              handleFontColorOpenChange(false);
-            }}
-          />
+          <>
+            <div className="text-muted-foreground bg-background -mb-1 flex items-center justify-between rounded-t-md border border-b-0 px-4 py-2 pb-0">
+              <p className="text-sm">Font color</p>
+              <Button
+                size="xs"
+                variant="ghost"
+                onClick={() => {
+                  setIsFontColorPickerOpen(false);
+                }}
+              >
+                <XIcon className="size-4" />
+              </Button>
+            </div>
+            <EditorColorPicker value={fontColor} onChange={setFontColor} />
+            <div className="bg-background space-y-2 rounded-b-md border border-t-0 p-4 pt-0">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  setIsFontColorPickerOpen(false);
+                }}
+              >
+                <div className="rounded border border-current px-1 py-0.5 text-xs">
+                  Esc
+                </div>
+                <span>Cancel</span>
+              </Button>
+              <Button
+                size="sm"
+                className="w-full"
+                onClick={() => {
+                  handleFontColorOpenChange(false);
+                }}
+              >
+                <span className="text-sm">Apply</span>
+              </Button>
+            </div>
+          </>
         </PopoverContent>
       </Popover>
 
@@ -446,18 +492,46 @@ export default function ToolbarEditorPlugin() {
             event.preventDefault();
           }}
         >
-          <EditorColorPicker
-            className="h-96 w-auto"
-            value={backgroundColor}
-            label="Background Color"
-            onChange={setBackgroundColor}
-            onClose={() => {
-              setIsBackgroundColorPickerOpen(false);
-            }}
-            onSubmit={() => {
-              handleBackgroundColorOpenChange(false);
-            }}
-          />
+          <>
+            <div className="text-muted-foreground bg-background -mb-1 flex items-center justify-between rounded-t-md border border-b-0 px-4 py-2 pb-0">
+              <p className="text-sm">Background color</p>
+              <Button
+                size="xs"
+                variant="ghost"
+                onClick={() => {
+                  setIsBackgroundColorPickerOpen(false);
+                }}
+              >
+                <XIcon className="size-4" />
+              </Button>
+            </div>
+            <EditorColorPicker
+              value={backgroundColor}
+              onChange={setBackgroundColor}
+            />
+            <div className="bg-background space-y-2 rounded-b-md border border-t-0 p-4 pt-0">
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => {
+                  setIsBackgroundColorPickerOpen(false);
+                }}
+              >
+                <div className="rounded border border-current px-1 py-0.5 text-xs">
+                  Esc
+                </div>
+                <span>Cancel</span>
+              </Button>
+              <Button
+                className="w-full"
+                onClick={() => {
+                  handleBackgroundColorOpenChange(false);
+                }}
+              >
+                <span>Apply</span>
+              </Button>
+            </div>
+          </>
         </PopoverContent>
       </Popover>
     </div>

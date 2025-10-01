@@ -29,10 +29,11 @@ export default function executeEditorCommand(
   editor: LexicalEditor,
   command: EditorCommand
 ): Promise<Success | Failure> {
-  switch (command.type) {
-    case 'insertParagraph':
-      return new Promise((resolve) => {
-        editor.update(() => {
+  return new Promise((resolve) => {
+    editor.update(() => {
+      /* eslint-disable no-case-declarations */
+      switch (command.type) {
+        case 'insertParagraph':
           const root = $getRoot();
           const paragraphNode = $createParagraphNode();
           paragraphNode.append($createTextNode(command.content));
@@ -57,16 +58,12 @@ export default function executeEditorCommand(
             anchorNode.insertAfter(paragraphNode);
           }
 
-          resolve({
+          return resolve({
             ...$getNextEditorState(),
             status: 'success',
           });
-        });
-      });
 
-    case 'editParagraph':
-      return new Promise((resolve) => {
-        editor.update(() => {
+        case 'editParagraph':
           const nodeToEdit = $getNodeByKey(command.nodeKey);
 
           if (!nodeToEdit) {
@@ -80,16 +77,13 @@ export default function executeEditorCommand(
           const newParagraphNode = $createParagraphNode();
           newParagraphNode.append($createTextNode(command.newText));
           nodeToEdit.replace(newParagraphNode);
-          resolve({
+
+          return resolve({
             ...$getNextEditorState(),
             status: 'success',
           });
-        });
-      });
 
-    case 'formatText':
-      return new Promise((resolve) => {
-        editor.update(() => {
+        case 'formatText':
           const node = $getNodeByKey(command.parentNodeKey);
 
           const nodeTextContent = node?.getTextContent() ?? '';
@@ -112,11 +106,11 @@ export default function executeEditorCommand(
 
           editor.dispatchCommand(FORMAT_TEXT_COMMAND, command.format);
 
-          resolve({
+          return resolve({
             ...$getNextEditorState(),
             status: 'success',
           });
-        });
-      });
-  }
+      }
+    });
+  });
 }
