@@ -61,6 +61,31 @@ export default function useEditorToolbarSync() {
 
   const $updateToolbar = React.useCallback(() => {
     const selection = $getSelection();
+    const nativeSelection = window.getSelection();
+    const selectedElement = nativeSelection?.focusNode?.parentElement;
+
+    const [selectedNode] = selection?.getNodes() ?? [];
+
+    if (selectedNode && selectedElement) {
+      const { fontFamily, fontSize } = window.getComputedStyle(selectedElement);
+
+      updateToolbarState('fontSize', fontSize);
+
+      const defaultFontFamily = $isHeadingNode(
+        selectedNode.getTopLevelElement()
+      )
+        ? 'Ubuntu'
+        : 'Montserrat';
+
+      if (fontFamily.includes(defaultFontFamily)) {
+        updateToolbarState('fontFamily', defaultFontFamily);
+      } else if ($isRangeSelection(selection)) {
+        updateToolbarState(
+          'fontFamily',
+          $getSelectionStyleValueForProperty(selection, 'font-family', 'Arial')
+        );
+      }
+    }
 
     if ($isRangeSelection(selection)) {
       const anchorNode = selection.anchor.getNode();
@@ -95,10 +120,6 @@ export default function useEditorToolbarSync() {
           'background-color',
           '#fff'
         )
-      );
-      updateToolbarState(
-        'fontFamily',
-        $getSelectionStyleValueForProperty(selection, 'font-family', 'Arial')
       );
     }
 
