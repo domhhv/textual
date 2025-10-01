@@ -35,6 +35,7 @@ import {
 import * as React from 'react';
 
 import EditorColorPicker from '@/components/custom/editor-color-picker';
+import FontSizeInput from '@/components/custom/font-size-input';
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
 import { Button } from '@/components/ui/button';
 import {
@@ -74,6 +75,7 @@ import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
 import {
   formatQuote,
   formatHeading,
+  updateFontSize,
   formatCheckList,
   formatParagraph,
   clearFormatting,
@@ -139,6 +141,13 @@ export default function ToolbarEditorPlugin() {
           });
         }
       });
+    },
+    [editor]
+  );
+
+  const handleFontSizeChange = React.useCallback(
+    (newSize: string) => {
+      updateFontSize(editor, `${newSize}px`);
     },
     [editor]
   );
@@ -374,6 +383,11 @@ export default function ToolbarEditorPlugin() {
             <SelectItem value="Lora">Lora</SelectItem>
           </SelectContent>
         </Select>
+
+        <FontSizeInput
+          value={toolbarState.fontSize}
+          onChange={handleFontSizeChange}
+        />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild className="w-40 justify-between">

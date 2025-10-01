@@ -1,0 +1,122 @@
+'use client';
+
+import { PlusIcon, MinusIcon } from 'lucide-react';
+import * as React from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  MAX_ALLOWED_FONT_SIZE,
+  MIN_ALLOWED_FONT_SIZE,
+} from '@/lib/constants/initial-editor-toolbar-state';
+
+export default function FontSizeInput({
+  isDisabled = false,
+  onChange,
+  value,
+}: {
+  isDisabled?: boolean;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [inputValue, setInputValue] = React.useState<string>(value);
+
+  React.useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (['e', 'E', '+', '-'].includes(e.key)) {
+      e.preventDefault();
+
+      return;
+    }
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      updateFontSize(inputValue);
+    }
+  }
+
+  function handleBlur() {
+    updateFontSize(inputValue);
+  }
+
+  function updateFontSize(newValue: string) {
+    const numValue = Number(newValue);
+
+    if (isNaN(numValue) || newValue === '') {
+      setInputValue(value);
+
+      return;
+    }
+
+    let clampedValue = numValue;
+
+    if (numValue > MAX_ALLOWED_FONT_SIZE) {
+      clampedValue = MAX_ALLOWED_FONT_SIZE;
+    } else if (numValue < MIN_ALLOWED_FONT_SIZE) {
+      clampedValue = MIN_ALLOWED_FONT_SIZE;
+    }
+
+    const finalValue = String(clampedValue);
+
+    setInputValue(finalValue);
+    onChange(finalValue);
+  }
+
+  function handleIncrement() {
+    const currentValue = Number(inputValue) || Number(value);
+    const newValue = Math.min(currentValue + 1, MAX_ALLOWED_FONT_SIZE);
+    const finalValue = String(newValue);
+
+    setInputValue(finalValue);
+    onChange(finalValue);
+  }
+
+  function handleDecrement() {
+    const currentValue = Number(inputValue) || Number(value);
+    const newValue = Math.max(currentValue - 1, MIN_ALLOWED_FONT_SIZE);
+    const finalValue = String(newValue);
+
+    setInputValue(finalValue);
+    onChange(finalValue);
+  }
+
+  return (
+    <div className="flex items-center gap-1">
+      <Button
+        size="icon"
+        type="button"
+        variant="ghost"
+        onClick={handleDecrement}
+        disabled={isDisabled || Number(inputValue) <= MIN_ALLOWED_FONT_SIZE}
+      >
+        <MinusIcon className="h-4 w-4" />
+      </Button>
+      <Input
+        type="number"
+        placeholder=""
+        value={inputValue}
+        onBlur={handleBlur}
+        disabled={isDisabled}
+        onKeyDown={handleKeyDown}
+        max={MAX_ALLOWED_FONT_SIZE}
+        min={MIN_ALLOWED_FONT_SIZE}
+        className="h-9 w-16 text-center"
+        onChange={(e) => {
+          return setInputValue(e.target.value);
+        }}
+      />
+      <Button
+        size="icon"
+        type="button"
+        variant="ghost"
+        onClick={handleIncrement}
+        disabled={isDisabled || Number(inputValue) >= MAX_ALLOWED_FONT_SIZE}
+      >
+        <PlusIcon className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+}

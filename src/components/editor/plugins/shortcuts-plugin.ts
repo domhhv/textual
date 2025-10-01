@@ -22,7 +22,6 @@ import {
   formatParagraph,
   formatBulletList,
   formatNumberedList,
-  UpdateFontSizeType,
 } from '@/lib/utils/editor-formatters';
 import {
   isIndent,
@@ -98,17 +97,11 @@ export default function ShortcutsPlugin() {
       } else if (isSuperscript(event)) {
         editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'superscript');
       } else if (isIncreaseFontSize(event)) {
-        updateFontSize(
-          editor,
-          UpdateFontSizeType.INCREMENT,
-          toolbarState.fontSizeInputValue
-        );
+        const currentSize = parseInt(toolbarState.fontSize) || 15;
+        updateFontSize(editor, `${currentSize + 1}px`);
       } else if (isDecreaseFontSize(event)) {
-        updateFontSize(
-          editor,
-          UpdateFontSizeType.DECREMENT,
-          toolbarState.fontSizeInputValue
-        );
+        const currentSize = parseInt(toolbarState.fontSize) || 15;
+        updateFontSize(editor, `${currentSize - 1}px`);
       } else if (isClearFormatting(event)) {
         clearFormatting(editor);
       } else {
@@ -129,7 +122,7 @@ export default function ShortcutsPlugin() {
     editor,
     toolbarState.isLink,
     toolbarState.blockType,
-    toolbarState.fontSizeInputValue,
+    toolbarState.fontSize,
   ]);
 
   return null;
