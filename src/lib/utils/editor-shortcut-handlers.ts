@@ -3,7 +3,7 @@ import { isModifierMatch } from 'lexical';
 
 const CONTROL_OR_META = { ctrlKey: !IS_APPLE, metaKey: IS_APPLE };
 
-export function isFormatParagraph(event: KeyboardEvent): boolean {
+export function isFormatParagraph(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -12,7 +12,7 @@ export function isFormatParagraph(event: KeyboardEvent): boolean {
   );
 }
 
-export function isFormatHeading(event: KeyboardEvent): boolean {
+export function isFormatHeading(event: KeyboardEvent) {
   const { code } = event;
 
   if (!code) {
@@ -27,7 +27,7 @@ export function isFormatHeading(event: KeyboardEvent): boolean {
   );
 }
 
-export function isFormatNumberedList(event: KeyboardEvent): boolean {
+export function isFormatNumberedList(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -36,7 +36,7 @@ export function isFormatNumberedList(event: KeyboardEvent): boolean {
   );
 }
 
-export function isFormatBulletList(event: KeyboardEvent): boolean {
+export function isFormatBulletList(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -45,7 +45,7 @@ export function isFormatBulletList(event: KeyboardEvent): boolean {
   );
 }
 
-export function isFormatCheckList(event: KeyboardEvent): boolean {
+export function isFormatCheckList(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -54,7 +54,7 @@ export function isFormatCheckList(event: KeyboardEvent): boolean {
   );
 }
 
-export function isFormatCode(event: KeyboardEvent): boolean {
+export function isFormatCode(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -63,7 +63,7 @@ export function isFormatCode(event: KeyboardEvent): boolean {
   );
 }
 
-export function isFormatQuote(event: KeyboardEvent): boolean {
+export function isFormatQuote(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -75,7 +75,7 @@ export function isFormatQuote(event: KeyboardEvent): boolean {
   );
 }
 
-export function isLowercase(event: KeyboardEvent): boolean {
+export function isLowercase(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -84,7 +84,7 @@ export function isLowercase(event: KeyboardEvent): boolean {
   );
 }
 
-export function isUppercase(event: KeyboardEvent): boolean {
+export function isUppercase(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -93,7 +93,7 @@ export function isUppercase(event: KeyboardEvent): boolean {
   );
 }
 
-export function isCapitalize(event: KeyboardEvent): boolean {
+export function isCapitalize(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -102,7 +102,7 @@ export function isCapitalize(event: KeyboardEvent): boolean {
   );
 }
 
-export function isStrikeThrough(event: KeyboardEvent): boolean {
+export function isStrikeThrough(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -111,19 +111,19 @@ export function isStrikeThrough(event: KeyboardEvent): boolean {
   );
 }
 
-export function isIndent(event: KeyboardEvent): boolean {
+export function isIndent(event: KeyboardEvent) {
   const { code } = event;
 
   return code === 'BracketRight' && isModifierMatch(event, CONTROL_OR_META);
 }
 
-export function isOutdent(event: KeyboardEvent): boolean {
+export function isOutdent(event: KeyboardEvent) {
   const { code } = event;
 
   return code === 'BracketLeft' && isModifierMatch(event, CONTROL_OR_META);
 }
 
-export function isCenterAlign(event: KeyboardEvent): boolean {
+export function isCenterAlign(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -132,7 +132,7 @@ export function isCenterAlign(event: KeyboardEvent): boolean {
   );
 }
 
-export function isLeftAlign(event: KeyboardEvent): boolean {
+export function isLeftAlign(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -141,7 +141,7 @@ export function isLeftAlign(event: KeyboardEvent): boolean {
   );
 }
 
-export function isRightAlign(event: KeyboardEvent): boolean {
+export function isRightAlign(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -150,7 +150,7 @@ export function isRightAlign(event: KeyboardEvent): boolean {
   );
 }
 
-export function isJustifyAlign(event: KeyboardEvent): boolean {
+export function isJustifyAlign(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -159,19 +159,19 @@ export function isJustifyAlign(event: KeyboardEvent): boolean {
   );
 }
 
-export function isSubscript(event: KeyboardEvent): boolean {
+export function isSubscript(event: KeyboardEvent) {
   const { code } = event;
 
   return code === 'Comma' && isModifierMatch(event, CONTROL_OR_META);
 }
 
-export function isSuperscript(event: KeyboardEvent): boolean {
+export function isSuperscript(event: KeyboardEvent) {
   const { code } = event;
 
   return code === 'Period' && isModifierMatch(event, CONTROL_OR_META);
 }
 
-export function isInsertCodeBlock(event: KeyboardEvent): boolean {
+export function isInsertCodeBlock(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -180,7 +180,7 @@ export function isInsertCodeBlock(event: KeyboardEvent): boolean {
   );
 }
 
-export function isIncreaseFontSize(event: KeyboardEvent): boolean {
+export function isIncreaseFontSize(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -189,7 +189,7 @@ export function isIncreaseFontSize(event: KeyboardEvent): boolean {
   );
 }
 
-export function isDecreaseFontSize(event: KeyboardEvent): boolean {
+export function isDecreaseFontSize(event: KeyboardEvent) {
   const { code } = event;
 
   return (
@@ -198,19 +198,19 @@ export function isDecreaseFontSize(event: KeyboardEvent): boolean {
   );
 }
 
-export function isClearFormatting(event: KeyboardEvent): boolean {
+export function isClearFormatting(event: KeyboardEvent) {
   const { code } = event;
 
   return code === 'Backslash' && isModifierMatch(event, CONTROL_OR_META);
 }
 
-export function isInsertLink(event: KeyboardEvent): boolean {
+export function isInsertLink(event: KeyboardEvent) {
   const { code } = event;
 
   return code === 'KeyK' && isModifierMatch(event, CONTROL_OR_META);
 }
 
-export function isAddComment(event: KeyboardEvent): boolean {
+export function isAddComment(event: KeyboardEvent) {
   const { code } = event;
 
   return (

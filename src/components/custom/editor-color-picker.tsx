@@ -14,7 +14,7 @@ import {
   ColorPickerEyeDropper,
 } from '@/components/ui/color-picker';
 
-function generatePastelColors(count: number): string[] {
+function generatePastelColors(count: number) {
   return Array.from({ length: count }, () => {
     const hue = Math.floor(Math.random() * 360);
     const saturation = Math.floor(Math.random() * 30) + 60;

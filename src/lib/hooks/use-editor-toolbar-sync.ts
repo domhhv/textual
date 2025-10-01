@@ -1,16 +1,21 @@
+import { $isLinkNode } from '@lexical/link';
 import { ListNode, $isListNode } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
-import { $getSelectionStyleValueForProperty } from '@lexical/selection';
+import {
+  $isAtNodeEnd,
+  $getSelectionStyleValueForProperty,
+} from '@lexical/selection';
 import { $isTableSelection } from '@lexical/table';
 import {
   mergeRegister,
   $findMatchingParent,
   $getNearestNodeOfType,
 } from '@lexical/utils';
-import type { LexicalNode } from 'lexical';
+import type { LexicalNode, RangeSelection, ElementFormatType } from 'lexical';
 import {
   $getSelection,
+  $isElementNode,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   $isRangeSelection,
@@ -39,6 +44,37 @@ function $findTopLevelElement(node: LexicalNode) {
   return topLevelElement;
 }
 
+function getSelectedNode(selection: RangeSelection) {
+  const anchor = selection.anchor;
+  const focus = selection.focus;
+  const anchorNode = selection.anchor.getNode();
+  const focusNode = selection.focus.getNode();
+
+  if (anchorNode === focusNode) {
+    return anchorNode;
+  }
+
+  const isBackward = selection.isBackward();
+
+  if (isBackward) {
+    return $isAtNodeEnd(focus) ? anchorNode : focusNode;
+  } else {
+    return $isAtNodeEnd(anchor) ? anchorNode : focusNode;
+  }
+}
+
+function normalizeFormatType(format: ElementFormatType) {
+  if (format === '' || format === 'start') {
+    return 'left';
+  }
+
+  if (format === 'end') {
+    return 'right';
+  }
+
+  return format;
+}
+
 export default function useEditorToolbarSync() {
   const [editor] = useLexicalComposerContext();
   const { updateToolbarState } = React.use(ToolbarStateContext);
@@ -63,7 +99,6 @@ export default function useEditorToolbarSync() {
     const selection = $getSelection();
     const nativeSelection = window.getSelection();
     const selectedElement = nativeSelection?.focusNode?.parentElement;
-
     const [selectedNode] = selection?.getNodes() ?? [];
 
     if (selectedNode && selectedElement) {
@@ -92,6 +127,30 @@ export default function useEditorToolbarSync() {
       const element = $findTopLevelElement(anchorNode);
       const elementKey = element.getKey();
       const elementDOM = editor.getElementByKey(elementKey);
+
+      const node = getSelectedNode(selection);
+      const parent = node.getParent();
+      const isLink = $isLinkNode(parent) || $isLinkNode(node);
+      updateToolbarState('isLink', isLink);
+
+      let matchingParent;
+
+      if ($isLinkNode(parent)) {
+        matchingParent = $findMatchingParent(node, (parentNode) => {
+          return $isElementNode(parentNode) && !parentNode.isInline();
+        });
+      }
+
+      const elementFormatValue = $isElementNode(matchingParent)
+        ? matchingParent.getFormatType()
+        : $isElementNode(node)
+          ? node.getFormatType()
+          : parent?.getFormatType() || 'left';
+
+      updateToolbarState(
+        'elementFormat',
+        normalizeFormatType(elementFormatValue)
+      );
 
       if (elementDOM !== null) {
         if ($isListNode(element)) {
@@ -132,6 +191,12 @@ export default function useEditorToolbarSync() {
         'isStrikethrough',
         selection.hasFormat('strikethrough')
       );
+      updateToolbarState('isSubscript', selection.hasFormat('subscript'));
+      updateToolbarState('isSuperscript', selection.hasFormat('superscript'));
+      updateToolbarState('isHighlight', selection.hasFormat('highlight'));
+      updateToolbarState('isLowercase', selection.hasFormat('lowercase'));
+      updateToolbarState('isUppercase', selection.hasFormat('uppercase'));
+      updateToolbarState('isCapitalize', selection.hasFormat('capitalize'));
     }
   }, [updateToolbarState, editor, $handleHeadingNode]);
 
