@@ -63,7 +63,7 @@ export default function Editor() {
       <RichTextPlugin
         ErrorBoundary={LexicalErrorBoundary}
         contentEditable={
-          <div className="border-border relative h-[calc(100%-52px)] overflow-y-auto border-t px-[1px] pb-[1px] focus-within:border focus-within:border-white focus-within:px-0 focus-within:pb-0.5">
+          <div className="border-border focus-within:border-foreground relative h-[calc(100%-52px)] overflow-y-auto border-t px-[1px] pb-[1px] focus-within:border focus-within:px-0 focus-within:pb-0.5">
             <ContentEditable
               className="h-full p-4 outline-none"
               onFocus={() => {
