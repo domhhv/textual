@@ -1,5 +1,5 @@
 import { $isLinkNode } from '@lexical/link';
-import { ListNode, $isListNode } from '@lexical/list';
+import { $isListNode } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
 import {
@@ -7,11 +7,7 @@ import {
   $getSelectionStyleValueForProperty,
 } from '@lexical/selection';
 import { $isTableSelection } from '@lexical/table';
-import {
-  mergeRegister,
-  $findMatchingParent,
-  $getNearestNodeOfType,
-} from '@lexical/utils';
+import { mergeRegister, $findMatchingParent } from '@lexical/utils';
 import type { LexicalNode, RangeSelection, ElementFormatType } from 'lexical';
 import {
   $getSelection,
@@ -79,22 +75,6 @@ export default function useEditorToolbarSync() {
   const [editor] = useLexicalComposerContext();
   const { updateToolbarState } = React.use(ToolbarStateContext);
 
-  const $handleHeadingNode = React.useCallback(
-    (selectedElement: LexicalNode) => {
-      const type = $isHeadingNode(selectedElement)
-        ? selectedElement.getTag()
-        : selectedElement.getType();
-
-      if (type in blockTypeToBlockName) {
-        updateToolbarState(
-          'blockType',
-          type as keyof typeof blockTypeToBlockName
-        );
-      }
-    },
-    [updateToolbarState]
-  );
-
   const $updateToolbar = React.useCallback(() => {
     const selection = $getSelection();
     const nativeSelection = window.getSelection();
@@ -104,82 +84,173 @@ export default function useEditorToolbarSync() {
     if (selectedNode && selectedElement) {
       const { fontFamily, fontSize } = window.getComputedStyle(selectedElement);
 
-      updateToolbarState('fontSize', fontSize);
+      if ($isRangeSelection(selection)) {
+        const nodes = selection.getNodes();
+        const fontSizes = new Set<string>();
+        const fontFamilies = new Set<string>();
+        const fontColors = new Set<string>();
+        const backgroundColors = new Set<string>();
 
-      const defaultFontFamily = $isHeadingNode(
-        selectedNode.getTopLevelElement()
-      )
-        ? 'Ubuntu'
-        : 'Montserrat';
+        nodes.forEach((node) => {
+          const element = editor.getElementByKey(node.getKey());
 
-      if (fontFamily.includes(defaultFontFamily)) {
-        updateToolbarState('fontFamily', defaultFontFamily);
-      } else if ($isRangeSelection(selection)) {
+          if (element && element instanceof Element) {
+            const computedStyle = window.getComputedStyle(element);
+            fontSizes.add(computedStyle.fontSize.replace('px', ''));
+
+            const computedFontFamily = computedStyle.fontFamily;
+            const defaultFontFamily = $isHeadingNode(node.getTopLevelElement())
+              ? 'Ubuntu'
+              : 'Montserrat';
+
+            if (computedFontFamily.includes(defaultFontFamily)) {
+              fontFamilies.add(defaultFontFamily);
+            } else {
+              fontFamilies.add(
+                computedFontFamily.split(',')[0].replace(/['"]/g, '')
+              );
+            }
+
+            fontColors.add(computedStyle.color);
+            backgroundColors.add(computedStyle.backgroundColor);
+          }
+        });
+
+        if (fontSizes.size > 1) {
+          updateToolbarState('fontSize', '');
+        } else {
+          const fontSizeNumeric = fontSize.replace('px', '');
+          updateToolbarState('fontSize', fontSizeNumeric);
+        }
+
+        if (fontFamilies.size > 1) {
+          updateToolbarState('fontFamily', '');
+        } else {
+          const defaultFontFamily = $isHeadingNode(
+            selectedNode.getTopLevelElement()
+          )
+            ? 'Ubuntu'
+            : 'Montserrat';
+
+          if (fontFamily.includes(defaultFontFamily)) {
+            updateToolbarState('fontFamily', defaultFontFamily);
+          } else {
+            updateToolbarState(
+              'fontFamily',
+              $getSelectionStyleValueForProperty(
+                selection,
+                'font-family',
+                'Arial'
+              )
+            );
+          }
+        }
+
+        if (fontColors.size > 1) {
+          updateToolbarState('fontColor', '');
+        } else {
+          updateToolbarState(
+            'fontColor',
+            $getSelectionStyleValueForProperty(selection, 'color', '#000')
+          );
+        }
+
+        if (backgroundColors.size > 1) {
+          updateToolbarState('backgroundColor', '');
+        } else {
+          updateToolbarState(
+            'backgroundColor',
+            $getSelectionStyleValueForProperty(
+              selection,
+              'background-color',
+              '#fff'
+            )
+          );
+        }
+      } else {
+        const fontSizeNumeric = fontSize.replace('px', '');
+        updateToolbarState('fontSize', fontSizeNumeric);
+
+        const defaultFontFamily = $isHeadingNode(
+          selectedNode.getTopLevelElement()
+        )
+          ? 'Ubuntu'
+          : 'Montserrat';
+
+        if (fontFamily.includes(defaultFontFamily)) {
+          updateToolbarState('fontFamily', defaultFontFamily);
+        } else {
+          updateToolbarState(
+            'fontFamily',
+            fontFamily.split(',')[0].replace(/['"]/g, '')
+          );
+        }
+
         updateToolbarState(
-          'fontFamily',
-          $getSelectionStyleValueForProperty(selection, 'font-family', 'Arial')
+          'fontColor',
+          window.getComputedStyle(selectedElement).color
+        );
+        updateToolbarState(
+          'backgroundColor',
+          window.getComputedStyle(selectedElement).backgroundColor
         );
       }
     }
 
     if ($isRangeSelection(selection)) {
-      const anchorNode = selection.anchor.getNode();
-      const element = $findTopLevelElement(anchorNode);
-      const elementKey = element.getKey();
-      const elementDOM = editor.getElementByKey(elementKey);
-
+      const nodes = selection.getNodes();
       const node = getSelectedNode(selection);
       const parent = node.getParent();
       const isLink = $isLinkNode(parent) || $isLinkNode(node);
       updateToolbarState('isLink', isLink);
 
-      let matchingParent;
+      const elementFormats = new Set<string>();
+      const blockTypes = new Set<string>();
 
-      if ($isLinkNode(parent)) {
-        matchingParent = $findMatchingParent(node, (parentNode) => {
-          return $isElementNode(parentNode) && !parentNode.isInline();
-        });
+      nodes.forEach((node) => {
+        const topLevelElement = $findTopLevelElement(node);
+
+        if ($isElementNode(topLevelElement)) {
+          elementFormats.add(
+            normalizeFormatType(topLevelElement.getFormatType())
+          );
+        }
+
+        if ($isListNode(topLevelElement)) {
+          blockTypes.add(topLevelElement.getListType());
+        } else if ($isHeadingNode(topLevelElement)) {
+          blockTypes.add(topLevelElement.getTag());
+        } else {
+          blockTypes.add(topLevelElement.getType());
+        }
+      });
+
+      if (elementFormats.size > 1) {
+        updateToolbarState('elementFormat', '');
+      } else if (elementFormats.size === 1) {
+        updateToolbarState(
+          'elementFormat',
+          Array.from(elementFormats)[0] as
+            | 'left'
+            | 'center'
+            | 'right'
+            | 'justify'
+            | ''
+        );
       }
 
-      const elementFormatValue = $isElementNode(matchingParent)
-        ? matchingParent.getFormatType()
-        : $isElementNode(node)
-          ? node.getFormatType()
-          : parent?.getFormatType() || 'left';
+      if (blockTypes.size > 1) {
+        updateToolbarState('blockType', 'paragraph');
+      } else if (blockTypes.size === 1) {
+        const blockType = Array.from(blockTypes)[0];
 
-      updateToolbarState(
-        'elementFormat',
-        normalizeFormatType(elementFormatValue)
-      );
-
-      if (elementDOM !== null) {
-        if ($isListNode(element)) {
-          const parentList = $getNearestNodeOfType<ListNode>(
-            anchorNode,
-            ListNode
+        if (blockType in blockTypeToBlockName) {
+          updateToolbarState(
+            'blockType',
+            blockType as keyof typeof blockTypeToBlockName
           );
-          const type = parentList
-            ? parentList.getListType()
-            : element.getListType();
-
-          updateToolbarState('blockType', type);
-        } else {
-          $handleHeadingNode(element);
         }
       }
-
-      updateToolbarState(
-        'fontColor',
-        $getSelectionStyleValueForProperty(selection, 'color', '#000')
-      );
-      updateToolbarState(
-        'backgroundColor',
-        $getSelectionStyleValueForProperty(
-          selection,
-          'background-color',
-          '#fff'
-        )
-      );
     }
 
     if ($isRangeSelection(selection) || $isTableSelection(selection)) {
@@ -198,7 +269,7 @@ export default function useEditorToolbarSync() {
       updateToolbarState('isUppercase', selection.hasFormat('uppercase'));
       updateToolbarState('isCapitalize', selection.hasFormat('capitalize'));
     }
-  }, [updateToolbarState, editor, $handleHeadingNode]);
+  }, [updateToolbarState, editor]);
 
   React.useEffect(() => {
     return mergeRegister(

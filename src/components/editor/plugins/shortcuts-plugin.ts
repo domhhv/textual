@@ -13,6 +13,10 @@ import * as React from 'react';
 
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
 import {
+  MAX_ALLOWED_FONT_SIZE,
+  MIN_ALLOWED_FONT_SIZE,
+} from '@/lib/constants/initial-editor-toolbar-state';
+import {
   formatCode,
   formatQuote,
   formatHeading,
@@ -22,7 +26,6 @@ import {
   formatParagraph,
   formatBulletList,
   formatNumberedList,
-  UpdateFontSizeType,
 } from '@/lib/utils/editor-formatters';
 import {
   isIndent,
@@ -98,17 +101,13 @@ export default function ShortcutsPlugin() {
       } else if (isSuperscript(event)) {
         editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'superscript');
       } else if (isIncreaseFontSize(event)) {
-        updateFontSize(
-          editor,
-          UpdateFontSizeType.INCREMENT,
-          toolbarState.fontSizeInputValue
-        );
+        const currentSize = parseInt(toolbarState.fontSize, 10) || 15;
+        const newSize = Math.min(currentSize + 1, MAX_ALLOWED_FONT_SIZE);
+        updateFontSize(editor, `${newSize}px`);
       } else if (isDecreaseFontSize(event)) {
-        updateFontSize(
-          editor,
-          UpdateFontSizeType.DECREMENT,
-          toolbarState.fontSizeInputValue
-        );
+        const currentSize = parseInt(toolbarState.fontSize, 10) || 15;
+        const newSize = Math.max(currentSize - 1, MIN_ALLOWED_FONT_SIZE);
+        updateFontSize(editor, `${newSize}px`);
       } else if (isClearFormatting(event)) {
         clearFormatting(editor);
       } else {
@@ -129,7 +128,7 @@ export default function ShortcutsPlugin() {
     editor,
     toolbarState.isLink,
     toolbarState.blockType,
-    toolbarState.fontSizeInputValue,
+    toolbarState.fontSize,
   ]);
 
   return null;
