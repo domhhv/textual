@@ -1,7 +1,6 @@
 'use client';
 
 import * as Slider from '@radix-ui/react-slider';
-import type { ColorLike } from 'color';
 import Color from 'color';
 import { PipetteIcon } from 'lucide-react';
 import * as React from 'react';
@@ -60,8 +59,9 @@ function ColorPicker({
   value,
   ...props
 }: ColorPickerProps) {
-  let selectedColor: ColorLike;
-  let defaultColor: ColorLike;
+  type ColorInstance = ReturnType<typeof Color>;
+  let selectedColor: ColorInstance;
+  let defaultColor: ColorInstance;
 
   try {
     selectedColor = Color(value);

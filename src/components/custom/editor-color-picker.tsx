@@ -75,8 +75,8 @@ export default function EditorColorPicker({
         })}
         <Button
           type="button"
+          className="h-5 w-5 rounded p-0!"
           onClick={handleRegeneratePresets}
-          className="p h-5 w-5 rounded px-0!"
           aria-label="Regenerate preset colors"
         >
           <RefreshCwIcon className="size-3" />
