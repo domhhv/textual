@@ -6,6 +6,12 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import EDITOR_SHORTCUTS from '@/lib/constants/editor-shortcuts';
+import {
   MAX_ALLOWED_FONT_SIZE,
   MIN_ALLOWED_FONT_SIZE,
 } from '@/lib/constants/initial-editor-toolbar-state';
@@ -85,15 +91,25 @@ export default function FontSizeInput({
 
   return (
     <div className="flex items-center gap-1">
-      <Button
-        size="icon"
-        type="button"
-        variant="ghost"
-        onClick={handleDecrement}
-        disabled={isDisabled || Number(inputValue) <= MIN_ALLOWED_FONT_SIZE}
-      >
-        <MinusIcon className="h-4 w-4" />
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            size="icon"
+            type="button"
+            variant="ghost"
+            onClick={handleDecrement}
+            disabled={isDisabled || Number(inputValue) <= MIN_ALLOWED_FONT_SIZE}
+          >
+            <MinusIcon className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent className="flex items-center gap-2 px-2 py-2 pr-2.5">
+          <div className="rounded border border-slate-300 px-1 py-0.5 text-xs text-slate-300 dark:border-slate-700 dark:text-slate-700">
+            {EDITOR_SHORTCUTS.DECREASE_FONT_SIZE}
+          </div>
+          <span className="text-sm">Decrease font size</span>
+        </TooltipContent>
+      </Tooltip>
       <Input
         type="number"
         placeholder=""
@@ -108,15 +124,25 @@ export default function FontSizeInput({
           return setInputValue(e.target.value);
         }}
       />
-      <Button
-        size="icon"
-        type="button"
-        variant="ghost"
-        onClick={handleIncrement}
-        disabled={isDisabled || Number(inputValue) >= MAX_ALLOWED_FONT_SIZE}
-      >
-        <PlusIcon className="h-4 w-4" />
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            size="icon"
+            type="button"
+            variant="ghost"
+            onClick={handleIncrement}
+            disabled={isDisabled || Number(inputValue) >= MAX_ALLOWED_FONT_SIZE}
+          >
+            <PlusIcon className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent className="flex items-center gap-2 px-2 py-2 pr-2.5">
+          <div className="rounded border border-slate-300 px-1 py-0.5 text-xs text-slate-300 dark:border-slate-700 dark:text-slate-700">
+            {EDITOR_SHORTCUTS.INCREASE_FONT_SIZE}
+          </div>
+          <span className="text-sm">Increase font size</span>
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 }

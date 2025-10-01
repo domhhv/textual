@@ -94,7 +94,7 @@ export default function useEditorToolbarSync() {
         nodes.forEach((node) => {
           const element = editor.getElementByKey(node.getKey());
 
-          if (element) {
+          if (element && element instanceof Element) {
             const computedStyle = window.getComputedStyle(element);
             fontSizes.add(computedStyle.fontSize.replace('px', ''));
 
