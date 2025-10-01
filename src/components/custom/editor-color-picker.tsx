@@ -13,7 +13,6 @@ import {
   ColorPickerSelection,
   ColorPickerEyeDropper,
 } from '@/components/ui/color-picker';
-import cn from '@/lib/utils/cn';
 
 function generatePastelColors(count: number): string[] {
   return Array.from({ length: count }, () => {
@@ -26,13 +25,11 @@ function generatePastelColors(count: number): string[] {
 }
 
 type EditorColorPickerProps = {
-  className?: string;
   value: string;
   onChange: (value: string) => void;
 };
 
 export default function EditorColorPicker({
-  className,
   onChange,
   value,
 }: EditorColorPickerProps) {
@@ -60,14 +57,7 @@ export default function EditorColorPicker({
   }, []);
 
   return (
-    <ColorPicker
-      value={value}
-      onChange={handleChange}
-      className={cn(
-        'bg-background h-96 w-[305px] max-w-sm border border-t-0 border-b-0 p-4 shadow-sm',
-        className
-      )}
-    >
+    <ColorPicker value={value} className="h-96" onChange={handleChange}>
       <div className="grid grid-cols-10 gap-2">
         {presetColors.map((color, index) => {
           return (
@@ -100,7 +90,7 @@ export default function EditorColorPicker({
           <ColorPickerAlpha />
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2">
         <ColorPickerOutput className="h-8! w-[68px] px-2" />
         <ColorPickerFormat />
       </div>

@@ -85,28 +85,30 @@ function ColorPicker({
     selectedColor.lightness() || defaultColor.lightness() || 50
   );
   const [alpha, setAlpha] = React.useState(
-    selectedColor.alpha() * 100 || defaultColor.alpha() * 100
+    (selectedColor.alpha() ?? defaultColor.alpha()) * 100
   );
   const [mode, setMode] = React.useState('hex');
 
   const isInternalUpdate = React.useRef(false);
 
-  // Update color when controlled value changes from outside
   React.useEffect(() => {
     if (value && !isInternalUpdate.current) {
-      const color = Color(value);
-      const [h, s, l] = color.hsl().array();
+      try {
+        const color = Color(value);
+        const [h, s, l] = color.hsl().array();
 
-      setHue(h);
-      setSaturation(s);
-      setLightness(l);
-      setAlpha(color.alpha() * 100);
+        setHue(h);
+        setSaturation(s);
+        setLightness(l);
+        setAlpha(color.alpha() * 100);
+      } catch (error) {
+        console.error('Invalid color value provided:', value, error);
+      }
     }
 
     isInternalUpdate.current = false;
   }, [value]);
 
-  // Notify parent of changes
   const onChangeRef = React.useRef(onChange);
   React.useEffect(() => {
     onChangeRef.current = onChange;
@@ -302,7 +304,7 @@ function ColorPickerEyeDropper({
 
   const handleEyeDropper = React.useCallback(async () => {
     try {
-      // @ts-expect-error - EyeDropper API is experimental
+      // @ts-expect-error - EyeDropper is not yet in the TypeScript library
       const eyeDropper = new EyeDropper();
       const result = await eyeDropper.open();
       const color = Color(result.sRGBHex);
@@ -369,7 +371,7 @@ function PercentageInput({ className, ...props }: PercentageInputProps) {
         type="number"
         {...props}
         className={cn(
-          'bg-secondary h-8 w-[3.5rem] rounded-l-none px-2 text-xs shadow-none',
+          'h-8 w-[3.5rem] rounded-l-none px-2 text-xs shadow-none',
           className
         )}
       />
@@ -393,7 +395,7 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
     return (
       <div
         className={cn(
-          'relative flex w-full items-center justify-end -space-x-px rounded-md shadow-sm',
+          'relative flex w-full items-center justify-end -space-x-px rounded-md shadow-xs',
           className
         )}
         {...props}
@@ -402,7 +404,7 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
           readOnly
           type="text"
           value={hex}
-          className="bg-secondary h-8 w-36 rounded-r-none px-2 text-xs shadow-none"
+          className="h-8 w-36 rounded-r-none px-2 text-xs shadow-none"
         />
         <PercentageInput value={alpha} />
       </div>
@@ -413,6 +415,7 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
     const rgb = color
       .rgb()
       .array()
+      .slice(0, 3)
       .map((value) => {
         return Math.round(value);
       });
@@ -420,7 +423,7 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
     return (
       <div
         className={cn(
-          'flex items-center -space-x-px rounded-md shadow-sm',
+          'flex items-center -space-x-px rounded-md shadow-xs',
           className
         )}
         {...props}
@@ -433,7 +436,7 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
               type="text"
               value={value}
               className={cn(
-                'bg-secondary h-8 w-12 rounded-r-none px-2 text-xs shadow-none',
+                'h-8 w-12 rounded-r-none px-2 text-xs shadow-none',
                 index && 'rounded-l-none',
                 className
               )}
@@ -449,17 +452,18 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
     const rgb = color
       .rgb()
       .array()
+      .slice(0, 3)
       .map((value) => {
         return Math.round(value);
       });
 
     return (
-      <div className={cn('w-full rounded-md shadow-sm', className)} {...props}>
+      <div className={cn('w-full rounded-md shadow-xs', className)} {...props}>
         <Input
           readOnly
           type="text"
           value={`rgba(${rgb.join(', ')}, ${alpha}%)`}
-          className="bg-secondary h-8 w-48 px-2 text-xs shadow-none"
+          className="h-8 w-full px-2 text-xs shadow-none"
           {...props}
         />
       </div>
@@ -470,6 +474,7 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
     const hsl = color
       .hsl()
       .array()
+      .slice(0, 3)
       .map((value) => {
         return Math.round(value);
       });
@@ -477,7 +482,7 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
     return (
       <div
         className={cn(
-          'flex items-center -space-x-px rounded-md shadow-sm',
+          'flex items-center -space-x-px rounded-md shadow-xs',
           className
         )}
         {...props}
@@ -490,7 +495,7 @@ function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
               type="text"
               value={value}
               className={cn(
-                'bg-secondary h-8 w-12 rounded-r-none px-2 text-xs shadow-none',
+                'h-8 w-12 rounded-r-none px-2 text-xs shadow-none',
                 index && 'rounded-l-none',
                 className
               )}

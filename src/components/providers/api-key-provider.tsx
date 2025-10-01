@@ -35,7 +35,6 @@ export function ApiKeyProvider({ children }: { children: React.ReactNode }) {
         } else {
           setApiKeyState(null);
 
-          // Show appropriate toast notifications for different error types
           if (result.error && result.error !== 'not_found') {
             const errorMessages = {
               corrupted: 'API Key Corrupted',

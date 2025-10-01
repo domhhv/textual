@@ -74,6 +74,14 @@ export default function ToolbarEditorPlugin() {
     React.useState<string>('#000000');
   useEditorToolbarSync();
 
+  React.useEffect(() => {
+    setFontColor(toolbarState.fontColor || '#000000');
+  }, [toolbarState.fontColor]);
+
+  React.useEffect(() => {
+    setBackgroundColor(toolbarState.backgroundColor || '#ffffff');
+  }, [toolbarState.backgroundColor]);
+
   const applyStyleText = React.useCallback(
     (styles: Record<string, string>) => {
       editor.update(
@@ -90,48 +98,42 @@ export default function ToolbarEditorPlugin() {
     [editor]
   );
 
-  const handleFontColorOpenChange = React.useCallback(
-    (open: boolean) => {
-      setIsFontColorPickerOpen(open);
-      setIsBackgroundColorPickerOpen(false);
+  const applyFontColor = React.useCallback(() => {
+    setIsFontColorPickerOpen(false);
+    applyStyleText({ color: fontColor });
+  }, [applyStyleText, fontColor]);
 
-      if (!open) {
-        applyStyleText({ color: fontColor.toString() });
-      }
-    },
-    [fontColor, applyStyleText]
-  );
+  const applyBackgroundColor = React.useCallback(() => {
+    setIsBackgroundColorPickerOpen(false);
+    applyStyleText({ 'background-color': backgroundColor });
+  }, [applyStyleText, backgroundColor]);
 
-  const handleBackgroundColorOpenChange = React.useCallback(
-    (open: boolean) => {
-      setIsBackgroundColorPickerOpen(open);
-      setIsFontColorPickerOpen(false);
+  const handleFontColorOpenChange = React.useCallback((open: boolean) => {
+    setIsFontColorPickerOpen(open);
+    setIsBackgroundColorPickerOpen(false);
+  }, []);
 
-      if (!open && backgroundColor) {
-        applyStyleText({ 'background-color': backgroundColor.toString() });
-      }
-    },
-    [backgroundColor, applyStyleText]
-  );
+  const handleBackgroundColorOpenChange = React.useCallback((open: boolean) => {
+    setIsBackgroundColorPickerOpen(open);
+    setIsFontColorPickerOpen(false);
+  }, []);
 
   React.useEffect(() => {
-    setFontColor(toolbarState.fontColor || '#000000');
-  }, [toolbarState.fontColor]);
+    if (!isFontColorPickerOpen && !isBackgroundColorPickerOpen) {
+      return;
+    }
 
-  React.useEffect(() => {
-    setBackgroundColor(toolbarState.backgroundColor || '#ffffff');
-  }, [toolbarState.backgroundColor]);
-
-  React.useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        if (isFontColorPickerOpen) {
-          setIsFontColorPickerOpen(false);
-        }
+      if (event.key !== 'Escape') {
+        return;
+      }
 
-        if (isBackgroundColorPickerOpen) {
-          setIsBackgroundColorPickerOpen(false);
-        }
+      if (isFontColorPickerOpen) {
+        setIsFontColorPickerOpen(false);
+      }
+
+      if (isBackgroundColorPickerOpen) {
+        setIsBackgroundColorPickerOpen(false);
       }
     }
 
@@ -410,15 +412,17 @@ export default function ToolbarEditorPlugin() {
         onOpenChange={handleFontColorOpenChange}
       >
         <PopoverTrigger asChild>
-          <Button size="sm" variant="secondary">
-            <BaselineIcon />
-            <div
-              className="h-4 w-4 rounded"
-              style={{
-                backgroundColor: Color(fontColor).alpha(0.8).string(),
-              }}
-            />
-            <ChevronDownIcon className="ml-1 h-3 w-3" />
+          <Button size="sm" variant="secondary" className="gap-0 space-x-2">
+            <div className="flex items-center gap-2">
+              <BaselineIcon />
+              <div
+                className="h-4 w-4 rounded"
+                style={{
+                  backgroundColor: Color(fontColor).alpha(0.8).string(),
+                }}
+              />
+            </div>
+            <ChevronDownIcon />
           </Button>
         </PopoverTrigger>
         <PopoverContent
@@ -427,8 +431,8 @@ export default function ToolbarEditorPlugin() {
             event.preventDefault();
           }}
         >
-          <>
-            <div className="text-muted-foreground bg-background -mb-1 flex items-center justify-between rounded-t-md border border-b-0 px-4 py-2 pb-0">
+          <div className="w-[305px] space-y-4">
+            <div className="text-muted-foreground flex items-center justify-between">
               <p className="text-sm">Font color</p>
               <Button
                 size="xs"
@@ -441,30 +445,22 @@ export default function ToolbarEditorPlugin() {
               </Button>
             </div>
             <EditorColorPicker value={fontColor} onChange={setFontColor} />
-            <div className="bg-background space-y-2 rounded-b-md border border-t-0 p-4 pt-0">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  setIsFontColorPickerOpen(false);
-                }}
-              >
-                <div className="rounded border border-current px-1 py-0.5 text-xs">
-                  Esc
-                </div>
-                <span>Cancel</span>
-              </Button>
-              <Button
-                size="sm"
-                className="w-full"
-                onClick={() => {
-                  handleFontColorOpenChange(false);
-                }}
-              >
-                <span className="text-sm">Apply</span>
-              </Button>
-            </div>
-          </>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                setIsFontColorPickerOpen(false);
+              }}
+            >
+              <div className="rounded border border-current px-1 py-0.5 text-xs">
+                Esc
+              </div>
+              <span>Cancel</span>
+            </Button>
+            <Button className="w-full" onClick={applyFontColor}>
+              Apply
+            </Button>
+          </div>
         </PopoverContent>
       </Popover>
 
@@ -473,7 +469,7 @@ export default function ToolbarEditorPlugin() {
         onOpenChange={handleBackgroundColorOpenChange}
       >
         <PopoverTrigger asChild>
-          <Button size="sm" variant="secondary" className="gap-0 space-x-1">
+          <Button size="sm" variant="secondary" className="gap-0 space-x-2">
             <div className="flex items-center gap-2">
               <PaintBucketIcon />
               <div
@@ -492,8 +488,8 @@ export default function ToolbarEditorPlugin() {
             event.preventDefault();
           }}
         >
-          <>
-            <div className="text-muted-foreground bg-background -mb-1 flex items-center justify-between rounded-t-md border border-b-0 px-4 py-2 pb-0">
+          <div className="w-[305px] space-y-4">
+            <div className="text-muted-foreground flex items-center justify-between">
               <p className="text-sm">Background color</p>
               <Button
                 size="xs"
@@ -509,29 +505,22 @@ export default function ToolbarEditorPlugin() {
               value={backgroundColor}
               onChange={setBackgroundColor}
             />
-            <div className="bg-background space-y-2 rounded-b-md border border-t-0 p-4 pt-0">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  setIsBackgroundColorPickerOpen(false);
-                }}
-              >
-                <div className="rounded border border-current px-1 py-0.5 text-xs">
-                  Esc
-                </div>
-                <span>Cancel</span>
-              </Button>
-              <Button
-                className="w-full"
-                onClick={() => {
-                  handleBackgroundColorOpenChange(false);
-                }}
-              >
-                <span>Apply</span>
-              </Button>
-            </div>
-          </>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                setIsBackgroundColorPickerOpen(false);
+              }}
+            >
+              <div className="rounded border border-current px-1 py-0.5 text-xs">
+                Esc
+              </div>
+              <span>Cancel</span>
+            </Button>
+            <Button className="w-full" onClick={applyBackgroundColor}>
+              <span>Apply</span>
+            </Button>
+          </div>
         </PopoverContent>
       </Popover>
     </div>
