@@ -41,6 +41,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Select,
+  SelectItem,
+  SelectValue,
+  SelectContent,
+  SelectTrigger,
+} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import {
   Tooltip,
@@ -107,6 +114,21 @@ export default function ToolbarEditorPlugin() {
     setIsBackgroundColorPickerOpen(false);
     applyStyleText({ 'background-color': backgroundColor });
   }, [applyStyleText, backgroundColor]);
+
+  const applyFontFamily = React.useCallback(
+    (option: string) => {
+      editor.update(() => {
+        const selection = $getSelection();
+
+        if (selection !== null) {
+          $patchStyleText(selection, {
+            ['font-family']: option,
+          });
+        }
+      });
+    },
+    [editor]
+  );
 
   const handleFontColorOpenChange = React.useCallback((open: boolean) => {
     setIsFontColorPickerOpen(open);
@@ -319,6 +341,24 @@ export default function ToolbarEditorPlugin() {
           </Tooltip>
         </TooltipProvider>
       </div>
+
+      <Select value={toolbarState.fontFamily} onValueChange={applyFontFamily}>
+        <SelectTrigger size="sm" className="w-40">
+          <SelectValue placeholder="Font family" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="Arial">Arial</SelectItem>
+          <SelectItem value="Courier New">Courier New</SelectItem>
+          <SelectItem value="Georgia">Georgia</SelectItem>
+          <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+          <SelectItem value="Verdana">Verdana</SelectItem>
+          <SelectItem value="Ubuntu">Ubuntu</SelectItem>
+          <SelectItem value="Montserrat">Montserrat</SelectItem>
+          <SelectItem value="Roboto">Roboto</SelectItem>
+          <SelectItem value="Open Sans">Open Sans</SelectItem>
+          <SelectItem value="Lora">Lora</SelectItem>
+        </SelectContent>
+      </Select>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild className="w-40 justify-between">
