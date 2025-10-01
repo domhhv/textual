@@ -76,13 +76,13 @@ function ColorPicker({
   }
 
   const [hue, setHue] = React.useState(
-    selectedColor.hue() || defaultColor.hue() || 0
+    selectedColor.hue() ?? defaultColor.hue() ?? 0
   );
   const [saturation, setSaturation] = React.useState(
-    selectedColor.saturationl() || defaultColor.saturationl() || 100
+    selectedColor.saturationl() ?? defaultColor.saturationl() ?? 100
   );
   const [lightness, setLightness] = React.useState(
-    selectedColor.lightness() || defaultColor.lightness() || 50
+    selectedColor.lightness() ?? defaultColor.lightness() ?? 50
   );
   const [alpha, setAlpha] = React.useState(
     (selectedColor.alpha() ?? defaultColor.alpha()) * 100
