@@ -40,18 +40,18 @@ export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
   return (
     <div
       onMouseLeave={tooltipGroup.onGroupMouseLeave}
-      className="border-border flex items-center gap-2 border-b p-2"
+      className="border-border flex items-center gap-2 overflow-x-auto border-b p-2"
     >
-      <div className="flex basis-full items-center justify-between">
-        <div className="px-2">
-          <h3 className="sansation-bold scroll-m-20 text-2xl font-semibold tracking-tight text-slate-600 dark:text-slate-300">
+      <div className="flex min-w-0 basis-full items-center justify-between gap-2">
+        <div className="min-w-0 flex-shrink px-2">
+          <h3 className="sansation-bold scroll-m-20 truncate text-2xl font-semibold tracking-tight text-slate-600 dark:text-slate-300">
             <span className="border-b border-dashed border-slate-600 dark:border-slate-300">
               Textual
             </span>{' '}
             Chat
           </h3>
         </div>
-        <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
+        <div className="flex-shrink-0 [&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
           <TooltipProvider>
             <Tooltip
               delayDuration={tooltipGroup.getTooltipProps().delayDuration}

@@ -1,5 +1,3 @@
-'use client';
-
 import { PlusIcon, MinusIcon } from 'lucide-react';
 import * as React from 'react';
 
@@ -15,12 +13,15 @@ import {
   MAX_ALLOWED_FONT_SIZE,
   MIN_ALLOWED_FONT_SIZE,
 } from '@/lib/constants/initial-editor-toolbar-state';
+import cn from '@/lib/utils/cn';
 
 export default function FontSizeInput({
+  className,
   isDisabled = false,
   onChange,
   value,
 }: {
+  className?: string;
   isDisabled?: boolean;
   value: string;
   onChange: (value: string) => void;
@@ -90,7 +91,7 @@ export default function FontSizeInput({
   }
 
   return (
-    <div className="flex items-center gap-1">
+    <div className={cn('flex items-center gap-1', className)}>
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
