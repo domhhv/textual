@@ -183,15 +183,11 @@ export default function FloatingLinkEditorPlugin({
 
     updateFloatingLinkEditor();
 
-    const scrollerElem = anchorElem.parentElement;
+    anchorElem.addEventListener('scroll', updateFloatingLinkEditor);
 
-    if (scrollerElem) {
-      scrollerElem.addEventListener('scroll', updateFloatingLinkEditor);
-
-      return () => {
-        scrollerElem.removeEventListener('scroll', updateFloatingLinkEditor);
-      };
-    }
+    return () => {
+      anchorElem.removeEventListener('scroll', updateFloatingLinkEditor);
+    };
   }, [anchorElem, editor, isLink, toolbarState.linkUrl]);
 
   return createPortal(
