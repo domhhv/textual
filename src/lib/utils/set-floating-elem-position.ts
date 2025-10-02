@@ -8,7 +8,6 @@ export default function setFloatingElemPosition(
   verticalGap: number = VERTICAL_GAP,
   horizontalOffset: number = HORIZONTAL_OFFSET
 ) {
-  console.log({ verticalGap });
   const scrollerElem = anchorElem;
 
   if (targetRect === null || !scrollerElem) {

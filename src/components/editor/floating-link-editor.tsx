@@ -101,24 +101,22 @@ export default function FloatingLinkEditor({
     if (editedLinkUrl === '') {
       editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
       setEditMode(false);
+
       return;
     }
 
     if (!validateUrl(editedLinkUrl)) {
       inputRef.current?.focus();
       inputRef.current?.select();
+
       return;
     }
 
     editor.update(() => {
-      editor.dispatchCommand(
-        TOGGLE_LINK_COMMAND,
-        sanitizeUrl(editedLinkUrl)
-      );
+      editor.dispatchCommand(TOGGLE_LINK_COMMAND, sanitizeUrl(editedLinkUrl));
     });
 
     setEditMode(false);
-  }
   }
 
   function handleLinkDelete() {
