@@ -204,6 +204,16 @@ export default function useEditorToolbarSync() {
       const isLink = $isLinkNode(parent) || $isLinkNode(node);
       updateToolbarState('isLink', isLink);
 
+      if (isLink) {
+        const linkNode = $isLinkNode(parent) ? parent : node;
+
+        if ($isLinkNode(linkNode)) {
+          updateToolbarState('linkUrl', linkNode.getURL());
+        }
+      } else {
+        updateToolbarState('linkUrl', '');
+      }
+
       const elementFormats = new Set<string>();
       const blockTypes = new Set<string>();
 
