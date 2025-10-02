@@ -9,7 +9,7 @@ export default function setFloatingElemPosition(
   horizontalOffset: number = HORIZONTAL_OFFSET
 ) {
   console.log({ verticalGap });
-  const scrollerElem = anchorElem.parentElement;
+  const scrollerElem = anchorElem;
 
   if (targetRect === null || !scrollerElem) {
     floatingElem.style.opacity = '0';
