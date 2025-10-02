@@ -94,22 +94,31 @@ export default function FloatingLinkEditor({
   }
 
   function handleLinkSave() {
-    if (lastSelection) {
-      if (editedLinkUrl !== '') {
-        if (validateUrl(editedLinkUrl)) {
-          editor.update(() => {
-            editor.dispatchCommand(
-              TOGGLE_LINK_COMMAND,
-              sanitizeUrl(editedLinkUrl)
-            );
-          });
-        }
-      } else {
-        editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
-      }
-
-      setEditMode(false);
+    if (!lastSelection) {
+      return;
     }
+
+    if (editedLinkUrl === '') {
+      editor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+      setEditMode(false);
+      return;
+    }
+
+    if (!validateUrl(editedLinkUrl)) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+      return;
+    }
+
+    editor.update(() => {
+      editor.dispatchCommand(
+        TOGGLE_LINK_COMMAND,
+        sanitizeUrl(editedLinkUrl)
+      );
+    });
+
+    setEditMode(false);
+  }
   }
 
   function handleLinkDelete() {
