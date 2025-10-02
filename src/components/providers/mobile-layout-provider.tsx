@@ -27,7 +27,6 @@ export function MobileLayoutProvider({
 }) {
   const [isMobile, setIsMobile] = React.useState(false);
   const [viewMode, setViewModeState] = React.useState<ViewMode>('split');
-  const [isInitialized, setIsInitialized] = React.useState(false);
 
   React.useEffect(() => {
     try {
@@ -38,8 +37,6 @@ export function MobileLayoutProvider({
       }
     } catch (error) {
       console.error('Failed to load view mode preference:', error);
-    } finally {
-      setIsInitialized(true);
     }
   }, []);
 
@@ -74,10 +71,6 @@ export function MobileLayoutProvider({
   const value = React.useMemo(() => {
     return { isMobile, setViewMode, viewMode };
   }, [viewMode, setViewMode, isMobile]);
-
-  if (!isInitialized) {
-    return null;
-  }
 
   return (
     <MobileLayoutContext.Provider value={value}>
