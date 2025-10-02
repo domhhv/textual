@@ -1,3 +1,4 @@
+import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $patchStyleText } from '@lexical/selection';
 import Color from 'color';
@@ -20,6 +21,7 @@ import {
   UndoIcon,
   RedoIcon,
   TypeIcon,
+  LinkIcon,
   QuoteIcon,
   IndentIcon,
   ItalicIcon,
@@ -357,6 +359,30 @@ export default function ToolbarEditorPlugin() {
                 {EDITOR_SHORTCUTS.CODE_BLOCK}
               </div>
               <span className="text-sm">Code</span>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
+            <TooltipTrigger
+              asChild
+              onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
+            >
+              <Button
+                size="icon"
+                variant={toolbarState.isLink ? 'secondary' : 'ghost'}
+                onClick={() => {
+                  if (!toolbarState.isLink) {
+                    editor.dispatchCommand(TOGGLE_LINK_COMMAND, 'https://');
+                  }
+                }}
+              >
+                <LinkIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="flex items-center gap-2 px-2 py-2 pr-2.5">
+              <div className="rounded border border-slate-300 px-1 py-0.5 text-xs text-slate-300 dark:border-slate-700 dark:text-slate-700">
+                {EDITOR_SHORTCUTS.INSERT_LINK}
+              </div>
+              <span className="text-sm">Link</span>
             </TooltipContent>
           </Tooltip>
         </div>

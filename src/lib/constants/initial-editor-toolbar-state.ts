@@ -42,6 +42,7 @@ const INITIAL_TOOLBAR_STATE = {
   isSuperscript: false,
   isUnderline: false,
   isUppercase: false,
+  linkUrl: '',
 };
 
 export default INITIAL_TOOLBAR_STATE;
