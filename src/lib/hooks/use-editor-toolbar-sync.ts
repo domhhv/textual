@@ -2,74 +2,26 @@ import { $isLinkNode } from '@lexical/link';
 import { $isListNode } from '@lexical/list';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $isHeadingNode } from '@lexical/rich-text';
-import {
-  $isAtNodeEnd,
-  $getSelectionStyleValueForProperty,
-} from '@lexical/selection';
+import { $getSelectionStyleValueForProperty } from '@lexical/selection';
 import { $isTableSelection } from '@lexical/table';
-import { mergeRegister, $findMatchingParent } from '@lexical/utils';
-import type { LexicalNode, RangeSelection, ElementFormatType } from 'lexical';
+import { mergeRegister } from '@lexical/utils';
 import {
   $getSelection,
   $isElementNode,
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   $isRangeSelection,
-  $isRootOrShadowRoot,
   COMMAND_PRIORITY_CRITICAL,
 } from 'lexical';
 import * as React from 'react';
 
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
 import { blockTypeToBlockName } from '@/lib/constants/initial-editor-toolbar-state';
-
-function $findTopLevelElement(node: LexicalNode) {
-  let topLevelElement =
-    node.getKey() === 'root'
-      ? node
-      : $findMatchingParent(node, (e) => {
-          const parent = e.getParent();
-
-          return parent !== null && $isRootOrShadowRoot(parent);
-        });
-
-  if (topLevelElement === null) {
-    topLevelElement = node.getTopLevelElementOrThrow();
-  }
-
-  return topLevelElement;
-}
-
-function getSelectedNode(selection: RangeSelection) {
-  const anchor = selection.anchor;
-  const focus = selection.focus;
-  const anchorNode = selection.anchor.getNode();
-  const focusNode = selection.focus.getNode();
-
-  if (anchorNode === focusNode) {
-    return anchorNode;
-  }
-
-  const isBackward = selection.isBackward();
-
-  if (isBackward) {
-    return $isAtNodeEnd(focus) ? anchorNode : focusNode;
-  } else {
-    return $isAtNodeEnd(anchor) ? anchorNode : focusNode;
-  }
-}
-
-function normalizeFormatType(format: ElementFormatType) {
-  if (format === '' || format === 'start') {
-    return 'left';
-  }
-
-  if (format === 'end') {
-    return 'right';
-  }
-
-  return format;
-}
+import {
+  getSelectedNode,
+  normalizeFormatType,
+  $findTopLevelElement,
+} from '@/lib/utils/editor-helpers';
 
 export default function useEditorToolbarSync() {
   const [editor] = useLexicalComposerContext();

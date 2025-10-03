@@ -7,18 +7,19 @@ export type OpenAIKeyIssueCode =
   | 'invalid_charset'
   | 'looks_truncated';
 
-export interface OpenAIKeyIssue {
+type OpenAIKeyIssue = {
   code: OpenAIKeyIssueCode;
-}
-export interface OpenAIKeyCheck {
-  ok: boolean;
+};
+
+type OpenAIKeyCheckResult = {
   issues: OpenAIKeyIssue[];
   normalized: string;
-}
+  ok: boolean;
+};
 
 export default function checkOpenAIKey(
   input: string | null | undefined
-): OpenAIKeyCheck {
+): OpenAIKeyCheckResult {
   const issues: OpenAIKeyIssue[] = [];
   const normalized = (input ?? '').trim();
 

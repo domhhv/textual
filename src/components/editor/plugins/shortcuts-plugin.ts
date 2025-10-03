@@ -29,7 +29,7 @@ import {
   formatParagraph,
   formatBulletList,
   formatNumberedList,
-} from '@/lib/utils/editor-formatters';
+} from '@/lib/utils/editor-helpers';
 import {
   isIndent,
   isOutdent,

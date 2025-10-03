@@ -34,7 +34,7 @@ const INITIAL_EDITOR_CONFIG: InitialConfigType = {
   theme: {
     hr: 'border-t border-slate-200 my-4',
     link: 'text-sky-500 underline hover:text-blue-600',
-    paragraph: 'my-2 text-base',
+    paragraph: 'my-1 text-base leading-5',
     quote: 'italic text-slate-500 border-l-4 border-slate-500 pl-2',
     table: 'border-collapse border border-slate-200 my-4',
     tableCell: 'border border-slate-200 p-2',

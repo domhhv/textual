@@ -1,5 +1,3 @@
-'use client';
-
 import { Key, Edit3, Trash2 } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'sonner';
@@ -13,10 +11,10 @@ import {
 } from '@/components/ui/popover';
 import cn from '@/lib/utils/cn';
 
-interface ApiKeyManagerProps {
-  onEditClick: () => void;
+type ApiKeyManagerProps = {
   className?: string;
-}
+  onEditClick: () => void;
+};
 
 export default function ApiKeyManagerButton({
   className,
