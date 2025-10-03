@@ -11,7 +11,7 @@ interface ChatEmptyStateProps {
 
 export function ChatEmptyState({ onSetApiKey }: ChatEmptyStateProps) {
   return (
-    <div className="flex h-full flex-col items-center justify-center p-6 text-center">
+    <div className="flex h-full flex-col items-center p-6 text-center md:justify-center">
       <div className="bg-muted mb-4 rounded-full p-4">
         <Key className="text-muted-foreground h-8 w-8" />
       </div>
