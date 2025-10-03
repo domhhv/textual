@@ -4,7 +4,7 @@ import { Key, Edit3, Trash2 } from 'lucide-react';
 import * as React from 'react';
 import { toast } from 'sonner';
 
-import { useApiKey } from '@/components/providers/api-key-provider';
+import { ApiKeyContext } from '@/components/providers/api-key-provider';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -18,11 +18,11 @@ interface ApiKeyManagerProps {
   className?: string;
 }
 
-export function ApiKeyManagerButton({
+export default function ApiKeyManagerButton({
   className,
   onEditClick,
 }: ApiKeyManagerProps) {
-  const { apiKey, hasApiKey, removeApiKey } = useApiKey();
+  const { apiKey, hasApiKey, removeApiKey } = React.use(ApiKeyContext);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
 
   const handleDelete = React.useCallback(() => {

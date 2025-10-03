@@ -39,6 +39,9 @@ export default function setFloatingElemPosition(
   top -= anchorElementRect.top;
   left -= anchorElementRect.left;
 
+  top += scrollerElem.scrollTop;
+  left += scrollerElem.scrollLeft;
+
   floatingElem.style.opacity = '1';
   floatingElem.style.transform = `translate(${left}px, ${top}px)`;
 }

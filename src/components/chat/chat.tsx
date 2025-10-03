@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { ChatEmptyState } from '@/components/chat/chat-empty-state';
 import ChatHeader from '@/components/chat/chat-header';
 import { ApiKeyDialog } from '@/components/custom/api-key-dialog';
-import { useApiKey } from '@/components/providers/api-key-provider';
+import { ApiKeyContext } from '@/components/providers/api-key-provider';
 import { ChatStatusContext } from '@/components/providers/chat-status-provider';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
@@ -24,7 +24,7 @@ import $getNextEditorState from '@/lib/utils/get-next-editor-state';
 export default function Chat() {
   const [editor] = useLexicalComposerContext();
   const { setStatus } = React.use(ChatStatusContext);
-  const { apiKey, hasApiKey, isLoading, setApiKey } = useApiKey();
+  const { apiKey, hasApiKey, isLoading, setApiKey } = React.use(ApiKeyContext);
   const [input, setInput] = useState('');
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const { addToolResult, error, messages, sendMessage, status } = useChat<

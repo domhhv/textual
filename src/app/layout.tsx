@@ -7,7 +7,7 @@ import { Ubuntu, Montserrat } from 'next/font/google';
 import './globals.css';
 import type { ReactNode } from 'react';
 
-import { ApiKeyProvider } from '@/components/providers/api-key-provider';
+import ApiKeyProvider from '@/components/providers/api-key-provider';
 import Toaster from '@/components/ui/sonner';
 
 const ubuntu = Ubuntu({

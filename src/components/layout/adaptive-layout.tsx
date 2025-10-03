@@ -25,11 +25,11 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
   const { isMobile, setViewMode, viewMode } = React.use(MobileLayoutContext);
 
   const cycleViewMode = React.useCallback(
-    (direction: 'left' | 'right') => {
+    (direction: 'up' | 'down') => {
       const currentIndex = VIEW_MODES.indexOf(viewMode as ViewMode);
       let nextIndex: number;
 
-      if (direction === 'left') {
+      if (direction === 'down') {
         nextIndex = (currentIndex + 1) % VIEW_MODES.length;
       } else {
         nextIndex = (currentIndex - 1 + VIEW_MODES.length) % VIEW_MODES.length;
@@ -44,11 +44,11 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
     delta: 50,
     preventScrollOnSwipe: true,
     trackMouse: false,
-    onSwipedLeft: () => {
-      return isMobile && cycleViewMode('left');
+    onSwipedDown: () => {
+      return isMobile && cycleViewMode('down');
     },
-    onSwipedRight: () => {
-      return isMobile && cycleViewMode('right');
+    onSwipedUp: () => {
+      return isMobile && cycleViewMode('up');
     },
   });
 
@@ -176,7 +176,7 @@ function SwipeHint() {
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-20 flex justify-center">
       <div className="animate-in fade-in slide-in-from-bottom-4 bg-foreground/90 text-background rounded-full px-4 py-2 text-xs shadow-lg">
-        👉 Swipe left or right to switch views
+        👉 Swipe up or down to switch views
       </div>
     </div>
   );

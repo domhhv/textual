@@ -1,11 +1,13 @@
 'use client';
 
-import { SunIcon, MoonIcon, MonitorIcon } from 'lucide-react';
+import { SunIcon, MoonIcon, MonitorIcon, ExternalLinkIcon } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import Link from 'next/link';
 import * as React from 'react';
 
-import { ApiKeyManagerButton } from '@/components/custom/api-key-manager-button';
-import { useApiKey } from '@/components/providers/api-key-provider';
+import ApiKeyManagerButton from '@/components/custom/api-key-manager-button';
+import GithubIcon from '@/components/icons/github';
+import { ApiKeyContext } from '@/components/providers/api-key-provider';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -20,7 +22,7 @@ interface ChatHeaderProps {
 }
 
 export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
-  const { hasApiKey } = useApiKey();
+  const { hasApiKey } = React.use(ApiKeyContext);
   const { setTheme, theme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   const tooltipGroup = useTooltipGroup();
@@ -51,8 +53,73 @@ export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
             Chat
           </h3>
         </div>
-        <div className="flex-shrink-0 [&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
-          <TooltipProvider>
+        <TooltipProvider>
+          <div className="flex flex-shrink-0 items-center gap-2">
+            <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
+              <Tooltip
+                delayDuration={tooltipGroup.getTooltipProps().delayDuration}
+              >
+                <TooltipTrigger
+                  asChild
+                  onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
+                >
+                  <Button
+                    size="icon"
+                    variant={theme === 'light' ? 'secondary' : 'ghost'}
+                    onClick={() => {
+                      setTheme('light');
+                    }}
+                  >
+                    <SunIcon className="size-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <span className="text-sm">Light</span>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip
+                delayDuration={tooltipGroup.getTooltipProps().delayDuration}
+              >
+                <TooltipTrigger
+                  asChild
+                  onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
+                >
+                  <Button
+                    size="icon"
+                    variant={theme === 'system' ? 'secondary' : 'ghost'}
+                    onClick={() => {
+                      setTheme('system');
+                    }}
+                  >
+                    <MonitorIcon className="size-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <span className="text-sm">System</span>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip
+                delayDuration={tooltipGroup.getTooltipProps().delayDuration}
+              >
+                <TooltipTrigger
+                  asChild
+                  onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
+                >
+                  <Button
+                    size="icon"
+                    variant={theme === 'dark' ? 'secondary' : 'ghost'}
+                    onClick={() => {
+                      setTheme('dark');
+                    }}
+                  >
+                    <MoonIcon className="size-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <span className="text-sm">Dark</span>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <Tooltip
               delayDuration={tooltipGroup.getTooltipProps().delayDuration}
             >
@@ -60,64 +127,25 @@ export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
                 asChild
                 onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
               >
-                <Button
-                  size="icon"
-                  variant={theme === 'light' ? 'secondary' : 'ghost'}
-                  onClick={() => {
-                    setTheme('light');
-                  }}
-                >
-                  <SunIcon className="size-3.5" />
+                <Button size="xs" className="h-8" variant="outline">
+                  <Link
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href="https://github.com/domhhv/textual"
+                  >
+                    <GithubIcon className="fill-muted-foreground size-4!" />
+                  </Link>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <span className="text-sm">Light</span>
+                <div className="flex items-center gap-1">
+                  <ExternalLinkIcon className="size-3" />
+                  <span>View source code on GitHub</span>
+                </div>
               </TooltipContent>
             </Tooltip>
-            <Tooltip
-              delayDuration={tooltipGroup.getTooltipProps().delayDuration}
-            >
-              <TooltipTrigger
-                asChild
-                onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
-              >
-                <Button
-                  size="icon"
-                  variant={theme === 'system' ? 'secondary' : 'ghost'}
-                  onClick={() => {
-                    setTheme('system');
-                  }}
-                >
-                  <MonitorIcon className="size-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <span className="text-sm">System</span>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip
-              delayDuration={tooltipGroup.getTooltipProps().delayDuration}
-            >
-              <TooltipTrigger
-                asChild
-                onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
-              >
-                <Button
-                  size="icon"
-                  variant={theme === 'dark' ? 'secondary' : 'ghost'}
-                  onClick={() => {
-                    setTheme('dark');
-                  }}
-                >
-                  <MoonIcon className="size-3.5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <span className="text-sm">Dark</span>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+          </div>
+        </TooltipProvider>
       </div>
 
       {hasApiKey && <ApiKeyManagerButton onEditClick={onApiKeyEditClick} />}

@@ -3,6 +3,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $patchStyleText } from '@lexical/selection';
 import Color from 'color';
 import {
+  $getRoot,
   REDO_COMMAND,
   UNDO_COMMAND,
   HISTORIC_TAG,
@@ -20,18 +21,20 @@ import {
   ListIcon,
   UndoIcon,
   RedoIcon,
-  TypeIcon,
   LinkIcon,
   QuoteIcon,
   IndentIcon,
   ItalicIcon,
   EraserIcon,
+  HeadingIcon,
   BaselineIcon,
   UnderlineIcon,
   ChevronDownIcon,
   TextInitialIcon,
   PaintBucketIcon,
+  TypeOutlineIcon,
   StrikethroughIcon,
+  BrushCleaningIcon,
   IndentDecreaseIcon,
 } from 'lucide-react';
 import * as React from 'react';
@@ -196,6 +199,24 @@ export default function ToolbarEditorPlugin() {
         onMouseLeave={tooltipGroup.onGroupMouseLeave}
         className="flex items-center gap-2 overflow-x-auto p-2"
       >
+        <Button
+          size="icon"
+          variant="outline"
+          className="flex-shrink-0"
+          onClick={() => {
+            editor.update(() => {
+              $getRoot().clear();
+            });
+          }}
+        >
+          <BrushCleaningIcon />
+        </Button>
+
+        <Separator
+          orientation="vertical"
+          className="h-6! flex-shrink-0 self-center justify-self-center"
+        />
+
         <div className="flex-shrink-0 [&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
           <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
             <TooltipTrigger
@@ -204,7 +225,7 @@ export default function ToolbarEditorPlugin() {
             >
               <Button
                 size="icon"
-                variant="ghost"
+                variant="secondary"
                 disabled={!toolbarState.canUndo}
                 onClick={() => {
                   editor.dispatchCommand(UNDO_COMMAND, undefined);
@@ -227,7 +248,7 @@ export default function ToolbarEditorPlugin() {
             >
               <Button
                 size="icon"
-                variant="ghost"
+                variant="secondary"
                 disabled={!toolbarState.canRedo}
                 onClick={() => {
                   editor.dispatchCommand(REDO_COMMAND, undefined);
@@ -422,7 +443,7 @@ export default function ToolbarEditorPlugin() {
             className="w-40 flex-shrink-0 justify-between"
           >
             <Button size="sm" variant="secondary">
-              <TypeIcon className="mr-1 h-4 w-4" />
+              <HeadingIcon className="mr-1 h-4 w-4" />
               {headings.find((h) => {
                 return h.value === toolbarState.blockType;
               })?.label || 'Normal text'}
@@ -773,7 +794,7 @@ export default function ToolbarEditorPlugin() {
             className="w-44 flex-shrink-0 justify-between"
           >
             <Button size="sm" variant="secondary">
-              <TypeIcon className="mr-1 h-4 w-4" />
+              <TypeOutlineIcon className="mr-1 h-4 w-4" />
               {Object.entries(TEXT_FORMAT_OPTIONS).find(([, option]) => {
                 return toolbarState[option.key];
               })?.[1]?.name || 'Text format'}
