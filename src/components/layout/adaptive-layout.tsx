@@ -146,12 +146,18 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
 
 function SwipeHint() {
   const [showHint, setShowHint] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   React.useEffect(() => {
     const hasSeenHint = localStorage.getItem('has_seen_swipe_hint');
 
     if (!hasSeenHint) {
       setShowHint(true);
+
       const timer = setTimeout(() => {
         setShowHint(false);
         localStorage.setItem('has_seen_swipe_hint', 'true');
@@ -163,7 +169,7 @@ function SwipeHint() {
     }
   }, []);
 
-  if (!showHint) {
+  if (!showHint || !isMounted) {
     return null;
   }
 

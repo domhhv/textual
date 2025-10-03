@@ -4,7 +4,7 @@ import AdaptiveLayout from '@/components/layout/adaptive-layout';
 import ChatStatusProvider from '@/components/providers/chat-status-provider';
 import EditorToolbarStateProvider from '@/components/providers/editor-toolbar-state-provider';
 import LexicalComposerProvider from '@/components/providers/lexical-composer-provider';
-import { MobileLayoutProvider } from '@/components/providers/mobile-layout-provider';
+import MobileLayoutProvider from '@/components/providers/mobile-layout-provider';
 
 export default function Home() {
   return (

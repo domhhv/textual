@@ -20,7 +20,7 @@ export const MobileLayoutContext = React.createContext<MobileLayoutContextType>(
 
 const STORAGE_KEY = 'mobile_view_mode_preference';
 
-export function MobileLayoutProvider({
+export default function MobileLayoutProvider({
   children,
 }: {
   children: React.ReactNode;
@@ -49,7 +49,7 @@ export function MobileLayoutProvider({
     window.addEventListener('resize', checkMobile);
 
     return () => {
-      return window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('resize', checkMobile);
     };
   }, []);
 
