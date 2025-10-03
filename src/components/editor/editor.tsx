@@ -1,9 +1,6 @@
 'use client';
 
-import { $convertFromMarkdownString } from '@lexical/markdown';
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
@@ -30,40 +27,15 @@ import $getNextEditorState from '@/lib/utils/get-next-editor-state';
 import { validateUrl } from '@/lib/utils/url';
 
 export default function Editor() {
-  const [editor] = useLexicalComposerContext();
   const [isFocused, setIsFocused] = React.useState(false);
   const { status } = React.use(ChatStatusContext);
-  const [floatingAnchorElem, setFloatingAnchorElem] =
-    React.useState<HTMLDivElement | null>(null);
-
-  const onRef = React.useCallback((_floatingAnchorElem: HTMLDivElement) => {
-    if (_floatingAnchorElem !== null) {
-      setFloatingAnchorElem(_floatingAnchorElem);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    fetch('/sample-content.md')
-      .then((response) => {
-        return response.text();
-      })
-      .then((text) => {
-        editor.update(() => {
-          $convertFromMarkdownString(
-            text,
-            ENHANCED_LEXICAL_TRANSFORMERS,
-            undefined,
-            true
-          );
-        });
-      });
-  }, [editor]);
+  const floatingAnchorRef = React.useRef<HTMLDivElement>(null);
 
   const logEditorChange = React.useCallback((editorState: EditorState) => {
     editorState.read(() => {
       const children = JSON.parse($getNextEditorState().nextEditorRootChildren);
 
-      // eslint-disable-next-line no-console
+      /* eslint-disable-next-line no-console */
       console.info('Editor State Updated: ', { children, editorState });
     });
   }, []);
@@ -75,7 +47,7 @@ export default function Editor() {
         ErrorBoundary={LexicalErrorBoundary}
         contentEditable={
           <div
-            ref={onRef}
+            ref={floatingAnchorRef}
             className="border-border focus-within:border-foreground relative h-[calc(100%-52px)] overflow-y-auto border-t px-[1px] pb-[1px] focus-within:border focus-within:px-0 focus-within:pb-0.5"
           >
             <ContentEditable
@@ -106,16 +78,15 @@ export default function Editor() {
         }
       />
       <ListPlugin />
-      <LinkPlugin validateUrl={validateUrl} />
       <HistoryPlugin />
       <ShortcutsPlugin />
-      <AutoFocusPlugin />
       <CheckListPlugin />
       <TabIndentationPlugin />
+      <LinkPlugin validateUrl={validateUrl} />
       <OnChangePlugin onChange={logEditorChange} />
       <MarkdownShortcutPlugin transformers={ENHANCED_LEXICAL_TRANSFORMERS} />
-      {floatingAnchorElem && (
-        <FloatingLinkEditorPlugin anchorElem={floatingAnchorElem} />
+      {floatingAnchorRef.current && (
+        <FloatingLinkEditorPlugin anchor={floatingAnchorRef.current} />
       )}
     </div>
   );

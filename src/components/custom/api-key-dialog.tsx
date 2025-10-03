@@ -1,5 +1,3 @@
-'use client';
-
 import { Eye, EyeOff, ExternalLink, LoaderPinwheel } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
@@ -28,17 +26,17 @@ import OPENAI_KEY_ISSUE_MESSAGES from '@/lib/constants/openai-key-messages';
 import checkOpenAIKey from '@/lib/utils/check-openai-key';
 import validateApiKeyWithServer from '@/lib/utils/validate-api-key';
 
-interface ApiKeyDialogProps {
+type ApiKeyDialogProps = {
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
   onApiKeySet: (apiKey: string) => void;
-}
+  onOpenChange: (open: boolean) => void;
+};
 
 type FormValues = {
   apiKey: string;
 };
 
-export function ApiKeyDialog({
+export default function ApiKeyDialog({
   isOpen,
   onApiKeySet,
   onOpenChange,

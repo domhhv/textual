@@ -1,7 +1,7 @@
 const VERTICAL_GAP = 10;
 const HORIZONTAL_OFFSET = 5;
 
-export default function setFloatingElemPosition(
+export default function setFloatingElementPosition(
   targetRect: DOMRect | null,
   floatingElem: HTMLElement,
   anchorElem: HTMLElement,

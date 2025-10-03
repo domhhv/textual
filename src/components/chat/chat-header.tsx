@@ -1,5 +1,3 @@
-'use client';
-
 import { SunIcon, MoonIcon, MonitorIcon, ExternalLinkIcon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
@@ -17,9 +15,9 @@ import {
 } from '@/components/ui/tooltip';
 import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
 
-interface ChatHeaderProps {
+type ChatHeaderProps = {
   onApiKeyEditClick: () => void;
-}
+};
 
 export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
   const { hasApiKey } = React.use(ApiKeyContext);

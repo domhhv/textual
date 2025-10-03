@@ -1,5 +1,3 @@
-'use client';
-
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 import type { LexicalEditor } from 'lexical';
 import {
@@ -16,7 +14,6 @@ import { Input } from '@/components/ui/input';
 import { sanitizeUrl, validateUrl } from '@/lib/utils/url';
 
 type FloatingLinkEditorProps = {
-  anchorElem: HTMLElement;
   editor: LexicalEditor;
   isLink: boolean;
   linkUrl: string;

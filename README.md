@@ -140,7 +140,7 @@ npm run prettier:write  # Auto-format code
 
 ### Architecture Overview
 
-- **Frontend**: Next.js 15 with App Router and React Server Components
+- **Frontend**: Next.js 15 with App Router and Turbopack
 - **Editor**: Lexical 0.35.0 (Facebook's rich text editor framework)
 - **AI Integration**: Vercel AI SDK with OpenAI GPT-4o
 - **Styling**: Tailwind CSS v4 with OKLCH color system

@@ -12,14 +12,27 @@ import {
   $createQuoteNode,
   $createHeadingNode,
 } from '@lexical/rich-text';
-import { $setBlocksType, $patchStyleText } from '@lexical/selection';
+import {
+  $isAtNodeEnd,
+  $setBlocksType,
+  $patchStyleText,
+} from '@lexical/selection';
 import { $isTableSelection } from '@lexical/table';
-import { $getNearestBlockElementAncestorOrThrow } from '@lexical/utils';
-import type { LexicalEditor } from 'lexical';
+import {
+  $findMatchingParent,
+  $getNearestBlockElementAncestorOrThrow,
+} from '@lexical/utils';
+import type {
+  LexicalNode,
+  LexicalEditor,
+  RangeSelection,
+  ElementFormatType,
+} from 'lexical';
 import {
   $isTextNode,
   $getSelection,
   $isRangeSelection,
+  $isRootOrShadowRoot,
   $createParagraphNode,
 } from 'lexical';
 
@@ -183,4 +196,52 @@ export function clearFormatting(editor: LexicalEditor) {
       });
     }
   });
+}
+
+export function $findTopLevelElement(node: LexicalNode) {
+  let topLevelElement =
+    node.getKey() === 'root'
+      ? node
+      : $findMatchingParent(node, (e) => {
+          const parent = e.getParent();
+
+          return parent !== null && $isRootOrShadowRoot(parent);
+        });
+
+  if (topLevelElement === null) {
+    topLevelElement = node.getTopLevelElementOrThrow();
+  }
+
+  return topLevelElement;
+}
+
+export function getSelectedNode(selection: RangeSelection) {
+  const anchor = selection.anchor;
+  const focus = selection.focus;
+  const anchorNode = selection.anchor.getNode();
+  const focusNode = selection.focus.getNode();
+
+  if (anchorNode === focusNode) {
+    return anchorNode;
+  }
+
+  const isBackward = selection.isBackward();
+
+  if (isBackward) {
+    return $isAtNodeEnd(focus) ? anchorNode : focusNode;
+  } else {
+    return $isAtNodeEnd(anchor) ? anchorNode : focusNode;
+  }
+}
+
+export function normalizeFormatType(format: ElementFormatType) {
+  if (format === '' || format === 'start') {
+    return 'left';
+  }
+
+  if (format === 'end') {
+    return 'right';
+  }
+
+  return format;
 }

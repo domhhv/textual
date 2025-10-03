@@ -6,7 +6,6 @@ import { mergeRegister, $findMatchingParent } from '@lexical/utils';
 import {
   $getSelection,
   CLICK_COMMAND,
-  $isLineBreakNode,
   $isRangeSelection,
   KEY_ESCAPE_COMMAND,
   COMMAND_PRIORITY_LOW,
@@ -18,35 +17,13 @@ import { createPortal } from 'react-dom';
 
 import FloatingLinkEditor from '@/components/editor/floating-link-editor';
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
-import setFloatingElemPosition from '@/lib/utils/set-floating-elem-position';
-
-function getSelectedNode(selection: ReturnType<typeof $getSelection>) {
-  if (!$isRangeSelection(selection)) {
-    return null;
-  }
-
-  const anchor = selection.anchor;
-  const focus = selection.focus;
-  const anchorNode = anchor.getNode();
-  const focusNode = focus.getNode();
-
-  if (anchorNode === focusNode) {
-    return anchorNode;
-  }
-
-  const isBackward = selection.isBackward();
-
-  if (isBackward) {
-    return $isLineBreakNode(focusNode) ? anchorNode : focusNode;
-  } else {
-    return $isLineBreakNode(anchorNode) ? focusNode : anchorNode;
-  }
-}
+import { getSelectedNode } from '@/lib/utils/editor-helpers';
+import setFloatingElementPosition from '@/lib/utils/set-floating-element-position';
 
 export default function FloatingLinkEditorPlugin({
-  anchorElem = document.body,
+  anchor = document.body,
 }: {
-  anchorElem?: HTMLElement;
+  anchor?: HTMLElement;
 }) {
   const [editor] = useLexicalComposerContext();
   const { toolbarState } = React.use(ToolbarStateContext);
@@ -177,13 +154,13 @@ export default function FloatingLinkEditorPlugin({
       ) as HTMLElement;
 
       if (floatingElem) {
-        setFloatingElemPosition(rangeRect, floatingElem, anchorElem, -24, 36);
+        setFloatingElementPosition(rangeRect, floatingElem, anchor, -24, 36);
       }
     }
 
     updateFloatingLinkEditor();
 
-    const scrollElement = anchorElem;
+    const scrollElement = anchor;
 
     scrollElement.addEventListener('scroll', updateFloatingLinkEditor);
     window.addEventListener('resize', updateFloatingLinkEditor);
@@ -192,17 +169,16 @@ export default function FloatingLinkEditorPlugin({
       scrollElement.removeEventListener('scroll', updateFloatingLinkEditor);
       window.removeEventListener('resize', updateFloatingLinkEditor);
     };
-  }, [anchorElem, editor, isLink, toolbarState.linkUrl]);
+  }, [anchor, editor, isLink, toolbarState.linkUrl]);
 
   return createPortal(
     <div data-floating-link-editor className="absolute top-0 left-0">
       <FloatingLinkEditor
         editor={editor}
         isLink={isLink}
-        anchorElem={anchorElem}
         linkUrl={toolbarState.linkUrl}
       />
     </div>,
-    anchorElem
+    anchor
   );
 }

@@ -8,9 +8,9 @@ import { User as UserIcon, LoaderPinwheelIcon } from 'lucide-react';
 import * as React from 'react';
 import { useState } from 'react';
 
-import { ChatEmptyState } from '@/components/chat/chat-empty-state';
+import ChatEmptyState from '@/components/chat/chat-empty-state';
 import ChatHeader from '@/components/chat/chat-header';
-import { ApiKeyDialog } from '@/components/custom/api-key-dialog';
+import ApiKeyDialog from '@/components/custom/api-key-dialog';
 import { ApiKeyContext } from '@/components/providers/api-key-provider';
 import { ChatStatusContext } from '@/components/providers/chat-status-provider';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
@@ -125,7 +125,7 @@ export default function Chat() {
 
   if (!hasApiKey) {
     return (
-      <>
+      <div className="flex h-full flex-col">
         <ChatHeader
           onApiKeyEditClick={() => {
             return setShowApiKeyDialog(true);
@@ -144,7 +144,7 @@ export default function Chat() {
             setShowApiKeyDialog(false);
           }}
         />
-      </>
+      </div>
     );
   }
 

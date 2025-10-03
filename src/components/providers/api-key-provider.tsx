@@ -9,13 +9,13 @@ import {
   getDecryptedApiKeyWithValidation,
 } from '@/lib/utils/encrypted-storage';
 
-interface ApiKeyContextType {
+type ApiKeyContextType = {
   apiKey: string | null;
   hasApiKey: boolean;
-  setApiKey: (key: string) => void;
-  removeApiKey: () => void;
   isLoading: boolean;
-}
+  removeApiKey: () => void;
+  setApiKey: (key: string) => void;
+};
 
 export const ApiKeyContext = React.createContext<ApiKeyContextType>({
   apiKey: null,

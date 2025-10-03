@@ -86,7 +86,7 @@ import {
   clearFormatting,
   formatBulletList,
   formatNumberedList,
-} from '@/lib/utils/editor-formatters';
+} from '@/lib/utils/editor-helpers';
 
 export default function ToolbarEditorPlugin() {
   const [editor] = useLexicalComposerContext();
