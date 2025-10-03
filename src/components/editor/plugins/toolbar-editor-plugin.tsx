@@ -194,9 +194,9 @@ export default function ToolbarEditorPlugin() {
     <TooltipProvider>
       <div
         onMouseLeave={tooltipGroup.onGroupMouseLeave}
-        className="flex flex-wrap items-center gap-2 p-2 md:flex-nowrap md:overflow-x-auto"
+        className="flex items-center gap-2 overflow-x-auto p-2"
       >
-        <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
+        <div className="flex-shrink-0 [&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
           <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
             <TooltipTrigger
               asChild
@@ -247,10 +247,10 @@ export default function ToolbarEditorPlugin() {
 
         <Separator
           orientation="vertical"
-          className="h-6! self-center justify-self-center"
+          className="h-6! flex-shrink-0 self-center justify-self-center"
         />
 
-        <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
+        <div className="flex-shrink-0 [&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
           <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
             <TooltipTrigger
               asChild
@@ -393,7 +393,7 @@ export default function ToolbarEditorPlugin() {
         />
 
         <Select value={toolbarState.fontFamily} onValueChange={applyFontFamily}>
-          <SelectTrigger size="sm" className="w-40">
+          <SelectTrigger size="sm" className="w-40 flex-shrink-0">
             <SelectValue placeholder="Font family" />
           </SelectTrigger>
           <SelectContent>
@@ -411,12 +411,16 @@ export default function ToolbarEditorPlugin() {
         </Select>
 
         <FontSizeInput
+          className="flex-shrink-0"
           value={toolbarState.fontSize}
           onChange={handleFontSizeChange}
         />
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild className="w-40 justify-between">
+          <DropdownMenuTrigger
+            asChild
+            className="w-40 flex-shrink-0 justify-between"
+          >
             <Button size="sm" variant="secondary">
               <TypeIcon className="mr-1 h-4 w-4" />
               {headings.find((h) => {
@@ -468,7 +472,10 @@ export default function ToolbarEditorPlugin() {
         </DropdownMenu>
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild className="w-44 justify-between">
+          <DropdownMenuTrigger
+            asChild
+            className="w-44 flex-shrink-0 justify-between"
+          >
             <Button size="sm" variant="secondary">
               <ListIcon className="mr-1 h-4 w-4" />
               {lists.find((l) => {
@@ -508,7 +515,7 @@ export default function ToolbarEditorPlugin() {
 
         <Separator
           orientation="vertical"
-          className="h-6! self-center justify-self-center"
+          className="h-6! flex-shrink-0 self-center justify-self-center"
         />
 
         <Popover
@@ -516,7 +523,11 @@ export default function ToolbarEditorPlugin() {
           onOpenChange={handleFontColorOpenChange}
         >
           <PopoverTrigger asChild>
-            <Button size="sm" variant="secondary" className="gap-0 space-x-2">
+            <Button
+              size="sm"
+              variant="secondary"
+              className="flex-shrink-0 gap-0 space-x-2"
+            >
               <div className="flex items-center gap-2">
                 <BaselineIcon />
                 <div
@@ -573,7 +584,11 @@ export default function ToolbarEditorPlugin() {
           onOpenChange={handleBackgroundColorOpenChange}
         >
           <PopoverTrigger asChild>
-            <Button size="sm" variant="secondary" className="gap-0 space-x-2">
+            <Button
+              size="sm"
+              variant="secondary"
+              className="flex-shrink-0 gap-0 space-x-2"
+            >
               <div className="flex items-center gap-2">
                 <PaintBucketIcon />
                 <div
@@ -630,10 +645,10 @@ export default function ToolbarEditorPlugin() {
 
         <Separator
           orientation="vertical"
-          className="h-6! self-center justify-self-center"
+          className="h-6! flex-shrink-0 self-center justify-self-center"
         />
 
-        <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
+        <div className="flex-shrink-0 [&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
           {(Object.keys(ELEMENT_FORMAT_OPTIONS) as Alignment[]).map(
             (alignment) => {
               const { icon: Icon, name } = ELEMENT_FORMAT_OPTIONS[alignment];
@@ -676,10 +691,10 @@ export default function ToolbarEditorPlugin() {
 
         <Separator
           orientation="vertical"
-          className="h-6! self-center justify-self-center"
+          className="h-6! flex-shrink-0 self-center justify-self-center"
         />
 
-        <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
+        <div className="flex-shrink-0 [&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
           <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
             <TooltipTrigger
               asChild
@@ -726,7 +741,7 @@ export default function ToolbarEditorPlugin() {
 
         <Separator
           orientation="vertical"
-          className="h-6! self-center justify-self-center"
+          className="h-6! flex-shrink-0 self-center justify-self-center"
         />
 
         <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
@@ -736,6 +751,7 @@ export default function ToolbarEditorPlugin() {
           >
             <Button
               size="icon"
+              className="flex-shrink-0"
               onClick={() => {
                 formatQuote(editor, toolbarState.blockType);
               }}
@@ -752,7 +768,10 @@ export default function ToolbarEditorPlugin() {
         </Tooltip>
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild className="w-44 justify-between">
+          <DropdownMenuTrigger
+            asChild
+            className="w-44 flex-shrink-0 justify-between"
+          >
             <Button size="sm" variant="secondary">
               <TypeIcon className="mr-1 h-4 w-4" />
               {Object.entries(TEXT_FORMAT_OPTIONS).find(([, option]) => {
