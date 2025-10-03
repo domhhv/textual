@@ -183,10 +183,14 @@ export default function FloatingLinkEditorPlugin({
 
     updateFloatingLinkEditor();
 
-    anchorElem.addEventListener('scroll', updateFloatingLinkEditor);
+    const scrollElement = anchorElem;
+
+    scrollElement.addEventListener('scroll', updateFloatingLinkEditor);
+    window.addEventListener('resize', updateFloatingLinkEditor);
 
     return () => {
-      anchorElem.removeEventListener('scroll', updateFloatingLinkEditor);
+      scrollElement.removeEventListener('scroll', updateFloatingLinkEditor);
+      window.removeEventListener('resize', updateFloatingLinkEditor);
     };
   }, [anchorElem, editor, isLink, toolbarState.linkUrl]);
 
