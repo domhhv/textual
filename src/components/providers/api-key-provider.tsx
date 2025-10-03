@@ -17,11 +17,23 @@ interface ApiKeyContextType {
   isLoading: boolean;
 }
 
-const ApiKeyContext = React.createContext<ApiKeyContextType | undefined>(
-  undefined
-);
+export const ApiKeyContext = React.createContext<ApiKeyContextType>({
+  apiKey: null,
+  hasApiKey: false,
+  isLoading: true,
+  removeApiKey: () => {
+    throw new Error('removeApiKey function must be overridden');
+  },
+  setApiKey: () => {
+    throw new Error('setApiKey function must be overridden');
+  },
+});
 
-export function ApiKeyProvider({ children }: { children: React.ReactNode }) {
+export default function ApiKeyProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [apiKey, setApiKeyState] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -105,14 +117,4 @@ export function ApiKeyProvider({ children }: { children: React.ReactNode }) {
   return (
     <ApiKeyContext.Provider value={value}>{children}</ApiKeyContext.Provider>
   );
-}
-
-export function useApiKey() {
-  const context = React.useContext(ApiKeyContext);
-
-  if (context === undefined) {
-    throw new Error('useApiKey must be used within an ApiKeyProvider');
-  }
-
-  return context;
 }
