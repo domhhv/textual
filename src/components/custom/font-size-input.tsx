@@ -1,6 +1,7 @@
 import { PlusIcon, MinusIcon } from 'lucide-react';
 import * as React from 'react';
 
+import Shortcut from '@/components/custom/shortcut';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -15,17 +16,23 @@ import {
 } from '@/lib/constants/initial-editor-toolbar-state';
 import cn from '@/lib/utils/cn';
 
-export default function FontSizeInput({
-  className,
-  isDisabled = false,
-  onChange,
-  value,
-}: {
+type FontSizeInputProps = {
   className?: string;
+  delayDuration: number;
   isDisabled?: boolean;
   value: string;
   onChange: (value: string) => void;
-}) {
+  onMouseEnter: () => void;
+};
+
+export default function FontSizeInput({
+  className = '',
+  delayDuration,
+  isDisabled = false,
+  onChange,
+  onMouseEnter,
+  value,
+}: FontSizeInputProps) {
   const [inputValue, setInputValue] = React.useState<string>(value);
 
   React.useEffect(() => {
@@ -92,8 +99,8 @@ export default function FontSizeInput({
 
   return (
     <div className={cn('flex items-center gap-1', className)}>
-      <Tooltip>
-        <TooltipTrigger asChild>
+      <Tooltip delayDuration={delayDuration}>
+        <TooltipTrigger asChild onMouseEnter={onMouseEnter}>
           <Button
             size="icon"
             type="button"
@@ -104,29 +111,28 @@ export default function FontSizeInput({
             <MinusIcon className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent className="flex items-center gap-2 px-2 py-2 pr-2.5">
-          <div className="rounded border border-slate-300 px-1 py-0.5 text-xs text-slate-300 dark:border-slate-700 dark:text-slate-700">
-            {EDITOR_SHORTCUTS.DECREASE_FONT_SIZE}
-          </div>
-          <span className="text-sm">Decrease font size</span>
+        <TooltipContent className="flex items-center gap-2 p-2">
+          Decrease font size
+          <Shortcut keys={EDITOR_SHORTCUTS.DECREASE_FONT_SIZE} />
         </TooltipContent>
       </Tooltip>
       <Input
         type="number"
         placeholder=""
         value={inputValue}
+        variant="secondary"
         onBlur={handleBlur}
         disabled={isDisabled}
         onKeyDown={handleKeyDown}
         max={MAX_ALLOWED_FONT_SIZE}
         min={MIN_ALLOWED_FONT_SIZE}
-        className="h-9 w-16 text-center"
+        className="h-8 w-16 text-center"
         onChange={(e) => {
-          return setInputValue(e.target.value);
+          setInputValue(e.target.value);
         }}
       />
-      <Tooltip>
-        <TooltipTrigger asChild>
+      <Tooltip delayDuration={delayDuration}>
+        <TooltipTrigger asChild onMouseEnter={onMouseEnter}>
           <Button
             size="icon"
             type="button"
@@ -137,11 +143,9 @@ export default function FontSizeInput({
             <PlusIcon className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent className="flex items-center gap-2 px-2 py-2 pr-2.5">
-          <div className="rounded border border-slate-300 px-1 py-0.5 text-xs text-slate-300 dark:border-slate-700 dark:text-slate-700">
-            {EDITOR_SHORTCUTS.INCREASE_FONT_SIZE}
-          </div>
-          <span className="text-sm">Increase font size</span>
+        <TooltipContent className="flex items-center gap-2 p-2">
+          Increase font size
+          <Shortcut keys={EDITOR_SHORTCUTS.INCREASE_FONT_SIZE} />
         </TooltipContent>
       </Tooltip>
     </div>

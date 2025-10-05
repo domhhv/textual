@@ -2,6 +2,8 @@
 
 import * as React from 'react';
 
+import useHideLoadingScreen from '@/lib/hooks/use-hide-loading-screen';
+
 type ViewMode = 'chat' | 'split' | 'editor';
 
 type MobileLayoutContextType = {
@@ -25,10 +27,14 @@ export default function MobileLayoutProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [isMobile, setIsMobile] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState<boolean | null>(null);
   const [viewMode, setViewModeState] = React.useState<ViewMode>('split');
 
   React.useEffect(() => {
+    function checkMobile() {
+      setIsMobile(window.innerWidth < 768);
+    }
+
     try {
       const savedMode = localStorage.getItem(STORAGE_KEY) as ViewMode | null;
 
@@ -38,14 +44,9 @@ export default function MobileLayoutProvider({
     } catch (error) {
       console.error('Failed to load view mode preference:', error);
     }
-  }, []);
-
-  React.useEffect(() => {
-    function checkMobile() {
-      setIsMobile(window.innerWidth < 768);
-    }
 
     checkMobile();
+
     window.addEventListener('resize', checkMobile);
 
     return () => {
@@ -69,8 +70,14 @@ export default function MobileLayoutProvider({
   );
 
   const value = React.useMemo(() => {
-    return { isMobile, setViewMode, viewMode };
+    return { isMobile: isMobile ?? false, setViewMode, viewMode };
   }, [viewMode, setViewMode, isMobile]);
+
+  useHideLoadingScreen();
+
+  if (isMobile === null) {
+    return null;
+  }
 
   return (
     <MobileLayoutContext.Provider value={value}>

@@ -29,6 +29,7 @@ import type {
   ElementFormatType,
 } from 'lexical';
 import {
+  $getRoot,
   $isTextNode,
   $getSelection,
   $isRangeSelection,
@@ -244,4 +245,10 @@ export function normalizeFormatType(format: ElementFormatType) {
   }
 
   return format;
+}
+
+export function clearEditor(editor: LexicalEditor) {
+  editor.update(() => {
+    $getRoot().clear();
+  });
 }

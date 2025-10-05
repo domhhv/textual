@@ -14,7 +14,7 @@ import EDITOR_SHORTCUTS from '@/lib/constants/editor-shortcuts';
 const headings: {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   label: string;
-  shortcut: string;
+  shortcut: readonly string[];
   value: HeadingTagType;
 }[] = [
   {

@@ -3,7 +3,6 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $patchStyleText } from '@lexical/selection';
 import Color from 'color';
 import {
-  $getRoot,
   REDO_COMMAND,
   UNDO_COMMAND,
   HISTORIC_TAG,
@@ -41,8 +40,11 @@ import * as React from 'react';
 
 import EditorColorPicker from '@/components/custom/editor-color-picker';
 import FontSizeInput from '@/components/custom/font-size-input';
+import Shortcut from '@/components/custom/shortcut';
+import TooltipButton from '@/components/custom/tooltip-button';
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
 import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
 import {
   DropdownMenu,
   DropdownMenuItem,
@@ -63,13 +65,8 @@ import {
   SelectTrigger,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from '@/components/ui/tooltip';
-import EDITOR_SHORTCUTS from '@/lib/constants/editor-shortcuts';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { default as KBD } from '@/lib/constants/editor-shortcuts';
 import type { Alignment } from '@/lib/constants/editor-toolbar-alignments';
 import ELEMENT_FORMAT_OPTIONS from '@/lib/constants/editor-toolbar-alignments';
 import headings from '@/lib/constants/editor-toolbar-headings';
@@ -79,6 +76,7 @@ import useEditorToolbarSync from '@/lib/hooks/use-editor-toolbar-sync';
 import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
 import {
   formatQuote,
+  clearEditor,
   formatHeading,
   updateFontSize,
   formatCheckList,
@@ -199,222 +197,132 @@ export default function ToolbarEditorPlugin() {
         onMouseLeave={tooltipGroup.onGroupMouseLeave}
         className="flex items-center gap-2 overflow-x-auto p-2"
       >
-        <Button
-          size="icon"
+        <TooltipButton
+          {...tooltipGroup.getTooltipProps()}
           variant="outline"
-          className="flex-shrink-0"
-          onClick={() => {
-            editor.update(() => {
-              $getRoot().clear();
-            });
-          }}
+          tooltip="Clear editor"
+          shortcut={KBD.CLEAR_EDITOR}
+          onClick={clearEditor.bind(null, editor)}
         >
           <BrushCleaningIcon />
-        </Button>
+        </TooltipButton>
 
         <Separator
           orientation="vertical"
           className="h-6! flex-shrink-0 self-center justify-self-center"
         />
 
-        <div className="flex-shrink-0 [&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
-          <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-            <TooltipTrigger
-              asChild
-              onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
-            >
-              <Button
-                size="icon"
-                variant="secondary"
-                disabled={!toolbarState.canUndo}
-                onClick={() => {
-                  editor.dispatchCommand(UNDO_COMMAND, undefined);
-                }}
-              >
-                <UndoIcon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="flex items-center gap-2 px-2 py-2 pr-2.5">
-              <div className="rounded border border-slate-300 px-1 py-0.5 text-xs text-slate-300 dark:border-slate-700 dark:text-slate-700">
-                {EDITOR_SHORTCUTS.UNDO}
-              </div>
-              <span className="text-sm">Undo</span>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-            <TooltipTrigger
-              asChild
-              onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
-            >
-              <Button
-                size="icon"
-                variant="secondary"
-                disabled={!toolbarState.canRedo}
-                onClick={() => {
-                  editor.dispatchCommand(REDO_COMMAND, undefined);
-                }}
-              >
-                <RedoIcon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="flex items-center gap-2 px-2 py-2 pr-2.5">
-              <div className="rounded border border-slate-300 px-1 py-0.5 text-xs text-slate-300 dark:border-slate-700 dark:text-slate-700">
-                {EDITOR_SHORTCUTS.REDO}
-              </div>
-              <span className="text-sm">Redo</span>
-            </TooltipContent>
-          </Tooltip>
-        </div>
+        <ButtonGroup>
+          <TooltipButton
+            {...tooltipGroup.getTooltipProps()}
+            tooltip="Undo"
+            variant="secondary"
+            shortcut={KBD.UNDO}
+            disabled={!toolbarState.canUndo}
+            onClick={() => {
+              editor.dispatchCommand(UNDO_COMMAND, undefined);
+            }}
+          >
+            <UndoIcon />
+          </TooltipButton>
+          <TooltipButton
+            {...tooltipGroup.getTooltipProps()}
+            tooltip="Redo"
+            variant="secondary"
+            shortcut={KBD.REDO}
+            disabled={!toolbarState.canRedo}
+            onClick={() => {
+              editor.dispatchCommand(REDO_COMMAND, undefined);
+            }}
+          >
+            <RedoIcon />
+          </TooltipButton>
+        </ButtonGroup>
 
         <Separator
           orientation="vertical"
           className="h-6! flex-shrink-0 self-center justify-self-center"
         />
 
-        <div className="flex-shrink-0 [&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
-          <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-            <TooltipTrigger
-              asChild
-              onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
-            >
-              <Button
-                size="icon"
-                variant={toolbarState.isBold ? 'secondary' : 'ghost'}
-                onClick={() => {
-                  editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
-                }}
-              >
-                <BoldIcon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="flex items-center gap-2 px-2 py-2 pr-2.5">
-              <div className="rounded border border-slate-300 px-1 py-0.5 text-xs text-slate-300 dark:border-slate-700 dark:text-slate-700">
-                {EDITOR_SHORTCUTS.BOLD}
-              </div>
-              <span className="text-sm">Bold</span>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-            <TooltipTrigger
-              asChild
-              onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
-            >
-              <Button
-                size="icon"
-                variant={toolbarState.isItalic ? 'secondary' : 'ghost'}
-                onClick={() => {
-                  editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
-                }}
-              >
-                <ItalicIcon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="flex items-center gap-2 px-2 py-2 pr-2.5">
-              <div className="rounded border border-slate-300 px-1 py-0.5 text-xs text-slate-300 dark:border-slate-700 dark:text-slate-700">
-                {EDITOR_SHORTCUTS.ITALIC}
-              </div>
-              <span className="text-sm">Italic</span>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-            <TooltipTrigger
-              asChild
-              onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
-            >
-              <Button
-                size="icon"
-                variant={toolbarState.isUnderline ? 'secondary' : 'ghost'}
-                onClick={() => {
-                  editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
-                }}
-              >
-                <UnderlineIcon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="flex items-center gap-2 px-2 py-2 pr-2.5">
-              <div className="rounded border border-slate-300 px-1 py-0.5 text-xs text-slate-300 dark:border-slate-700 dark:text-slate-700">
-                {EDITOR_SHORTCUTS.UNDERLINE}
-              </div>
-              <span className="text-sm">Underline</span>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-            <TooltipTrigger
-              asChild
-              onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
-            >
-              <Button
-                size="icon"
-                variant={toolbarState.isStrikethrough ? 'secondary' : 'ghost'}
-                onClick={() => {
-                  editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
-                }}
-              >
-                <StrikethroughIcon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="flex items-center gap-2 px-2 py-2 pr-2.5">
-              <div className="rounded border border-slate-300 px-1 py-0.5 text-xs text-slate-300 dark:border-slate-700 dark:text-slate-700">
-                {EDITOR_SHORTCUTS.STRIKETHROUGH}
-              </div>
-              <span className="text-sm">Strikethrough</span>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-            <TooltipTrigger
-              asChild
-              onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
-            >
-              <Button
-                size="icon"
-                variant={toolbarState.isCode ? 'secondary' : 'ghost'}
-                onClick={() => {
-                  editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code');
-                }}
-              >
-                <CodeIcon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="flex items-center gap-2 px-2 py-2 pr-2.5">
-              <div className="rounded border border-slate-300 px-1 py-0.5 text-xs text-slate-300 dark:border-slate-700 dark:text-slate-700">
-                {EDITOR_SHORTCUTS.CODE_BLOCK}
-              </div>
-              <span className="text-sm">Code</span>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-            <TooltipTrigger
-              asChild
-              onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
-            >
-              <Button
-                size="icon"
-                variant={toolbarState.isLink ? 'secondary' : 'ghost'}
-                onClick={() => {
-                  if (!toolbarState.isLink) {
-                    editor.dispatchCommand(TOGGLE_LINK_COMMAND, 'https://');
-                  }
-                }}
-              >
-                <LinkIcon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent className="flex items-center gap-2 px-2 py-2 pr-2.5">
-              <div className="rounded border border-slate-300 px-1 py-0.5 text-xs text-slate-300 dark:border-slate-700 dark:text-slate-700">
-                {EDITOR_SHORTCUTS.INSERT_LINK}
-              </div>
-              <span className="text-sm">Link</span>
-            </TooltipContent>
-          </Tooltip>
-        </div>
+        <ButtonGroup>
+          <TooltipButton
+            {...tooltipGroup.getTooltipProps()}
+            tooltip="Bold"
+            shortcut={KBD.BOLD}
+            variant={toolbarState.isBold ? 'secondary' : 'ghost'}
+            onClick={() => {
+              editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'bold');
+            }}
+          >
+            <BoldIcon />
+          </TooltipButton>
+          <TooltipButton
+            {...tooltipGroup.getTooltipProps()}
+            tooltip="Italic"
+            shortcut={KBD.ITALIC}
+            variant={toolbarState.isItalic ? 'secondary' : 'ghost'}
+            onClick={() => {
+              editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'italic');
+            }}
+          >
+            <ItalicIcon />
+          </TooltipButton>
+          <TooltipButton
+            {...tooltipGroup.getTooltipProps()}
+            tooltip="Underline"
+            shortcut={KBD.UNDERLINE}
+            variant={toolbarState.isUnderline ? 'secondary' : 'ghost'}
+            onClick={() => {
+              editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'underline');
+            }}
+          >
+            <UnderlineIcon />
+          </TooltipButton>
+          <TooltipButton
+            {...tooltipGroup.getTooltipProps()}
+            tooltip="Strikethrough"
+            shortcut={KBD.STRIKETHROUGH}
+            variant={toolbarState.isStrikethrough ? 'secondary' : 'ghost'}
+            onClick={() => {
+              editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'strikethrough');
+            }}
+          >
+            <StrikethroughIcon />
+          </TooltipButton>
+          <TooltipButton
+            {...tooltipGroup.getTooltipProps()}
+            tooltip="Code"
+            shortcut={KBD.CODE}
+            variant={toolbarState.isCode ? 'secondary' : 'ghost'}
+            onClick={() => {
+              editor.dispatchCommand(FORMAT_TEXT_COMMAND, 'code');
+            }}
+          >
+            <CodeIcon />
+          </TooltipButton>
+          <TooltipButton
+            {...tooltipGroup.getTooltipProps()}
+            tooltip="Link"
+            shortcut={KBD.INSERT_LINK}
+            variant={toolbarState.isLink ? 'secondary' : 'ghost'}
+            onClick={() => {
+              if (!toolbarState.isLink) {
+                editor.dispatchCommand(TOGGLE_LINK_COMMAND, 'https://');
+              }
+            }}
+          >
+            <LinkIcon />
+          </TooltipButton>
+        </ButtonGroup>
 
-        <Separator
-          orientation="vertical"
-          className="h-6! self-center justify-self-center"
-        />
+        <Separator className="h-6!" orientation="vertical" />
 
         <Select value={toolbarState.fontFamily} onValueChange={applyFontFamily}>
-          <SelectTrigger size="sm" className="w-40 flex-shrink-0">
+          <SelectTrigger
+            size="sm"
+            variant="secondary"
+            className="w-40 flex-shrink-0"
+          >
             <SelectValue placeholder="Font family" />
           </SelectTrigger>
           <SelectContent>
@@ -435,6 +343,8 @@ export default function ToolbarEditorPlugin() {
           className="flex-shrink-0"
           value={toolbarState.fontSize}
           onChange={handleFontSizeChange}
+          onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
+          delayDuration={tooltipGroup.getTooltipProps().delayDuration}
         />
 
         <DropdownMenu>
@@ -468,9 +378,7 @@ export default function ToolbarEditorPlugin() {
                     <heading.icon className="mr-2 h-4 w-4" />
                     <span>{heading.label}</span>
                   </div>
-                  <span className="text-muted-foreground min-w-14 text-xs">
-                    {heading.shortcut}
-                  </span>
+                  <Shortcut keys={heading.shortcut} />
                 </DropdownMenuItem>
               );
             })}
@@ -485,9 +393,7 @@ export default function ToolbarEditorPlugin() {
                 <TextInitialIcon />
                 <span>Normal text</span>
               </div>
-              <span className="text-muted-foreground ml-auto text-xs">
-                {EDITOR_SHORTCUTS.NORMAL}
-              </span>
+              <Shortcut keys={KBD.NORMAL} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -525,9 +431,7 @@ export default function ToolbarEditorPlugin() {
                     <list.icon className="mr-2 h-4 w-4" />
                     <span>{list.label}</span>
                   </div>
-                  <span className="text-muted-foreground min-w-14 text-xs">
-                    {list.shortcut}
-                  </span>
+                  <Shortcut keys={list.shortcut} />
                 </DropdownMenuItem>
               );
             })}
@@ -669,124 +573,83 @@ export default function ToolbarEditorPlugin() {
           className="h-6! flex-shrink-0 self-center justify-self-center"
         />
 
-        <div className="flex-shrink-0 [&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
+        <ButtonGroup>
           {(Object.keys(ELEMENT_FORMAT_OPTIONS) as Alignment[]).map(
             (alignment) => {
-              const { icon: Icon, name } = ELEMENT_FORMAT_OPTIONS[alignment];
+              const {
+                icon: Icon,
+                name,
+                shortcut,
+              } = ELEMENT_FORMAT_OPTIONS[alignment];
 
               return (
-                <Tooltip
+                <TooltipButton
                   key={alignment}
-                  delayDuration={tooltipGroup.getTooltipProps().delayDuration}
+                  {...tooltipGroup.getTooltipProps()}
+                  tooltip={name}
+                  shortcut={shortcut}
+                  onClick={() => {
+                    editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, alignment);
+                  }}
+                  variant={
+                    toolbarState.elementFormat === alignment
+                      ? 'secondary'
+                      : 'ghost'
+                  }
                 >
-                  <TooltipTrigger
-                    asChild
-                    onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
-                  >
-                    <Button
-                      size="icon"
-                      aria-label={name}
-                      variant={
-                        toolbarState.elementFormat === alignment
-                          ? 'secondary'
-                          : 'ghost'
-                      }
-                      onClick={() => {
-                        editor.dispatchCommand(
-                          FORMAT_ELEMENT_COMMAND,
-                          alignment
-                        );
-                      }}
-                    >
-                      <Icon />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <span className="text-sm">{name}</span>
-                  </TooltipContent>
-                </Tooltip>
+                  <Icon />
+                </TooltipButton>
               );
             }
           )}
-        </div>
+        </ButtonGroup>
 
         <Separator
           orientation="vertical"
           className="h-6! flex-shrink-0 self-center justify-self-center"
         />
 
-        <div className="flex-shrink-0 [&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
-          <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-            <TooltipTrigger
-              asChild
-              onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
-            >
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => {
-                  editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
-                }}
-              >
-                <IndentDecreaseIcon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <span className="text-sm">
-                Outdent ({EDITOR_SHORTCUTS.OUTDENT})
-              </span>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-            <TooltipTrigger
-              asChild
-              onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
-            >
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => {
-                  editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined);
-                }}
-              >
-                <IndentIcon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <span className="text-sm">
-                Indent ({EDITOR_SHORTCUTS.INDENT})
-              </span>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-
-        <Separator
-          orientation="vertical"
-          className="h-6! flex-shrink-0 self-center justify-self-center"
-        />
-
-        <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-          <TooltipTrigger
-            asChild
-            onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}
+        <ButtonGroup>
+          <TooltipButton
+            {...tooltipGroup.getTooltipProps()}
+            variant="ghost"
+            tooltip="Outdent"
+            shortcut={KBD.OUTDENT}
+            onClick={() => {
+              editor.dispatchCommand(OUTDENT_CONTENT_COMMAND, undefined);
+            }}
           >
-            <Button
-              size="icon"
-              className="flex-shrink-0"
-              onClick={() => {
-                formatQuote(editor, toolbarState.blockType);
-              }}
-              variant={
-                toolbarState.blockType === 'quote' ? 'secondary' : 'ghost'
-              }
-            >
-              <QuoteIcon />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <span className="text-sm">Quote ({EDITOR_SHORTCUTS.QUOTE})</span>
-          </TooltipContent>
-        </Tooltip>
+            <IndentDecreaseIcon />
+          </TooltipButton>
+          <TooltipButton
+            {...tooltipGroup.getTooltipProps()}
+            variant="ghost"
+            tooltip="Indent"
+            shortcut={KBD.INDENT}
+            onClick={() => {
+              editor.dispatchCommand(INDENT_CONTENT_COMMAND, undefined);
+            }}
+          >
+            <IndentIcon />
+          </TooltipButton>
+        </ButtonGroup>
+
+        <Separator
+          orientation="vertical"
+          className="h-6! flex-shrink-0 self-center justify-self-center"
+        />
+
+        <TooltipButton
+          {...tooltipGroup.getTooltipProps()}
+          tooltip="Quote"
+          shortcut={KBD.QUOTE}
+          variant={toolbarState.isQuote ? 'secondary' : 'ghost'}
+          onClick={() => {
+            formatQuote(editor, toolbarState.blockType);
+          }}
+        >
+          <QuoteIcon />
+        </TooltipButton>
 
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -825,9 +688,7 @@ export default function ToolbarEditorPlugin() {
                     <Icon className="mr-2 h-4 w-4" />
                     <span>{option.name}</span>
                   </div>
-                  <span className="text-muted-foreground min-w-14 text-xs">
-                    {option.shortcut}
-                  </span>
+                  <Shortcut keys={option.shortcut} />
                 </DropdownMenuItem>
               );
             })}
@@ -842,9 +703,7 @@ export default function ToolbarEditorPlugin() {
                 <EraserIcon className="h-4 w-4" />
                 <span>Clear formatting</span>
               </div>
-              <span className="text-muted-foreground ml-auto text-xs">
-                {EDITOR_SHORTCUTS.CLEAR_FORMATTING}
-              </span>
+              <Shortcut keys={KBD.CLEAR_FORMATTING} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
