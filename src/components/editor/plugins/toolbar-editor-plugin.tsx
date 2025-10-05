@@ -200,7 +200,7 @@ export default function ToolbarEditorPlugin() {
         <TooltipButton
           {...tooltipGroup.getTooltipProps()}
           variant="outline"
-          tooltip="Strikethrough"
+          tooltip="Clear editor"
           shortcut={KBD.CLEAR_EDITOR}
           onClick={clearEditor.bind(null, editor)}
         >
@@ -641,7 +641,7 @@ export default function ToolbarEditorPlugin() {
 
         <TooltipButton
           {...tooltipGroup.getTooltipProps()}
-          tooltip="Code"
+          tooltip="Quote"
           shortcut={KBD.QUOTE}
           variant={toolbarState.isQuote ? 'secondary' : 'ghost'}
           onClick={() => {
