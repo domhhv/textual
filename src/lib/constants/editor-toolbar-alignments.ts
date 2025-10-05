@@ -22,7 +22,7 @@ const ELEMENT_FORMAT_OPTIONS: Record<
   {
     icon: Icon;
     name: string;
-    shortcut: string;
+    shortcut: readonly string[];
   }
 > = {
   left: {

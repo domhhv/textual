@@ -35,7 +35,7 @@ const TEXT_FORMAT_OPTIONS: Record<
     icon: React.ElementType;
     key: ToolbarStateKey;
     name: string;
-    shortcut: string;
+    shortcut: readonly string[];
   }
 > = {
   lowercase: {

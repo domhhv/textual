@@ -6,7 +6,7 @@ import EDITOR_SHORTCUTS from '@/lib/constants/editor-shortcuts';
 const lists: {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   label: string;
-  shortcut: string;
+  shortcut: readonly string[];
   value: 'bullet' | 'number' | 'check';
 }[] = [
   {

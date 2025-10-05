@@ -141,8 +141,8 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
           <div className="flex items-center justify-center gap-1">
             <Button
               size="sm"
+              className={cn(viewMode === 'chat' && 'flex-1')}
               variant={viewMode === 'chat' ? 'default' : 'outline'}
-              className={cn('space-y-2', viewMode === 'chat' && 'flex-1')}
               onClick={() => {
                 resetEditorSelection();
 
@@ -154,8 +154,8 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
             </Button>
             <Button
               size="sm"
+              className={cn(viewMode === 'split' && 'flex-1')}
               variant={viewMode === 'split' ? 'default' : 'outline'}
-              className={cn('space-y-2', viewMode === 'split' && 'flex-1')}
               onClick={() => {
                 resetEditorSelection();
 
@@ -167,8 +167,8 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
             </Button>
             <Button
               size="sm"
+              className={cn(viewMode === 'editor' && 'flex-1')}
               variant={viewMode === 'editor' ? 'default' : 'outline'}
-              className={cn('space-y-2', viewMode === 'editor' && 'flex-1')}
               onClick={() => {
                 resetEditorSelection();
 

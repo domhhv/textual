@@ -35,7 +35,6 @@ export default function MobileLayoutProvider({
       setIsMobile(window.innerWidth < 768);
     }
 
-    // Load saved preference
     try {
       const savedMode = localStorage.getItem(STORAGE_KEY) as ViewMode | null;
 
@@ -46,8 +45,8 @@ export default function MobileLayoutProvider({
       console.error('Failed to load view mode preference:', error);
     }
 
-    // Check mobile status
     checkMobile();
+
     window.addEventListener('resize', checkMobile);
 
     return () => {
@@ -74,10 +73,8 @@ export default function MobileLayoutProvider({
     return { isMobile: isMobile ?? false, setViewMode, viewMode };
   }, [viewMode, setViewMode, isMobile]);
 
-  // Hide loading screen once we're ready to render
   useHideLoadingScreen();
 
-  // Don't render until we know if mobile or not
   if (isMobile === null) {
     return null;
   }

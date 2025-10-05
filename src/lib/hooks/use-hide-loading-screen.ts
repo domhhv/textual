@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 
 export default function useHideLoadingScreen() {
   useEffect(() => {
-    // Small delay to ensure everything is mounted and painted
     const timer = setTimeout(() => {
       const loader = document.getElementById('app-loading');
 
