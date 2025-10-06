@@ -1,7 +1,14 @@
+import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 
-const nextConfig: NextConfig = {
-  /* config options here */
-};
+const nextConfig: NextConfig = {};
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  automaticVercelMonitors: true,
+  disableLogger: true,
+  org: 'doms-org',
+  project: 'textual',
+  silent: !process.env.CI,
+  tunnelRoute: '/monitoring',
+  widenClientFileUpload: true,
+});
