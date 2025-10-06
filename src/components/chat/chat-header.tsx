@@ -1,6 +1,7 @@
 import { SunIcon, MoonIcon, MonitorIcon, ExternalLinkIcon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
+import posthog from 'posthog-js';
 import * as React from 'react';
 
 import ApiKeyManagerButton from '@/components/custom/api-key-manager-button';
@@ -65,6 +66,9 @@ export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
                     size="icon"
                     variant={theme === 'light' ? 'secondary' : 'ghost'}
                     onClick={() => {
+                      posthog.capture('clicked_on_theme_mode', {
+                        mode: 'light',
+                      });
                       setTheme('light');
                     }}
                   >
@@ -86,6 +90,9 @@ export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
                     size="icon"
                     variant={theme === 'system' ? 'secondary' : 'ghost'}
                     onClick={() => {
+                      posthog.capture('clicked_on_theme_mode', {
+                        mode: 'system',
+                      });
                       setTheme('system');
                     }}
                   >
@@ -107,6 +114,9 @@ export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
                     size="icon"
                     variant={theme === 'dark' ? 'secondary' : 'ghost'}
                     onClick={() => {
+                      posthog.capture('clicked_on_theme_mode', {
+                        mode: 'dark',
+                      });
                       setTheme('dark');
                     }}
                   >

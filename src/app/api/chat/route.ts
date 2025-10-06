@@ -42,6 +42,11 @@ export async function POST(req: Request) {
     stopWhen: stepCountIs(5),
     system: wrapEditorPrompt(editorMarkdownContent, editorRootChildren),
     tools,
+    experimental_telemetry: {
+      isEnabled: true,
+      recordInputs: true,
+      recordOutputs: true,
+    },
   });
 
   return result.toUIMessageStreamResponse();

@@ -4,6 +4,7 @@ import { $convertFromMarkdownString } from '@lexical/markdown';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $addUpdateTag, $setSelection, SKIP_DOM_SELECTION_TAG } from 'lexical';
 import { Edit3, Columns2, MessageSquare } from 'lucide-react';
+import posthog from 'posthog-js';
 import * as React from 'react';
 import { useSwipeable } from 'react-swipeable';
 
@@ -67,6 +68,7 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
         nextIndex = (currentIndex - 1 + VIEW_MODES.length) % VIEW_MODES.length;
       }
 
+      posthog.capture('swiped_to_view_mode', { mode: VIEW_MODES[nextIndex] });
       setViewMode(VIEW_MODES[nextIndex]);
     },
     [viewMode, setViewMode, resetEditorSelection]
@@ -146,6 +148,9 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
               onClick={() => {
                 resetEditorSelection();
 
+                posthog.capture('clicked_on_mobile_view_mode', {
+                  mode: 'chat',
+                });
                 setViewMode('chat');
               }}
             >
@@ -159,6 +164,9 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
               onClick={() => {
                 resetEditorSelection();
 
+                posthog.capture('clicked_on_mobile_view_mode', {
+                  mode: 'split',
+                });
                 setViewMode('split');
               }}
             >
@@ -172,6 +180,9 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
               onClick={() => {
                 resetEditorSelection();
 
+                posthog.capture('clicked_on_mobile_view_mode', {
+                  mode: 'editor',
+                });
                 setViewMode('editor');
               }}
             >
