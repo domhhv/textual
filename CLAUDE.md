@@ -15,7 +15,7 @@ npm run prettier:check   # Format checking (runs in prebuild)
 npm run prettier:write   # Auto-format code
 ```
 
-**Important**: Always run `npm run typecheck` and `npm run eslint:check` and `npm run prettier:fix` after making changes. These are part of the prebuild process and must pass for production builds.
+**Important**: Always run `npm run typecheck` and `npm run eslint:fix` and `npm run prettier:write` after making changes. These are part of the prebuild process and must pass for production builds.
 
 ## Architecture Overview
 
@@ -41,12 +41,15 @@ src/
 │   ├── chat/              # Chat interface with streaming
 │   ├── editor/            # Lexical editor + plugins
 │   ├── providers/         # Context providers (chat, toolbar)
-│   └── ui/                # shadcn/ui components
-|   |__ custom/            # Custom UI components
+│   ├── ui/                # shadcn/ui components
+│   ├── custom/            # Custom UI components
+│   ├── layout/            # Layout components (split pane, header)
+│   └── icons/             # SVG icons
 └── lib/
     ├── models/editor-commands.ts  # AI tool definitions
     ├── constants/                 # Various constant variables: editor configs, UI texts, etc.
     ├── utils/                     # Utility functions (API calls, editor commands)
+    ├── styles/                    # Any global styles that are difficult to express in Tailwind (written in SCSS)
     └── hooks/                     # Custom React hooks
 ```
 
@@ -62,21 +65,23 @@ Key files for AI functionality:
 
 - `src/app/api/chat/route.ts` - Server-side AI endpoint
 - `src/components/chat/chat.tsx` - Chat interface with tool execution
+- `src/components/editor/editor.tsx` - Lexical editor setup
 - `src/lib/utils/editor-commands.ts` - Editor command utilities
+- `src/lib/utils/execute-editor-command.ts` - Executes commands in the editor
 
 ## State Management
 
 - **Lexical State**: Editor state managed by Lexical framework
 - **Chat State**: Vercel AI SDK handles conversation and tool calling
 - **Theme State**: next-themes for dark/light mode switching
-- **Custom Providers**: Chat status and toolbar state via React Context
+- **Custom Providers**: Chat status, toolbar state, user-provided API key(s), mobile layout handled via React Context
 
 ## Configuration & Setup
 
 ### Environment Requirements
 
-- **Node.js**: 24.8.0+ (strict engine requirement)
-- **Environment Variable**: `OPENAI_API_KEY` required (see `.env.example`)
+- **Node.js**: 22
+- **Environment Variable**: `OPENAI_API_KEY`, optional (can also be set in the UI)
 
 ### Code Quality Setup
 
@@ -89,10 +94,10 @@ The project has comprehensive linting and formatting:
 
 ### Important Conventions
 
-- **Imports**: Use `@/*` path aliases, alphabetical sorting required
+- **Imports**: Use `@/*` path aliases
 - **Components**: Function declarations preferred over arrow functions
 - **Colors**: Use OKLCH color system with CSS custom properties
-- **Export Style**: Default exports preferred for components, utils, hooks, and constants
+- **Export Style**: Default exports preferred over named exports for components, utils, hooks, and constants
 - **Component Location**: Keep shadcn primitives in `ui/`, custom components that build upon them in `ui/custom/`
 - **File Naming**: Use lowercase with hyphens for files and directories
 - **Types Inference**: Prefer inferred types over explicit annotations where possible
