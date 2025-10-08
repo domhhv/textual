@@ -10,7 +10,14 @@
     "nextjs",
     "react",
     "tailwindcss",
-    "typescript"
+    "typescript",
+    "lexical",
+    "radix-ui",
+    "shadcn",
+    "openai",
+    "sentry",
+    "posthog",
+    "vercel"
   ],
   "homepage": "https://textual.chat",
   "bugs": {
@@ -107,5 +114,11 @@
   "engines": {
     "node": "^22.20.0",
     "npm": "^10.9.3"
+  },
+  "nextBundleAnalysis": {
+    "budget": null,
+    "budgetPercentIncreaseRed": 20,
+    "minimumChangeThreshold": 0,
+    "showDetails": true
   }
 }
