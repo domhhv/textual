@@ -69,8 +69,8 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { default as KBD } from '@/lib/constants/editor-shortcuts';
 import type { Alignment } from '@/lib/constants/editor-toolbar-alignments';
 import ELEMENT_FORMAT_OPTIONS from '@/lib/constants/editor-toolbar-alignments';
-import headings from '@/lib/constants/editor-toolbar-headings';
-import lists from '@/lib/constants/editor-toolbar-lists';
+import HEADINGS from '@/lib/constants/editor-toolbar-headings';
+import LISTS from '@/lib/constants/editor-toolbar-lists';
 import TEXT_FORMAT_OPTIONS from '@/lib/constants/editor-toolbar-text-formats';
 import useEditorToolbarSync from '@/lib/hooks/use-editor-toolbar-sync';
 import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
@@ -93,6 +93,11 @@ export default function ToolbarEditorPlugin() {
   const [isFontColorPickerOpen, setIsFontColorPickerOpen] =
     React.useState(false);
   const [isBackgroundColorPickerOpen, setIsBackgroundColorPickerOpen] =
+    React.useState(false);
+  const [isHeadingsDropdownOpen, setIsHeadingsDropdownOpen] =
+    React.useState(false);
+  const [isListsDropdownOpen, setIsListsDropdownOpen] = React.useState(false);
+  const [isTextFormatDropdownOpen, setIsTextFormatDropdownOpen] =
     React.useState(false);
   const [fontColor, setFontColor] = React.useState<string>('#000000');
   const [backgroundColor, setBackgroundColor] =
@@ -321,7 +326,7 @@ export default function ToolbarEditorPlugin() {
           <SelectTrigger
             size="sm"
             variant="secondary"
-            className="w-40 flex-shrink-0"
+            className="text-secondary-foreground w-40 flex-shrink-0"
           >
             <SelectValue placeholder="Font family" />
           </SelectTrigger>
@@ -347,21 +352,32 @@ export default function ToolbarEditorPlugin() {
           delayDuration={tooltipGroup.getTooltipProps().delayDuration}
         />
 
-        <DropdownMenu>
+        <DropdownMenu
+          open={isHeadingsDropdownOpen}
+          onOpenChange={setIsHeadingsDropdownOpen}
+        >
           <DropdownMenuTrigger
             asChild
             className="w-40 flex-shrink-0 justify-between"
+            onPointerDown={(e) => {
+              return e.preventDefault();
+            }}
+            onClick={() => {
+              return setIsHeadingsDropdownOpen((prev) => {
+                return !prev;
+              });
+            }}
           >
             <Button size="sm" variant="secondary">
               <HeadingIcon className="mr-1 h-4 w-4" />
-              {headings.find((h) => {
+              {HEADINGS.find((h) => {
                 return h.value === toolbarState.blockType;
               })?.label || 'Normal text'}
               <ChevronDownIcon className="ml-1 h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {headings.map((heading) => {
+            {HEADINGS.map((heading) => {
               return (
                 <DropdownMenuItem
                   key={heading.value}
@@ -398,21 +414,32 @@ export default function ToolbarEditorPlugin() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <DropdownMenu>
+        <DropdownMenu
+          open={isListsDropdownOpen}
+          onOpenChange={setIsListsDropdownOpen}
+        >
           <DropdownMenuTrigger
             asChild
             className="w-44 flex-shrink-0 justify-between"
+            onPointerDown={(e) => {
+              return e.preventDefault();
+            }}
+            onClick={() => {
+              return setIsListsDropdownOpen((prev) => {
+                return !prev;
+              });
+            }}
           >
             <Button size="sm" variant="secondary">
               <ListIcon className="mr-1 h-4 w-4" />
-              {lists.find((l) => {
+              {LISTS.find((l) => {
                 return l.value === toolbarState.blockType;
               })?.label || 'Insert list'}
               <ChevronDownIcon className="ml-1 h-3 w-3" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {lists.map((list) => {
+            {LISTS.map((list) => {
               return (
                 <DropdownMenuItem
                   key={list.value}
@@ -651,10 +678,21 @@ export default function ToolbarEditorPlugin() {
           <QuoteIcon />
         </TooltipButton>
 
-        <DropdownMenu>
+        <DropdownMenu
+          open={isTextFormatDropdownOpen}
+          onOpenChange={setIsTextFormatDropdownOpen}
+        >
           <DropdownMenuTrigger
             asChild
             className="w-44 flex-shrink-0 justify-between"
+            onPointerDown={(e) => {
+              return e.preventDefault();
+            }}
+            onClick={() => {
+              return setIsTextFormatDropdownOpen((prev) => {
+                return !prev;
+              });
+            }}
           >
             <Button size="sm" variant="secondary">
               <TypeOutlineIcon className="mr-1 h-4 w-4" />
