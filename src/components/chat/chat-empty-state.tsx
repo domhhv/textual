@@ -10,7 +10,7 @@ type ChatEmptyStateProps = {
 
 export default function ChatEmptyState({ onSetApiKey }: ChatEmptyStateProps) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-between overflow-y-auto p-6 text-center">
+    <div className="scrollbar-hide flex flex-1 flex-col items-center justify-between overflow-y-auto p-6 text-center">
       <div className="flex basis-full flex-col items-center justify-center">
         <div className="bg-muted mb-4 hidden rounded-full p-4 md:block">
           <Key className="text-muted-foreground h-8 w-8" />
