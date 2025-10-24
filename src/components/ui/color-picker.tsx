@@ -248,10 +248,10 @@ function ColorPickerHue({ className, ...props }: ColorPickerHueProps) {
       step={1}
       max={360}
       value={[hue]}
+      className={cn('relative flex h-4 w-full touch-none', className)}
       onValueChange={([hue]) => {
         return setHue(hue);
       }}
-      className={cn('relative flex h-4 w-full touch-none', className)}
       {...props}
     >
       <Slider.Track className="relative my-0.5 h-3 w-full grow rounded-full bg-[linear-gradient(90deg,#FF0000,#FFFF00,#00FF00,#00FFFF,#0000FF,#FF00FF,#FF0000)]">

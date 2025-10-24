@@ -1,4 +1,10 @@
-import { SunIcon, MoonIcon, MonitorIcon, ExternalLinkIcon } from 'lucide-react';
+import {
+  SunIcon,
+  MoonIcon,
+  PanelLeft,
+  MonitorIcon,
+  ExternalLinkIcon,
+} from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import posthog from 'posthog-js';
@@ -7,6 +13,7 @@ import * as React from 'react';
 import ApiKeyManagerButton from '@/components/custom/api-key-manager-button';
 import GithubIcon from '@/components/icons/github';
 import { ApiKeyContext } from '@/components/providers/api-key-provider';
+import { SidebarContext } from '@/components/providers/sidebar-provider';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -22,6 +29,7 @@ type ChatHeaderProps = {
 
 export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
   const { hasApiKey } = React.use(ApiKeyContext);
+  const sidebarContext = React.use(SidebarContext);
   const { setTheme, theme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   const tooltipGroup = useTooltipGroup();
@@ -38,14 +46,26 @@ export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
     );
   }
 
+  const { isMobile, toggleSidebar } = sidebarContext || {};
+
   return (
     <div
       onMouseLeave={tooltipGroup.onGroupMouseLeave}
       className="border-border flex items-center gap-2 overflow-x-auto border-b p-2"
     >
       <div className="flex min-w-0 basis-full items-center justify-between gap-2">
-        <div className="min-w-0 flex-shrink px-2">
-          <h3 className="sansation-bold scroll-m-20 truncate text-2xl font-semibold tracking-tight text-slate-600 dark:text-slate-300">
+        <div className="flex min-w-0 flex-shrink items-center gap-2 px-2">
+          {isMobile && (
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={toggleSidebar}
+              className="h-8 w-8 flex-shrink-0"
+            >
+              <PanelLeft className="h-4 w-4" />
+            </Button>
+          )}
+          <h3 className="sansation-bold hidden scroll-m-20 truncate text-2xl font-semibold tracking-tight text-slate-600 md:block dark:text-slate-300">
             <span className="border-b border-dashed border-slate-600 dark:border-slate-300">
               Textual
             </span>{' '}

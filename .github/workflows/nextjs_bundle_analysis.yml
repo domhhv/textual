@@ -42,7 +42,7 @@ jobs:
             ${{ runner.os }}-next-build-
 
       - name: Build next.js app
-        run: npm run build
+        run: npm run build:analyze
 
       - name: Analyze bundle
         run: npx -p nextjs-bundle-analysis report

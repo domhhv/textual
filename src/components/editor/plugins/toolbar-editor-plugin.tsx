@@ -200,7 +200,7 @@ export default function ToolbarEditorPlugin() {
     <TooltipProvider>
       <div
         onMouseLeave={tooltipGroup.onGroupMouseLeave}
-        className="flex items-center gap-2 overflow-x-auto p-2"
+        className="scrollbar-hide flex items-center gap-2 overflow-x-auto p-2"
       >
         <TooltipButton
           {...tooltipGroup.getTooltipProps()}
