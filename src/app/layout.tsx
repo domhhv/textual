@@ -39,7 +39,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<PropsWithChildren>) {
   return (
-    <ClerkProvider appearance={{ theme: shadcn }}>
+    <ClerkProvider appearance={{ theme: shadcn }} publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
       <html lang="en" suppressHydrationWarning>
         <body className={`${ubuntu.variable} ${montserrat.className} ${montserrat.variable} antialiased`}>
           <ThemeProvider enableSystem attribute="class" defaultTheme="system" disableTransitionOnChange>

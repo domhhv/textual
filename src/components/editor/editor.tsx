@@ -43,7 +43,8 @@ export default function Editor() {
       editorState.read(() => {
         const children = JSON.parse($getNextEditorState().nextEditorRootChildren);
         const jsonString = JSON.stringify(editorState);
-        const isEmpty = !activeDocument && children.length === 1 && children[0].nodeText === '';
+        const isEmpty =
+          !activeDocument && (children.length === 0 || (children.length === 1 && children[0]?.nodeText === ''));
         setIsEditorEmpty(isEmpty);
         setIsDraftDocumentEmpty(isEmpty);
 
@@ -81,7 +82,7 @@ export default function Editor() {
               <div className="absolute right-0 bottom-0 left-0 p-2">
                 <Alert variant="destructive">
                   <FileWarningIcon />
-                  <AlertTitle>Please don&apos; make edits to the document yet</AlertTitle>
+                  <AlertTitle>Please don&apos;t make edits to the document yet</AlertTitle>
                   <AlertDescription>
                     The editor content is managed by the AI at this moment. Making manual edits may lead to unexpected
                     behavior.

@@ -69,7 +69,7 @@ export default function MobileLayoutProvider({ children }: { children: React.Rea
     return { isMobile: isMobile ?? false, setViewMode, viewMode };
   }, [viewMode, setViewMode, isMobile]);
 
-  if (typeof window !== 'undefined') {
+  if (typeof window === 'undefined') {
     return children;
   }
 

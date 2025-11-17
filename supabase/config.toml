@@ -305,6 +305,7 @@ enabled = false
 enabled = true
 # Obtain from https://clerk.com/setup/supabase
 domain = "active-stud-32.clerk.accounts.dev"
+domain = "env(CLERK_DEV_DOMAIN)"
 
 # OAuth server configuration
 [auth.oauth_server]

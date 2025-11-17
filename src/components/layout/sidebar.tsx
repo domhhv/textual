@@ -7,7 +7,6 @@ import {
   LogInIcon,
   TrashIcon,
   Settings2Icon,
-  LoaderCircleIcon,
   FilePlusCornerIcon,
   PanelLeftCloseIcon,
   PanelRightCloseIcon,
@@ -18,6 +17,7 @@ import { useSearchParams } from 'next/navigation';
 import posthog from 'posthog-js';
 import * as React from 'react';
 
+import SidebarDocumentLinkButton from '@/components/custom/sidebar-document-link-button';
 import { useDocument } from '@/components/providers/document-provider';
 import { useSidebar } from '@/components/providers/sidebar-provider';
 import { Button } from '@/components/ui/button';
@@ -29,11 +29,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 import editorSampleContent from '@/lib/constants/editor-sample-content';
 import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
-import type { Document } from '@/lib/models/document.model';
+import type { DocumentItem } from '@/lib/models/document.model';
 import cn from '@/lib/utils/cn';
 
 type SidebarProps = {
-  documents: Document[];
+  documents: DocumentItem[];
   isAuthenticated: boolean;
 };
 
@@ -52,7 +52,9 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
   } = useDocument();
   const searchParams = useSearchParams();
 
-  const documentId = searchParams.get('d');
+  const activeDocumentId = React.useMemo(() => {
+    return searchParams.get('document');
+  }, [searchParams]);
 
   function fillSampleContent() {
     posthog.capture('fill_sample_content');
@@ -92,8 +94,8 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
           'border-border bg-background flex h-full flex-col border-r transition-all duration-30',
           !isAuthenticated && 'justify-between',
           isMobile
-            ? cn('fixed top-0 left-0 z-50 h-full w-64', isExpanded ? 'translate-x-0' : '-translate-x-full')
-            : cn(isExpanded ? 'w-64' : 'w-12')
+            ? cn('fixed top-0 left-0 z-50 h-full w-72', isExpanded ? 'translate-x-0' : '-translate-x-full')
+            : cn(isExpanded ? 'w-72' : 'w-12')
         )}
       >
         <div>
@@ -134,58 +136,52 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
             <div className="flex-1 overflow-y-auto p-4 pt-0">
               {documents.length > 0 && (
                 <ul className="mt-3 flex flex-col gap-2">
-                  {documents.map((doc) => {
+                  {documents.map((document) => {
                     return (
                       <li
-                        key={doc.id}
+                        key={document.id}
                         className="relative flex items-center rounded-md py-2"
                         onMouseLeave={() => {
                           setDocumentIdInteractedWith('');
                         }}
                         onMouseEnter={() => {
-                          setDocumentIdInteractedWith(doc.id);
+                          setDocumentIdInteractedWith(document.id);
                         }}
                       >
-                        <Button
-                          className="flex-1 justify-start rounded-r-none"
-                          variant={
-                            documentIdInteractedWith === doc.id ||
-                            activeDropdownDocumentId === doc.id ||
-                            documentId === doc.id
-                              ? 'secondary'
-                              : 'ghost'
-                          }
-                        >
-                          <Link className="flex-1 overflow-hidden" href={{ pathname: '/', query: { d: doc.id } }}>
-                            <p className="overflow-hidden text-left text-sm font-medium text-ellipsis">
-                              {doc.title || 'Untitled document'}
-                            </p>
-                          </Link>
-                          {documentIdBeingRemoved === doc.id && (
-                            <LoaderCircleIcon className="size-4 min-w-4 animate-spin" />
+                        <Link
+                          prefetch={false}
+                          href={{ pathname: '/', query: { document: document.id } }}
+                          className={cn(
+                            'focus:ring-accent flex-1 overflow-hidden focus:ring-2 focus:ring-offset-2',
+                            documentIdBeingRemoved === document.id && 'cursor-wait',
+                            activeDocumentId === document.id && 'pointer-events-none cursor-default'
                           )}
-                        </Button>
+                        >
+                          <SidebarDocumentLinkButton document={document} />
+                        </Link>
                         <DropdownMenu
-                          open={activeDropdownDocumentId === doc.id}
+                          open={activeDropdownDocumentId === document.id}
                           onOpenChange={(isOpen) => {
-                            handleDropdownOpenChange(isOpen, doc.id);
+                            handleDropdownOpenChange(isOpen, document.id);
                           }}
                         >
                           <DropdownMenuTrigger asChild>
                             <Button
-                              variant={
-                                documentIdInteractedWith === doc.id || documentId === doc.id ? 'secondary' : 'ghost'
-                              }
+                              variant="ghost"
+                              disabled={documentIdBeingRemoved === document.id}
                               className={cn(
-                                'invisible rounded-l-none',
-                                (activeDropdownDocumentId === doc.id ||
-                                  documentIdBeingRemoved === doc.id ||
-                                  activeDropdownDocumentId === doc.id ||
-                                  documentIdInteractedWith === doc.id ||
-                                  documentId === doc.id) &&
-                                  'visible',
-                                activeDropdownDocumentId === doc.id &&
-                                  'bg-accent text-accent-foreground dark:bg-accent/50'
+                                'rounded-l-none opacity-0',
+                                (activeDropdownDocumentId === document.id ||
+                                  documentIdBeingRemoved === document.id ||
+                                  activeDropdownDocumentId === document.id ||
+                                  documentIdInteractedWith === document.id ||
+                                  activeDocumentId === document.id) &&
+                                  'opacity-100',
+                                (documentIdInteractedWith === document.id ||
+                                  activeDropdownDocumentId === document.id) &&
+                                  'bg-secondary text-secondary-foreground',
+                                activeDocumentId === document.id &&
+                                  'bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground dark:hover:bg-primary/80'
                               )}
                             >
                               <EllipsisVerticalIcon className="size-3.5" />
@@ -200,7 +196,7 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
                               variant="destructive"
                               className="space-x-2"
                               onClick={() => {
-                                void initiateDocumentRemoval(doc.id);
+                                void initiateDocumentRemoval(document.id);
                               }}
                             >
                               <TrashIcon />

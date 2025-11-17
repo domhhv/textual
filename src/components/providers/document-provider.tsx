@@ -1,6 +1,5 @@
 'use client';
 
-import { useUser } from '@clerk/nextjs';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import * as Sentry from '@sentry/nextjs';
@@ -21,11 +20,11 @@ import { Form, FormItem, FormField, FormLabel, FormControl, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { createDocument, removeDocument, updateDocument } from '@/lib/actions/document.actions';
-import type { Document } from '@/lib/models/document.model';
+import type { DocumentItem } from '@/lib/models/document.model';
 import getErrorMessage from '@/lib/utils/get-error-message';
 
 type DocumentContextType = {
-  activeDocument: Document | null;
+  activeDocument: DocumentItem | null;
   activeDropdownDocumentId: string | null;
   documentIdBeingRemoved: string | null;
   documentIdInteractedWith: string;
@@ -33,7 +32,7 @@ type DocumentContextType = {
   handleDropdownOpenChange: (isOpen: boolean, documentId: string) => void;
   initiateDocumentRemoval: (documentId: string) => Promise<void>;
   openDocumentDialog: () => void;
-  setActiveDocument: (document: Document | null) => void;
+  setActiveDocument: (document: DocumentItem | null) => void;
   setDocumentIdInteractedWith: (documentId: string) => void;
   setIsEditorEmpty: (isEmpty: boolean) => void;
 };
@@ -56,20 +55,20 @@ const documentFormSchema = z.object({
 });
 
 type DocumentProviderProps = PropsWithChildren<{
-  documents: Document[];
+  documents: DocumentItem[];
+  isAuthenticated: boolean;
 }>;
 
-export default function DocumentProvider({ children, documents }: DocumentProviderProps) {
+export default function DocumentProvider({ children, documents, isAuthenticated }: DocumentProviderProps) {
   const { confirm } = useConfirm();
   const [editor] = useLexicalComposerContext();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { isSignedIn } = useUser();
 
   const [isSavingDocument, setIsSavingDocument] = React.useState(false);
   const [isDocumentDialogOpen, setIsDocumentDialogOpen] = React.useState(false);
   const [documentIdBeingRemoved, setDocumentIdBeingRemoved] = React.useState('');
-  const [activeDocument, setActiveDocument] = React.useState<Document | null>(null);
+  const [activeDocument, setActiveDocument] = React.useState<DocumentItem | null>(null);
   const [activeDropdownDocumentId, setActiveDropdownDocumentId] = React.useState('');
   const [documentIdInteractedWith, setDocumentIdInteractedWith] = React.useState('');
   const [isEditorEmpty, setIsEditorEmpty] = React.useState(true);
@@ -82,13 +81,13 @@ export default function DocumentProvider({ children, documents }: DocumentProvid
   });
 
   React.useEffect(() => {
-    if (!isSignedIn) {
+    if (!isAuthenticated) {
       router.replace('/');
     }
-  }, [isSignedIn, router]);
+  }, [isAuthenticated, router]);
 
   React.useEffect(() => {
-    const documentId = searchParams.get('d');
+    const documentId = searchParams.get('document');
 
     if (!documentId) {
       return setActiveDocument(null);
@@ -98,14 +97,15 @@ export default function DocumentProvider({ children, documents }: DocumentProvid
       return doc.id === documentId;
     });
 
+    setActiveDocument(document || null);
+
     if (typeof document?.content !== 'string') {
       return editor.update(() => {
         $getRoot().clear();
       });
     }
 
-    editor.setEditorState(editor.parseEditorState(document.content));
-    setActiveDocument(document);
+    editor.setEditorState(editor.parseEditorState(document.content || ''));
   }, [searchParams, documents, editor]);
 
   const openDocumentDialog = React.useCallback(() => {
@@ -140,11 +140,12 @@ export default function DocumentProvider({ children, documents }: DocumentProvid
           documentId: documentIdInteractedWith,
         });
       } else {
-        await createDocument({
+        const { id } = await createDocument({
           ...values,
           content: isEditorEmpty ? null : JSON.stringify(editor.getEditorState()),
         });
         posthog.capture('document_created');
+        router.replace(`/?document=${id}`);
       }
 
       toast.success(`Document ${documentIdInteractedWith ? 'updated' : 'created'} successfully`);
@@ -218,6 +219,10 @@ export default function DocumentProvider({ children, documents }: DocumentProvid
       setDocumentIdBeingRemoved(documentId);
 
       try {
+        if (activeDocument?.id === documentId) {
+          closeActiveDocument();
+        }
+
         await removeDocument(documentId);
         posthog.capture('document_removed', { documentId });
         toast.success('Document removed successfully');
@@ -231,7 +236,7 @@ export default function DocumentProvider({ children, documents }: DocumentProvid
         setDocumentIdBeingRemoved('');
       }
     },
-    [confirm]
+    [confirm, activeDocument?.id, closeActiveDocument]
   );
 
   const value = React.useMemo(() => {

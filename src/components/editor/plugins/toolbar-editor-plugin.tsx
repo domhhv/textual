@@ -103,7 +103,20 @@ export default function ToolbarEditorPlugin({ isEditorEmpty }: ToolbarEditorPlug
   const [fontColor, setFontColor] = React.useState<string>('#000000');
   const [backgroundColor, setBackgroundColor] = React.useState<string>('#000000');
   const [isSavingActiveDocument, setIsSavingActiveDocument] = React.useState(false);
+  const [hasUnsavedEditorChanges, setHasUnsavedEditorChanges] = React.useState(false);
   useEditorToolbarSync();
+
+  React.useEffect(() => {
+    editor.registerUpdateListener(({ editorState }) => {
+      if (!activeDocument) {
+        return false;
+      }
+
+      const currentEditorState = JSON.stringify(editorState);
+
+      setHasUnsavedEditorChanges(currentEditorState !== activeDocument.content);
+    });
+  }, [editor, activeDocument]);
 
   React.useEffect(() => {
     setFontColor(toolbarState.fontColor || '#000000');
@@ -244,7 +257,7 @@ export default function ToolbarEditorPlugin({ isEditorEmpty }: ToolbarEditorPlug
               {...tooltipGroup.getTooltipProps()}
               variant="outline"
               onClick={handleSave}
-              disabled={isSavingActiveDocument}
+              disabled={isSavingActiveDocument || !hasUnsavedEditorChanges}
               tooltip={
                 activeDocument
                   ? `Save changes to ${activeDocument.title || 'Untitled document'}`

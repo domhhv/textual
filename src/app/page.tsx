@@ -24,7 +24,7 @@ export default async function Home() {
   return (
     <LexicalComposerProvider>
       <SidebarProvider>
-        <DocumentProvider documents={documents}>
+        <DocumentProvider documents={documents} isAuthenticated={isAuthenticated}>
           <div className="flex h-dvh">
             <Sidebar documents={documents} isAuthenticated={isAuthenticated} />
             <div className="flex-1 overflow-hidden">
