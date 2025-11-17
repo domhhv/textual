@@ -144,7 +144,9 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
           ...values,
           content: isEditorEmpty ? null : JSON.stringify(editor.getEditorState()),
         });
-        posthog.capture('document_created');
+        posthog.capture('document_created', {
+          documentId: id,
+        });
         router.replace(`/?document=${id}`);
       }
 

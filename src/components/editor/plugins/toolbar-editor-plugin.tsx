@@ -107,9 +107,9 @@ export default function ToolbarEditorPlugin({ isEditorEmpty }: ToolbarEditorPlug
   useEditorToolbarSync();
 
   React.useEffect(() => {
-    editor.registerUpdateListener(({ editorState }) => {
+    return editor.registerUpdateListener(({ editorState }) => {
       if (!activeDocument) {
-        return false;
+        return;
       }
 
       const currentEditorState = JSON.stringify(editorState);
@@ -221,7 +221,7 @@ export default function ToolbarEditorPlugin({ isEditorEmpty }: ToolbarEditorPlug
         posthog.capture('document_updated', {
           documentId: activeDocument.id,
         });
-        toast.success(`Document ${activeDocument.title || 'Untitled document'} saved successfully`);
+        toast.success('Document saved successfully');
       } catch (error) {
         Sentry.captureException(error);
         console.error(`Error ${activeDocument.title || 'Untitled document'} document: `, error);

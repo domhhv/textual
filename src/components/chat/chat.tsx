@@ -14,6 +14,7 @@ import ApiKeyDialog from '@/components/custom/api-key-dialog';
 import { ApiKeyContext } from '@/components/providers/api-key-provider';
 import { ChatStatusContext } from '@/components/providers/chat-status-provider';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import HelixLoader from '@/components/ui/helix-loader';
 import { Input } from '@/components/ui/input';
 import type { EditorCommandTools } from '@/lib/models/editor-commands';
 import cn from '@/lib/utils/cn';
@@ -341,7 +342,7 @@ export default function Chat() {
                 </div>
               );
             })}
-            {status === 'submitted' && <LoaderPinwheelIcon className="mx-auto animate-spin" />}
+            {status === 'submitted' && <HelixLoader className="ml-3 animate-spin" />}
           </div>
 
           <form className="p-4" onSubmit={submitMessage}>
