@@ -45,7 +45,9 @@ jobs:
             ${{ runner.os }}-next-build-
 
       - name: Build next.js app
-        run: npm run build:analyze
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
+          run: npm run build:analyze
 
       - name: Analyze bundle
         run: npx -p nextjs-bundle-analysis report

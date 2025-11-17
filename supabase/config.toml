@@ -304,7 +304,7 @@ enabled = false
 [auth.third_party.clerk]
 enabled = true
 # Obtain from https://clerk.com/setup/supabase
-domain = "env(CLERK_DEV_DOMAIN)"
+domain = "env(CLERK_DOMAIN)"
 
 # OAuth server configuration
 [auth.oauth_server]
