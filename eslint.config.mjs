@@ -15,13 +15,7 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   {
-    ignores: [
-      'node_modules/**',
-      '.next/**',
-      'out/**',
-      'build/**',
-      'next-env.d.ts',
-    ],
+    ignores: ['node_modules/**', '.next/**', 'out/**', 'build/**', 'next-env.d.ts'],
   },
   ...compat.extends(
     'eslint:recommended',
@@ -40,7 +34,6 @@ const eslintConfig = [
       'switch-case': switchCase,
       'unused-imports': unusedImports,
     },
-
     rules: {
       '@lexical/rules-of-lexical': 'error',
       '@typescript-eslint/consistent-type-imports': 'error',
@@ -48,12 +41,16 @@ const eslintConfig = [
       curly: 'error',
       'func-style': ['error', 'declaration', { allowTypeAnnotation: true }],
       'import/no-duplicates': 'error',
+      'import/no-named-as-default': 'off',
       'import/order': 'off',
+      'max-len': 'off',
       'no-undef': 'off',
       'no-useless-rename': 'error',
       'object-shorthand': 'error',
       'react/react-in-jsx-scope': 'off',
+      'switch-case/newline-between-switch-case': ['error', 'always', { fallthrough: 'never' }],
       'switch-case/no-case-curly': 'off',
+
       '@stylistic/jsx-curly-brace-presence': [
         'error',
         { children: 'never', propElementValues: 'always', props: 'never' },
@@ -150,12 +147,14 @@ const eslintConfig = [
           rule: '^(is|as|has)[A-Z]([A-Za-z0-9]?)+',
         },
       ],
+    },
 
-      'switch-case/newline-between-switch-case': [
-        'error',
-        'always',
-        { fallthrough: 'never' },
-      ],
+    settings: {
+      'import/resolver': {
+        typescript: {
+          project: './tsconfig.json',
+        },
+      },
     },
   },
 ];

@@ -1,0 +1,25 @@
+name: SQLFluff
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    name: Lint Supabase Migrations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Install SQLFluff
+        run: pip install sqlfluff
+
+      - name: Run SQL Lint
+        run: sqlfluff lint 'supabase'

@@ -1,6 +1,4 @@
-export default async function validateApiKeyWithServer(
-  apiKey: string
-): Promise<{
+export default async function validateApiKeyWithServer(apiKey: string): Promise<{
   error?: string;
   isValid: boolean;
 }> {

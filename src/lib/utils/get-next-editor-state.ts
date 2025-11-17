@@ -8,11 +8,7 @@ import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-tran
 
 export default function $getNextEditorState() {
   return {
-    nextEditorMarkdownContent: $convertToMarkdownString(
-      ENHANCED_LEXICAL_TRANSFORMERS,
-      undefined,
-      true
-    ),
+    nextEditorMarkdownContent: $convertToMarkdownString(ENHANCED_LEXICAL_TRANSFORMERS, undefined, true),
     nextEditorRootChildren: JSON.stringify(
       $getRoot()
         .getChildren()
@@ -33,10 +29,7 @@ export default function $getNextEditorState() {
             style: $isElementNode(n) ? n.getStyle() : null,
             textStyle: $isElementNode(n) ? n.getTextStyle() : null,
             textNodes:
-              $isParagraphNode(n) ||
-              $isListNode(n) ||
-              $isHeadingNode(n) ||
-              $isTableNode(n)
+              $isParagraphNode(n) || $isListNode(n) || $isHeadingNode(n) || $isTableNode(n)
                 ? n.getAllTextNodes().map((textNode) => {
                     return {
                       key: textNode.getKey(),

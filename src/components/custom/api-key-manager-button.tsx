@@ -4,11 +4,7 @@ import { toast } from 'sonner';
 
 import { ApiKeyContext } from '@/components/providers/api-key-provider';
 import { Button } from '@/components/ui/button';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import cn from '@/lib/utils/cn';
 
 type ApiKeyManagerProps = {
@@ -16,10 +12,7 @@ type ApiKeyManagerProps = {
   onEditClick: () => void;
 };
 
-export default function ApiKeyManagerButton({
-  className,
-  onEditClick,
-}: ApiKeyManagerProps) {
+export default function ApiKeyManagerButton({ className, onEditClick }: ApiKeyManagerProps) {
   const { apiKey, hasApiKey, removeApiKey } = React.use(ApiKeyContext);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
 
@@ -44,36 +37,21 @@ export default function ApiKeyManagerButton({
           size="sm"
           variant="outline"
           title="Manage API Key"
-          className={cn(
-            'text-muted-foreground hover:text-foreground h-8 w-8 p-0',
-            className
-          )}
+          className={cn('text-muted-foreground hover:text-foreground h-8 w-8 p-0', className)}
         >
           <Key className="size-3.5" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        side="right"
-        align="start"
-        sideOffset={10}
-        className="w-64 p-3"
-      >
+      <PopoverContent side="right" align="start" sideOffset={10} className="w-64 p-3">
         <div className="space-y-3">
           <div>
             <h4 className="text-sm font-medium">OpenAI API Key</h4>
-            <p className="text-muted-foreground mt-1 font-mono text-xs">
-              {maskedKey}
-            </p>
+            <p className="text-muted-foreground mt-1 font-mono text-xs">{maskedKey}</p>
           </div>
 
           {!showDeleteConfirm ? (
             <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                className="flex-1"
-                onClick={onEditClick}
-              >
+              <Button size="sm" variant="outline" className="flex-1" onClick={onEditClick}>
                 <Edit3 className="mr-1 h-3 w-3" />
                 Edit
               </Button>
@@ -91,9 +69,7 @@ export default function ApiKeyManagerButton({
             </div>
           ) : (
             <div className="space-y-2">
-              <p className="text-muted-foreground text-xs">
-                Are you sure you want to delete your API key?
-              </p>
+              <p className="text-muted-foreground text-xs">Are you sure you want to delete your API key?</p>
               <div className="flex gap-2">
                 <Button
                   size="sm"
@@ -105,12 +81,7 @@ export default function ApiKeyManagerButton({
                 >
                   Cancel
                 </Button>
-                <Button
-                  size="sm"
-                  className="flex-1"
-                  variant="destructive"
-                  onClick={handleDelete}
-                >
+                <Button size="sm" className="flex-1" variant="destructive" onClick={handleDelete}>
                   Delete
                 </Button>
               </div>

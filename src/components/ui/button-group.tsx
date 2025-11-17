@@ -67,18 +67,10 @@ function ButtonGroupSeparator({
     <Separator
       orientation={orientation}
       data-slot="button-group-separator"
-      className={cn(
-        'bg-input relative !m-0 self-stretch data-[orientation=vertical]:h-auto',
-        className
-      )}
+      className={cn('bg-input relative !m-0 self-stretch data-[orientation=vertical]:h-auto', className)}
       {...props}
     />
   );
 }
 
-export {
-  ButtonGroup,
-  ButtonGroupSeparator,
-  ButtonGroupText,
-  buttonGroupVariants,
-};
+export { ButtonGroup, ButtonGroupSeparator, ButtonGroupText, buttonGroupVariants };

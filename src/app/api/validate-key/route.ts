@@ -9,17 +9,11 @@ export async function POST(req: Request) {
     const { apiKey }: RequestBody = await req.json();
 
     if (!apiKey || typeof apiKey !== 'string') {
-      return Response.json(
-        { error: 'API key is required', isValid: false },
-        { status: 400 }
-      );
+      return Response.json({ error: 'API key is required', isValid: false }, { status: 400 });
     }
 
     if (!apiKey.startsWith('sk-')) {
-      return Response.json(
-        { error: 'API key should start with "sk-"', isValid: false },
-        { status: 400 }
-      );
+      return Response.json({ error: 'API key should start with "sk-"', isValid: false }, { status: 400 });
     }
 
     try {
@@ -64,9 +58,6 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error('Validation endpoint error:', error);
 
-    return Response.json(
-      { error: 'Internal server error', isValid: false },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Internal server error', isValid: false }, { status: 500 });
   }
 }

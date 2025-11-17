@@ -19,8 +19,8 @@ export default function ChatEmptyState({ onSetApiKey }: ChatEmptyStateProps) {
         <h3 className="mb-2 text-lg font-semibold">API Key Required</h3>
 
         <p className="text-muted-foreground mb-6 max-w-sm">
-          To start using the AI assistant, you need to provide your OpenAI API
-          key. Your key will be encrypted and stored securely in your browser.
+          To start using the AI assistant, you need to provide your OpenAI API key. Your key will be encrypted and
+          stored securely in your browser.
         </p>
 
         <Button size="lg" onClick={onSetApiKey}>
@@ -42,10 +42,7 @@ export default function ChatEmptyState({ onSetApiKey }: ChatEmptyStateProps) {
       </div>
 
       <form className="mx-2 mt-4 w-full">
-        <Input
-          disabled
-          placeholder="Add a paragraph or edit existing content..."
-        />
+        <Input disabled placeholder="Add a paragraph or edit existing content..." />
       </form>
     </div>
   );

@@ -1,10 +1,5 @@
 import { createOpenAI } from '@ai-sdk/openai';
-import {
-  streamText,
-  stepCountIs,
-  type UIMessage,
-  convertToModelMessages,
-} from 'ai';
+import { streamText, stepCountIs, type UIMessage, convertToModelMessages } from 'ai';
 
 import { tools } from '@/lib/models/editor-commands';
 import wrapEditorPrompt from '@/lib/utils/wrap-editor-prompt';
@@ -19,12 +14,7 @@ type RequestBody = {
 };
 
 export async function POST(req: Request) {
-  const {
-    apiKey,
-    editorMarkdownContent,
-    editorRootChildren,
-    messages,
-  }: RequestBody = await req.json();
+  const { apiKey, editorMarkdownContent, editorRootChildren, messages }: RequestBody = await req.json();
 
   const openaiApiKey = apiKey || process.env.OPENAI_API_KEY;
 

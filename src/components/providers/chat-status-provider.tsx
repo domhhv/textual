@@ -11,20 +11,12 @@ export const ChatStatusContext = React.createContext<{
   setStatus: () => {},
 });
 
-export default function ChatStatusProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function ChatStatusProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = React.useState<ChatStatus>('ready');
 
   const value = React.useMemo(() => {
     return { setStatus, status };
   }, [status]);
 
-  return (
-    <ChatStatusContext.Provider value={value}>
-      {children}
-    </ChatStatusContext.Provider>
-  );
+  return <ChatStatusContext.Provider value={value}>{children}</ChatStatusContext.Provider>;
 }

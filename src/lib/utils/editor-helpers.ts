@@ -1,33 +1,12 @@
 import { $createCodeNode } from '@lexical/code';
-import {
-  INSERT_CHECK_LIST_COMMAND,
-  INSERT_ORDERED_LIST_COMMAND,
-  INSERT_UNORDERED_LIST_COMMAND,
-} from '@lexical/list';
+import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
 import { $isDecoratorBlockNode } from '@lexical/react/LexicalDecoratorBlockNode';
 import type { HeadingTagType } from '@lexical/rich-text';
-import {
-  $isQuoteNode,
-  $isHeadingNode,
-  $createQuoteNode,
-  $createHeadingNode,
-} from '@lexical/rich-text';
-import {
-  $isAtNodeEnd,
-  $setBlocksType,
-  $patchStyleText,
-} from '@lexical/selection';
+import { $isQuoteNode, $isHeadingNode, $createQuoteNode, $createHeadingNode } from '@lexical/rich-text';
+import { $isAtNodeEnd, $setBlocksType, $patchStyleText } from '@lexical/selection';
 import { $isTableSelection } from '@lexical/table';
-import {
-  $findMatchingParent,
-  $getNearestBlockElementAncestorOrThrow,
-} from '@lexical/utils';
-import type {
-  LexicalNode,
-  LexicalEditor,
-  RangeSelection,
-  ElementFormatType,
-} from 'lexical';
+import { $findMatchingParent, $getNearestBlockElementAncestorOrThrow } from '@lexical/utils';
+import type { LexicalNode, LexicalEditor, RangeSelection, ElementFormatType } from 'lexical';
 import {
   $getRoot,
   $isTextNode,
@@ -60,11 +39,7 @@ export function formatParagraph(editor: LexicalEditor) {
   });
 }
 
-export function formatHeading(
-  editor: LexicalEditor,
-  blockType: string,
-  headingSize: HeadingTagType
-) {
+export function formatHeading(editor: LexicalEditor, blockType: string, headingSize: HeadingTagType) {
   if (blockType !== headingSize) {
     editor.update(() => {
       const selection = $getSelection();
@@ -177,8 +152,7 @@ export function clearFormatting(editor: LexicalEditor) {
             textNode.setFormat(0);
           }
 
-          const nearestBlockElement =
-            $getNearestBlockElementAncestorOrThrow(textNode);
+          const nearestBlockElement = $getNearestBlockElementAncestorOrThrow(textNode);
 
           if (nearestBlockElement.__format !== 0) {
             nearestBlockElement.setFormat('');

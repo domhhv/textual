@@ -17,11 +17,7 @@ import * as React from 'react';
 
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
 import { blockTypeToBlockName } from '@/lib/constants/initial-editor-toolbar-state';
-import {
-  getSelectedNode,
-  normalizeFormatType,
-  $findTopLevelElement,
-} from '@/lib/utils/editor-helpers';
+import { getSelectedNode, normalizeFormatType, $findTopLevelElement } from '@/lib/utils/editor-helpers';
 
 export default function useEditorToolbarSync() {
   const [editor] = useLexicalComposerContext();
@@ -51,16 +47,12 @@ export default function useEditorToolbarSync() {
             fontSizes.add(computedStyle.fontSize.replace('px', ''));
 
             const computedFontFamily = computedStyle.fontFamily;
-            const defaultFontFamily = $isHeadingNode(node.getTopLevelElement())
-              ? 'Ubuntu'
-              : 'Montserrat';
+            const defaultFontFamily = $isHeadingNode(node.getTopLevelElement()) ? 'Ubuntu' : 'Montserrat';
 
             if (computedFontFamily.includes(defaultFontFamily)) {
               fontFamilies.add(defaultFontFamily);
             } else {
-              fontFamilies.add(
-                computedFontFamily.split(',')[0].replace(/['"]/g, '')
-              );
+              fontFamilies.add(computedFontFamily.split(',')[0].replace(/['"]/g, ''));
             }
 
             fontColors.add(computedStyle.color);
@@ -78,33 +70,19 @@ export default function useEditorToolbarSync() {
         if (fontFamilies.size > 1) {
           updateToolbarState('fontFamily', '');
         } else {
-          const defaultFontFamily = $isHeadingNode(
-            selectedNode.getTopLevelElement()
-          )
-            ? 'Ubuntu'
-            : 'Montserrat';
+          const defaultFontFamily = $isHeadingNode(selectedNode.getTopLevelElement()) ? 'Ubuntu' : 'Montserrat';
 
           if (fontFamily.includes(defaultFontFamily)) {
             updateToolbarState('fontFamily', defaultFontFamily);
           } else {
-            updateToolbarState(
-              'fontFamily',
-              $getSelectionStyleValueForProperty(
-                selection,
-                'font-family',
-                'Arial'
-              )
-            );
+            updateToolbarState('fontFamily', $getSelectionStyleValueForProperty(selection, 'font-family', 'Arial'));
           }
         }
 
         if (fontColors.size > 1) {
           updateToolbarState('fontColor', '');
         } else {
-          updateToolbarState(
-            'fontColor',
-            $getSelectionStyleValueForProperty(selection, 'color', '#000')
-          );
+          updateToolbarState('fontColor', $getSelectionStyleValueForProperty(selection, 'color', '#000'));
         }
 
         if (backgroundColors.size > 1) {
@@ -112,40 +90,23 @@ export default function useEditorToolbarSync() {
         } else {
           updateToolbarState(
             'backgroundColor',
-            $getSelectionStyleValueForProperty(
-              selection,
-              'background-color',
-              '#fff'
-            )
+            $getSelectionStyleValueForProperty(selection, 'background-color', '#fff')
           );
         }
       } else {
         const fontSizeNumeric = fontSize.replace('px', '');
         updateToolbarState('fontSize', fontSizeNumeric);
 
-        const defaultFontFamily = $isHeadingNode(
-          selectedNode.getTopLevelElement()
-        )
-          ? 'Ubuntu'
-          : 'Montserrat';
+        const defaultFontFamily = $isHeadingNode(selectedNode.getTopLevelElement()) ? 'Ubuntu' : 'Montserrat';
 
         if (fontFamily.includes(defaultFontFamily)) {
           updateToolbarState('fontFamily', defaultFontFamily);
         } else {
-          updateToolbarState(
-            'fontFamily',
-            fontFamily.split(',')[0].replace(/['"]/g, '')
-          );
+          updateToolbarState('fontFamily', fontFamily.split(',')[0].replace(/['"]/g, ''));
         }
 
-        updateToolbarState(
-          'fontColor',
-          window.getComputedStyle(selectedElement).color
-        );
-        updateToolbarState(
-          'backgroundColor',
-          window.getComputedStyle(selectedElement).backgroundColor
-        );
+        updateToolbarState('fontColor', window.getComputedStyle(selectedElement).color);
+        updateToolbarState('backgroundColor', window.getComputedStyle(selectedElement).backgroundColor);
       }
     }
 
@@ -173,9 +134,7 @@ export default function useEditorToolbarSync() {
         const topLevelElement = $findTopLevelElement(node);
 
         if ($isElementNode(topLevelElement)) {
-          elementFormats.add(
-            normalizeFormatType(topLevelElement.getFormatType())
-          );
+          elementFormats.add(normalizeFormatType(topLevelElement.getFormatType()));
         }
 
         if ($isListNode(topLevelElement)) {
@@ -192,12 +151,7 @@ export default function useEditorToolbarSync() {
       } else if (elementFormats.size === 1) {
         updateToolbarState(
           'elementFormat',
-          Array.from(elementFormats)[0] as
-            | 'left'
-            | 'center'
-            | 'right'
-            | 'justify'
-            | ''
+          Array.from(elementFormats)[0] as 'left' | 'center' | 'right' | 'justify' | ''
         );
       }
 
@@ -207,10 +161,7 @@ export default function useEditorToolbarSync() {
         const blockType = Array.from(blockTypes)[0];
 
         if (blockType in blockTypeToBlockName) {
-          updateToolbarState(
-            'blockType',
-            blockType as keyof typeof blockTypeToBlockName
-          );
+          updateToolbarState('blockType', blockType as keyof typeof blockTypeToBlockName);
         }
       }
     }
@@ -220,10 +171,7 @@ export default function useEditorToolbarSync() {
       updateToolbarState('isItalic', selection.hasFormat('italic'));
       updateToolbarState('isUnderline', selection.hasFormat('underline'));
       updateToolbarState('isCode', selection.hasFormat('code'));
-      updateToolbarState(
-        'isStrikethrough',
-        selection.hasFormat('strikethrough')
-      );
+      updateToolbarState('isStrikethrough', selection.hasFormat('strikethrough'));
       updateToolbarState('isSubscript', selection.hasFormat('subscript'));
       updateToolbarState('isSuperscript', selection.hasFormat('superscript'));
       updateToolbarState('isHighlight', selection.hasFormat('highlight'));

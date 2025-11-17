@@ -20,11 +20,7 @@ import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state
 import { getSelectedNode } from '@/lib/utils/editor-helpers';
 import setFloatingElementPosition from '@/lib/utils/set-floating-element-position';
 
-export default function FloatingLinkEditorPlugin({
-  anchor = document.body,
-}: {
-  anchor?: HTMLElement;
-}) {
+export default function FloatingLinkEditorPlugin({ anchor = document.body }: { anchor?: HTMLElement }) {
   const [editor] = useLexicalComposerContext();
   const { toolbarState } = React.use(ToolbarStateContext);
   const [isLink, setIsLink] = React.useState(false);
@@ -136,9 +132,7 @@ export default function FloatingLinkEditorPlugin({
         !rootElement ||
         !rootElement.contains(nativeSelection.anchorNode)
       ) {
-        const floatingElem = document.querySelector(
-          '[data-floating-link-editor]'
-        ) as HTMLElement;
+        const floatingElem = document.querySelector('[data-floating-link-editor]') as HTMLElement;
 
         if (floatingElem) {
           floatingElem.style.opacity = '0';
@@ -149,9 +143,7 @@ export default function FloatingLinkEditorPlugin({
       }
 
       const rangeRect = nativeSelection.getRangeAt(0).getBoundingClientRect();
-      const floatingElem = document.querySelector(
-        '[data-floating-link-editor]'
-      ) as HTMLElement;
+      const floatingElem = document.querySelector('[data-floating-link-editor]') as HTMLElement;
 
       if (floatingElem) {
         setFloatingElementPosition(rangeRect, floatingElem, anchor, -24, 36);
@@ -173,11 +165,7 @@ export default function FloatingLinkEditorPlugin({
 
   return createPortal(
     <div data-floating-link-editor className="absolute top-0 left-0">
-      <FloatingLinkEditor
-        editor={editor}
-        isLink={isLink}
-        linkUrl={toolbarState.linkUrl}
-      />
+      <FloatingLinkEditor editor={editor} isLink={isLink} linkUrl={toolbarState.linkUrl} />
     </div>,
     anchor
   );

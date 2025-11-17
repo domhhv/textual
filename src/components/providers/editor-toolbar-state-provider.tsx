@@ -10,10 +10,7 @@ export type ToolbarStateKey = keyof typeof INITIAL_TOOLBAR_STATE;
 
 type ToolbarContextShape = {
   toolbarState: ToolbarState;
-  updateToolbarState<Key extends ToolbarStateKey>(
-    key: Key,
-    value: ToolbarState[Key]
-  ): void;
+  updateToolbarState<Key extends ToolbarStateKey>(key: Key, value: ToolbarState[Key]): void;
 };
 
 export const ToolbarStateContext = React.createContext<ToolbarContextShape>({
@@ -21,24 +18,17 @@ export const ToolbarStateContext = React.createContext<ToolbarContextShape>({
   updateToolbarState: () => {},
 });
 
-export default function EditorToolbarStateProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function EditorToolbarStateProvider({ children }: { children: React.ReactNode }) {
   const [toolbarState, setToolbarState] = React.useState(INITIAL_TOOLBAR_STATE);
 
-  const updateToolbarState = React.useCallback(
-    <Key extends ToolbarStateKey>(key: Key, value: ToolbarState[Key]) => {
-      setToolbarState((prev) => {
-        return {
-          ...prev,
-          [key]: value,
-        };
-      });
-    },
-    []
-  );
+  const updateToolbarState = React.useCallback(<Key extends ToolbarStateKey>(key: Key, value: ToolbarState[Key]) => {
+    setToolbarState((prev) => {
+      return {
+        ...prev,
+        [key]: value,
+      };
+    });
+  }, []);
 
   const contextValue = React.useMemo(() => {
     return {
@@ -47,9 +37,5 @@ export default function EditorToolbarStateProvider({
     };
   }, [toolbarState, updateToolbarState]);
 
-  return (
-    <ToolbarStateContext.Provider value={contextValue}>
-      {children}
-    </ToolbarStateContext.Provider>
-  );
+  return <ToolbarStateContext.Provider value={contextValue}>{children}</ToolbarStateContext.Provider>;
 }

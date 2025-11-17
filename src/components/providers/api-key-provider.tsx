@@ -3,11 +3,7 @@
 import * as React from 'react';
 import { toast } from 'sonner';
 
-import {
-  removeApiKey,
-  setEncryptedApiKey,
-  getDecryptedApiKeyWithValidation,
-} from '@/lib/utils/encrypted-storage';
+import { removeApiKey, setEncryptedApiKey, getDecryptedApiKeyWithValidation } from '@/lib/utils/encrypted-storage';
 
 type ApiKeyContextType = {
   apiKey: string | null;
@@ -29,11 +25,7 @@ export const ApiKeyContext = React.createContext<ApiKeyContextType>({
   },
 });
 
-export default function ApiKeyProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function ApiKeyProvider({ children }: { children: React.ReactNode }) {
   const [apiKey, setApiKeyState] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
 
@@ -57,6 +49,7 @@ export default function ApiKeyProvider({
             const title = errorMessages[result.error] || 'API Key Error';
 
             toast.error(title, {
+              description: result.message || 'Your stored API key could not be loaded.',
               action: {
                 label: 'Clear',
                 onClick: () => {
@@ -64,8 +57,6 @@ export default function ApiKeyProvider({
                   setApiKeyState(null);
                 },
               },
-              description:
-                result.message || 'Your stored API key could not be loaded.',
             });
           }
         }
@@ -74,8 +65,7 @@ export default function ApiKeyProvider({
         setApiKeyState(null);
 
         toast.error('API Key Loading Failed', {
-          description:
-            'An unexpected error occurred while loading your API key.',
+          description: 'An unexpected error occurred while loading your API key.',
         });
       } finally {
         setIsLoading(false);
@@ -114,7 +104,5 @@ export default function ApiKeyProvider({
     };
   }, [apiKey, setApiKey, removeApiKeyHandler, isLoading]);
 
-  return (
-    <ApiKeyContext.Provider value={value}>{children}</ApiKeyContext.Provider>
-  );
+  return <ApiKeyContext.Provider value={value}>{children}</ApiKeyContext.Provider>;
 }

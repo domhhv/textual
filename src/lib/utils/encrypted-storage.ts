@@ -41,9 +41,8 @@ export function getDecryptedApiKeyWithValidation(): DecryptionResult {
       return {
         apiKey: null,
         error: 'decryption_failed',
+        message: 'Failed to decrypt stored API key. The stored data may be corrupted.',
         success: false,
-        message:
-          'Failed to decrypt stored API key. The stored data may be corrupted.',
       };
     }
 
@@ -51,9 +50,8 @@ export function getDecryptedApiKeyWithValidation(): DecryptionResult {
       return {
         apiKey: null,
         error: 'corrupted',
+        message: 'Stored API key appears to be corrupted or was encrypted with a different key.',
         success: false,
-        message:
-          'Stored API key appears to be corrupted or was encrypted with a different key.',
       };
     }
 
@@ -63,9 +61,8 @@ export function getDecryptedApiKeyWithValidation(): DecryptionResult {
       return {
         apiKey: null,
         error: 'invalid_format',
+        message: 'Stored API key has invalid format. It may have been corrupted.',
         success: false,
-        message:
-          'Stored API key has invalid format. It may have been corrupted.',
       };
     }
 

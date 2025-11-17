@@ -88,17 +88,11 @@ export default function executeEditorCommand(
 
           const nodeTextContent = node?.getTextContent() ?? '';
 
-          const anchorOffset = nodeTextContent.indexOf(
-            command.textPartToSelect
-          );
+          const anchorOffset = nodeTextContent.indexOf(command.textPartToSelect);
           const focusOffset = anchorOffset + command.textPartToSelect.length;
 
           const rangeSelection = $createRangeSelection();
-          rangeSelection.anchor.set(
-            command.parentNodeKey,
-            anchorOffset,
-            'text'
-          );
+          rangeSelection.anchor.set(command.parentNodeKey, anchorOffset, 'text');
 
           rangeSelection.focus.set(command.parentNodeKey, focusOffset, 'text');
 

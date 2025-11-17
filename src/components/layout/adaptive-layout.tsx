@@ -1,8 +1,7 @@
 'use client';
 
-import { $convertFromMarkdownString } from '@lexical/markdown';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $addUpdateTag, $setSelection, SKIP_DOM_SELECTION_TAG } from 'lexical';
+import { $setSelection } from 'lexical';
 import { Edit3, Columns2, MessageSquare } from 'lucide-react';
 import posthog from 'posthog-js';
 import * as React from 'react';
@@ -10,12 +9,8 @@ import { useSwipeable } from 'react-swipeable';
 
 import { MobileLayoutContext } from '@/components/providers/mobile-layout-provider';
 import { Button } from '@/components/ui/button';
-import {
-  ResizablePanel,
-  ResizableHandle,
-  ResizablePanelGroup,
-} from '@/components/ui/resizable';
-import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
+import HelixLoader from '@/components/ui/helix-loader';
+import { ResizablePanel, ResizableHandle, ResizablePanelGroup } from '@/components/ui/resizable';
 import cn from '@/lib/utils/cn';
 
 type AdaptiveLayoutProps = {
@@ -29,25 +24,6 @@ type ViewMode = (typeof VIEW_MODES)[number];
 export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
   const { isMobile, setViewMode, viewMode } = React.use(MobileLayoutContext);
   const [lexicalEditor] = useLexicalComposerContext();
-
-  React.useEffect(() => {
-    async function loadSampleContent() {
-      const response = await fetch('/sample-content.md');
-      const text = await response.text();
-
-      lexicalEditor.update(() => {
-        $addUpdateTag(SKIP_DOM_SELECTION_TAG);
-        $convertFromMarkdownString(
-          text,
-          ENHANCED_LEXICAL_TRANSFORMERS,
-          undefined,
-          true
-        );
-      });
-    }
-
-    void loadSampleContent();
-  }, [lexicalEditor]);
 
   const resetEditorSelection = React.useCallback(() => {
     lexicalEditor.update(() => {
@@ -85,6 +61,14 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
       return isMobile && cycleViewMode('right');
     },
   });
+
+  if (typeof window === 'undefined') {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <HelixLoader color="var(--foreground)" />
+      </div>
+    );
+  }
 
   if (!isMobile) {
     return (
@@ -136,10 +120,7 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
       </div>
 
       <div className="space-y-0.5 border-t p-2 text-center">
-        <div
-          className="bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur"
-          {...swipeHandlers}
-        >
+        <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur" {...swipeHandlers}>
           <div className="flex items-center justify-center gap-1">
             <Button
               size="sm"
@@ -191,9 +172,7 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
             </Button>
           </div>
         </div>
-        <span className="text-muted-foreground text-xs">
-          Swipe left/right to change view mode
-        </span>
+        <span className="text-muted-foreground text-xs">Swipe left/right to change view mode</span>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-## Welcome to Textual 🚀
+const editorSampleContent = `## Welcome to Textual 🚀
 
 **A powerful AI-assisted rich text editor** that combines the elegance of _Lexical_ with the intelligence of _GPT-4o_. Start typing, formatting, or chatting with AI to transform your writing experience.
 
@@ -18,7 +18,7 @@ This isn't just another text editor. It's your intelligent writing companion tha
 
 #### Text Formatting
 
-Make your content **bold**, _italic_, or even **_both_**. Add `inline code` for technical terms, or create [clickable links](https://github.com) to external resources.
+Make your content **bold**, _italic_, or even **_both_**. Add \`inline code\` for technical terms, or create [clickable links](https://github.com) to external resources.
 
 #### Structured Content
 
@@ -52,11 +52,11 @@ Present information clearly with tables:
 
 Share code snippets with proper formatting:
 
-```javascript
+\`\`\`javascript
 function greet(name) {
-  return `Hello, ${name}! Welcome to the editor.`;
+  return \`Hello, \${name}! Welcome to the editor.\`;
 }
-```
+\`\`\`
 
 #### Emphasis & Quotes
 
@@ -81,3 +81,6 @@ Highlight important information with blockquotes, or use horizontal rules to sep
 ---
 
 _Happy writing! If you need help, just ask the AI assistant._ ✍️
+`;
+
+export default editorSampleContent;
