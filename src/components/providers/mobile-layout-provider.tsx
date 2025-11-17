@@ -2,8 +2,6 @@
 
 import * as React from 'react';
 
-import useHideLoadingScreen from '@/lib/hooks/use-hide-loading-screen';
-
 type ViewMode = 'chat' | 'split' | 'editor';
 
 type MobileLayoutContextType = {
@@ -12,25 +10,23 @@ type MobileLayoutContextType = {
   setViewMode: (mode: ViewMode) => void;
 };
 
-export const MobileLayoutContext = React.createContext<MobileLayoutContextType>(
-  {
-    isMobile: false,
-    viewMode: 'split',
-    setViewMode: () => {},
-  }
-);
+export const MobileLayoutContext = React.createContext<MobileLayoutContextType>({
+  isMobile: false,
+  viewMode: 'split',
+  setViewMode: () => {},
+});
 
 const STORAGE_KEY = 'mobile_view_mode_preference';
 
-export default function MobileLayoutProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function MobileLayoutProvider({ children }: { children: React.ReactNode }) {
   const [isMobile, setIsMobile] = React.useState<boolean | null>(null);
   const [viewMode, setViewModeState] = React.useState<ViewMode>('split');
 
   React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     function checkMobile() {
       setIsMobile(window.innerWidth < 768);
     }
@@ -73,15 +69,9 @@ export default function MobileLayoutProvider({
     return { isMobile: isMobile ?? false, setViewMode, viewMode };
   }, [viewMode, setViewMode, isMobile]);
 
-  useHideLoadingScreen();
-
-  if (isMobile === null) {
-    return null;
+  if (typeof window !== 'undefined') {
+    return children;
   }
 
-  return (
-    <MobileLayoutContext.Provider value={value}>
-      {children}
-    </MobileLayoutContext.Provider>
-  );
+  return <MobileLayoutContext.Provider value={value}>{children}</MobileLayoutContext.Provider>;
 }

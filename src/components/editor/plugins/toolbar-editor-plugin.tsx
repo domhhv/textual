@@ -1,6 +1,8 @@
+import { useUser } from '@clerk/nextjs';
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $patchStyleText } from '@lexical/selection';
+import * as Sentry from '@sentry/nextjs';
 import Color from 'color';
 import {
   REDO_COMMAND,
@@ -21,6 +23,7 @@ import {
   UndoIcon,
   RedoIcon,
   LinkIcon,
+  SaveIcon,
   QuoteIcon,
   IndentIcon,
   ItalicIcon,
@@ -32,16 +35,20 @@ import {
   TextInitialIcon,
   PaintBucketIcon,
   TypeOutlineIcon,
+  LoaderCircleIcon,
   StrikethroughIcon,
   BrushCleaningIcon,
   IndentDecreaseIcon,
 } from 'lucide-react';
+import posthog from 'posthog-js';
 import * as React from 'react';
+import { toast } from 'sonner';
 
 import EditorColorPicker from '@/components/custom/editor-color-picker';
 import FontSizeInput from '@/components/custom/font-size-input';
 import Shortcut from '@/components/custom/shortcut';
 import TooltipButton from '@/components/custom/tooltip-button';
+import { useDocument } from '@/components/providers/document-provider';
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -52,20 +59,11 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
-  Select,
-  SelectItem,
-  SelectValue,
-  SelectContent,
-  SelectTrigger,
-} from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectItem, SelectValue, SelectContent, SelectTrigger } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { updateDocument } from '@/lib/actions/document.actions';
 import { default as KBD } from '@/lib/constants/editor-shortcuts';
 import type { Alignment } from '@/lib/constants/editor-toolbar-alignments';
 import ELEMENT_FORMAT_OPTIONS from '@/lib/constants/editor-toolbar-alignments';
@@ -85,23 +83,26 @@ import {
   formatBulletList,
   formatNumberedList,
 } from '@/lib/utils/editor-helpers';
+import getErrorMessage from '@/lib/utils/get-error-message';
 
-export default function ToolbarEditorPlugin() {
+type ToolbarEditorPluginProps = {
+  isEditorEmpty: boolean;
+};
+
+export default function ToolbarEditorPlugin({ isEditorEmpty }: ToolbarEditorPluginProps) {
   const [editor] = useLexicalComposerContext();
+  const { isSignedIn } = useUser();
   const { toolbarState } = React.use(ToolbarStateContext);
   const tooltipGroup = useTooltipGroup();
-  const [isFontColorPickerOpen, setIsFontColorPickerOpen] =
-    React.useState(false);
-  const [isBackgroundColorPickerOpen, setIsBackgroundColorPickerOpen] =
-    React.useState(false);
-  const [isHeadingsDropdownOpen, setIsHeadingsDropdownOpen] =
-    React.useState(false);
+  const { activeDocument, closeActiveDocument, openDocumentDialog } = useDocument();
+  const [isFontColorPickerOpen, setIsFontColorPickerOpen] = React.useState(false);
+  const [isBackgroundColorPickerOpen, setIsBackgroundColorPickerOpen] = React.useState(false);
+  const [isHeadingsDropdownOpen, setIsHeadingsDropdownOpen] = React.useState(false);
   const [isListsDropdownOpen, setIsListsDropdownOpen] = React.useState(false);
-  const [isTextFormatDropdownOpen, setIsTextFormatDropdownOpen] =
-    React.useState(false);
+  const [isTextFormatDropdownOpen, setIsTextFormatDropdownOpen] = React.useState(false);
   const [fontColor, setFontColor] = React.useState<string>('#000000');
-  const [backgroundColor, setBackgroundColor] =
-    React.useState<string>('#000000');
+  const [backgroundColor, setBackgroundColor] = React.useState<string>('#000000');
+  const [isSavingActiveDocument, setIsSavingActiveDocument] = React.useState(false);
   useEditorToolbarSync();
 
   React.useEffect(() => {
@@ -196,26 +197,76 @@ export default function ToolbarEditorPlugin() {
     };
   }, [isFontColorPickerOpen, isBackgroundColorPickerOpen]);
 
+  const handleSave = React.useCallback(async () => {
+    if (activeDocument) {
+      try {
+        setIsSavingActiveDocument(true);
+
+        await updateDocument(activeDocument.id, {
+          content: JSON.stringify(editor.getEditorState()),
+        });
+        posthog.capture('document_updated', {
+          documentId: activeDocument.id,
+        });
+        toast.success(`Document ${activeDocument.title || 'Untitled document'} saved successfully`);
+      } catch (error) {
+        Sentry.captureException(error);
+        console.error(`Error ${activeDocument.title || 'Untitled document'} document: `, error);
+        toast.error(`Error ${activeDocument.title || 'Untitled document'} document`, {
+          description: getErrorMessage(error),
+        });
+      } finally {
+        setIsSavingActiveDocument(false);
+      }
+    } else {
+      openDocumentDialog();
+    }
+  }, [activeDocument, editor, openDocumentDialog]);
+
   return (
     <TooltipProvider>
       <div
         onMouseLeave={tooltipGroup.onGroupMouseLeave}
         className="scrollbar-hide flex items-center gap-2 overflow-x-auto p-2"
       >
-        <TooltipButton
-          {...tooltipGroup.getTooltipProps()}
-          variant="outline"
-          tooltip="Clear editor"
-          shortcut={KBD.CLEAR_EDITOR}
-          onClick={clearEditor.bind(null, editor)}
-        >
-          <BrushCleaningIcon />
-        </TooltipButton>
-
-        <Separator
-          orientation="vertical"
-          className="h-6! flex-shrink-0 self-center justify-self-center"
-        />
+        {!isEditorEmpty && isSignedIn && (
+          <>
+            <TooltipButton
+              {...tooltipGroup.getTooltipProps()}
+              variant="outline"
+              tooltip="Close this file"
+              onClick={closeActiveDocument}
+              disabled={isSavingActiveDocument}
+            >
+              <XIcon />
+            </TooltipButton>
+            <TooltipButton
+              {...tooltipGroup.getTooltipProps()}
+              variant="outline"
+              onClick={handleSave}
+              disabled={isSavingActiveDocument}
+              tooltip={
+                activeDocument
+                  ? `Save changes to ${activeDocument.title || 'Untitled document'}`
+                  : 'Save this content as a new document'
+              }
+            >
+              {isSavingActiveDocument ? <LoaderCircleIcon className="animate-spin" /> : <SaveIcon />}
+            </TooltipButton>
+            <Separator orientation="vertical" className="h-6! flex-shrink-0 self-center justify-self-center" />
+            <TooltipButton
+              {...tooltipGroup.getTooltipProps()}
+              variant="outline"
+              tooltip="Clear editor"
+              shortcut={KBD.CLEAR_EDITOR}
+              disabled={isSavingActiveDocument}
+              onClick={clearEditor.bind(null, editor)}
+            >
+              <BrushCleaningIcon />
+            </TooltipButton>
+            <Separator orientation="vertical" className="h-6! flex-shrink-0 self-center justify-self-center" />
+          </>
+        )}
 
         <ButtonGroup>
           <TooltipButton
@@ -244,10 +295,7 @@ export default function ToolbarEditorPlugin() {
           </TooltipButton>
         </ButtonGroup>
 
-        <Separator
-          orientation="vertical"
-          className="h-6! flex-shrink-0 self-center justify-self-center"
-        />
+        <Separator orientation="vertical" className="h-6! flex-shrink-0 self-center justify-self-center" />
 
         <ButtonGroup>
           <TooltipButton
@@ -323,11 +371,7 @@ export default function ToolbarEditorPlugin() {
         <Separator className="h-6!" orientation="vertical" />
 
         <Select value={toolbarState.fontFamily} onValueChange={applyFontFamily}>
-          <SelectTrigger
-            size="sm"
-            variant="secondary"
-            className="text-secondary-foreground w-40 flex-shrink-0"
-          >
+          <SelectTrigger size="sm" variant="secondary" className="text-secondary-foreground w-40 flex-shrink-0">
             <SelectValue placeholder="Font family" />
           </SelectTrigger>
           <SelectContent>
@@ -352,10 +396,7 @@ export default function ToolbarEditorPlugin() {
           delayDuration={tooltipGroup.getTooltipProps().delayDuration}
         />
 
-        <DropdownMenu
-          open={isHeadingsDropdownOpen}
-          onOpenChange={setIsHeadingsDropdownOpen}
-        >
+        <DropdownMenu open={isHeadingsDropdownOpen} onOpenChange={setIsHeadingsDropdownOpen}>
           <DropdownMenuTrigger
             asChild
             className="w-40 flex-shrink-0 justify-between"
@@ -383,11 +424,7 @@ export default function ToolbarEditorPlugin() {
                   key={heading.value}
                   className="flex justify-between gap-4"
                   onClick={() => {
-                    formatHeading(
-                      editor,
-                      toolbarState.blockType,
-                      heading.value
-                    );
+                    formatHeading(editor, toolbarState.blockType, heading.value);
                   }}
                 >
                   <div className="flex items-center">
@@ -414,10 +451,7 @@ export default function ToolbarEditorPlugin() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <DropdownMenu
-          open={isListsDropdownOpen}
-          onOpenChange={setIsListsDropdownOpen}
-        >
+        <DropdownMenu open={isListsDropdownOpen} onOpenChange={setIsListsDropdownOpen}>
           <DropdownMenuTrigger
             asChild
             className="w-44 flex-shrink-0 justify-between"
@@ -465,21 +499,11 @@ export default function ToolbarEditorPlugin() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Separator
-          orientation="vertical"
-          className="h-6! flex-shrink-0 self-center justify-self-center"
-        />
+        <Separator orientation="vertical" className="h-6! flex-shrink-0 self-center justify-self-center" />
 
-        <Popover
-          open={isFontColorPickerOpen}
-          onOpenChange={handleFontColorOpenChange}
-        >
+        <Popover open={isFontColorPickerOpen} onOpenChange={handleFontColorOpenChange}>
           <PopoverTrigger asChild>
-            <Button
-              size="sm"
-              variant="secondary"
-              className="flex-shrink-0 gap-0 space-x-2"
-            >
+            <Button size="sm" variant="secondary" className="flex-shrink-0 gap-0 space-x-2">
               <div className="flex items-center gap-2">
                 <BaselineIcon />
                 <div
@@ -519,9 +543,7 @@ export default function ToolbarEditorPlugin() {
                   setIsFontColorPickerOpen(false);
                 }}
               >
-                <div className="rounded border border-current px-1 py-0.5 text-xs">
-                  Esc
-                </div>
+                <div className="rounded border border-current px-1 py-0.5 text-xs">Esc</div>
                 <span>Cancel</span>
               </Button>
               <Button className="w-full" onClick={applyFontColor}>
@@ -531,16 +553,9 @@ export default function ToolbarEditorPlugin() {
           </PopoverContent>
         </Popover>
 
-        <Popover
-          open={isBackgroundColorPickerOpen}
-          onOpenChange={handleBackgroundColorOpenChange}
-        >
+        <Popover open={isBackgroundColorPickerOpen} onOpenChange={handleBackgroundColorOpenChange}>
           <PopoverTrigger asChild>
-            <Button
-              size="sm"
-              variant="secondary"
-              className="flex-shrink-0 gap-0 space-x-2"
-            >
+            <Button size="sm" variant="secondary" className="flex-shrink-0 gap-0 space-x-2">
               <div className="flex items-center gap-2">
                 <PaintBucketIcon />
                 <div
@@ -572,10 +587,7 @@ export default function ToolbarEditorPlugin() {
                   <XIcon className="size-4" />
                 </Button>
               </div>
-              <EditorColorPicker
-                value={backgroundColor}
-                onChange={setBackgroundColor}
-              />
+              <EditorColorPicker value={backgroundColor} onChange={setBackgroundColor} />
               <Button
                 variant="outline"
                 className="w-full"
@@ -583,9 +595,7 @@ export default function ToolbarEditorPlugin() {
                   setIsBackgroundColorPickerOpen(false);
                 }}
               >
-                <div className="rounded border border-current px-1 py-0.5 text-xs">
-                  Esc
-                </div>
+                <div className="rounded border border-current px-1 py-0.5 text-xs">Esc</div>
                 <span>Cancel</span>
               </Button>
               <Button className="w-full" onClick={applyBackgroundColor}>
@@ -595,46 +605,30 @@ export default function ToolbarEditorPlugin() {
           </PopoverContent>
         </Popover>
 
-        <Separator
-          orientation="vertical"
-          className="h-6! flex-shrink-0 self-center justify-self-center"
-        />
+        <Separator orientation="vertical" className="h-6! flex-shrink-0 self-center justify-self-center" />
 
         <ButtonGroup>
-          {(Object.keys(ELEMENT_FORMAT_OPTIONS) as Alignment[]).map(
-            (alignment) => {
-              const {
-                icon: Icon,
-                name,
-                shortcut,
-              } = ELEMENT_FORMAT_OPTIONS[alignment];
+          {(Object.keys(ELEMENT_FORMAT_OPTIONS) as Alignment[]).map((alignment) => {
+            const { icon: Icon, name, shortcut } = ELEMENT_FORMAT_OPTIONS[alignment];
 
-              return (
-                <TooltipButton
-                  key={alignment}
-                  {...tooltipGroup.getTooltipProps()}
-                  tooltip={name}
-                  shortcut={shortcut}
-                  onClick={() => {
-                    editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, alignment);
-                  }}
-                  variant={
-                    toolbarState.elementFormat === alignment
-                      ? 'secondary'
-                      : 'ghost'
-                  }
-                >
-                  <Icon />
-                </TooltipButton>
-              );
-            }
-          )}
+            return (
+              <TooltipButton
+                key={alignment}
+                {...tooltipGroup.getTooltipProps()}
+                tooltip={name}
+                shortcut={shortcut}
+                variant={toolbarState.elementFormat === alignment ? 'secondary' : 'ghost'}
+                onClick={() => {
+                  editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, alignment);
+                }}
+              >
+                <Icon />
+              </TooltipButton>
+            );
+          })}
         </ButtonGroup>
 
-        <Separator
-          orientation="vertical"
-          className="h-6! flex-shrink-0 self-center justify-self-center"
-        />
+        <Separator orientation="vertical" className="h-6! flex-shrink-0 self-center justify-self-center" />
 
         <ButtonGroup>
           <TooltipButton
@@ -661,10 +655,7 @@ export default function ToolbarEditorPlugin() {
           </TooltipButton>
         </ButtonGroup>
 
-        <Separator
-          orientation="vertical"
-          className="h-6! flex-shrink-0 self-center justify-self-center"
-        />
+        <Separator orientation="vertical" className="h-6! flex-shrink-0 self-center justify-self-center" />
 
         <TooltipButton
           {...tooltipGroup.getTooltipProps()}
@@ -678,10 +669,7 @@ export default function ToolbarEditorPlugin() {
           <QuoteIcon />
         </TooltipButton>
 
-        <DropdownMenu
-          open={isTextFormatDropdownOpen}
-          onOpenChange={setIsTextFormatDropdownOpen}
-        >
+        <DropdownMenu open={isTextFormatDropdownOpen} onOpenChange={setIsTextFormatDropdownOpen}>
           <DropdownMenuTrigger
             asChild
             className="w-44 flex-shrink-0 justify-between"
@@ -703,11 +691,7 @@ export default function ToolbarEditorPlugin() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {(
-              Object.keys(TEXT_FORMAT_OPTIONS) as Array<
-                keyof typeof TEXT_FORMAT_OPTIONS
-              >
-            ).map((format) => {
+            {(Object.keys(TEXT_FORMAT_OPTIONS) as Array<keyof typeof TEXT_FORMAT_OPTIONS>).map((format) => {
               const option = TEXT_FORMAT_OPTIONS[format];
               const Icon = option.icon;
 
@@ -716,10 +700,7 @@ export default function ToolbarEditorPlugin() {
                   key={format}
                   className="flex justify-between gap-4"
                   onClick={() => {
-                    editor.dispatchCommand(
-                      FORMAT_TEXT_COMMAND,
-                      format as TextFormatType
-                    );
+                    editor.dispatchCommand(FORMAT_TEXT_COMMAND, format as TextFormatType);
                   }}
                 >
                   <div className="flex items-center">

@@ -3,13 +3,8 @@
 import * as Sentry from '@sentry/nextjs';
 import posthog from 'posthog-js';
 
-if (
-  !process.env.NEXT_PUBLIC_POSTHOG_KEY ||
-  !process.env.NEXT_PUBLIC_POSTHOG_HOST
-) {
-  console.warn(
-    'NEXT_PUBLIC_POSTHOG_KEY or NEXT_PUBLIC_POSTHOG_HOST is not set. Skipping PostHog initialization.'
-  );
+if (!process.env.NEXT_PUBLIC_POSTHOG_KEY || !process.env.NEXT_PUBLIC_POSTHOG_HOST) {
+  console.warn('NEXT_PUBLIC_POSTHOG_KEY or NEXT_PUBLIC_POSTHOG_HOST is not set. Skipping PostHog initialization.');
 } else {
   posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
     api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
@@ -18,9 +13,7 @@ if (
 }
 
 if (!process.env.NEXT_PUBLIC_SENTRY_DSN) {
-  console.warn(
-    'NEXT_PUBLIC_SENTRY_DSN is not set. Skipping Sentry initialization.'
-  );
+  console.warn('NEXT_PUBLIC_SENTRY_DSN is not set. Skipping Sentry initialization.');
 } else {
   Sentry.init({
     debug: false,

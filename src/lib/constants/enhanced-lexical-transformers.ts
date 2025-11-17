@@ -74,12 +74,7 @@ const TABLE: ElementTransformer = {
 
       for (const cell of row.getChildren()) {
         if ($isTableCellNode(cell)) {
-          rowOutput.push(
-            $convertToMarkdownString(BASE_LEXICAL_TRANSFORMERS, cell).replace(
-              /\n/g,
-              '\\n'
-            )
-          );
+          rowOutput.push($convertToMarkdownString(BASE_LEXICAL_TRANSFORMERS, cell).replace(/\n/g, '\\n'));
 
           if (cell.__headerState === TableCellHeaderStates.ROW) {
             isHeaderRow = true;
@@ -181,10 +176,7 @@ const TABLE: ElementTransformer = {
 
     const previousSibling = parentNode.getPreviousSibling();
 
-    if (
-      $isTableNode(previousSibling) &&
-      getTableColumnsSize(previousSibling) === maxCells
-    ) {
+    if ($isTableNode(previousSibling) && getTableColumnsSize(previousSibling) === maxCells) {
       previousSibling.append(...table.getChildren());
       parentNode.remove();
     } else {
@@ -215,11 +207,6 @@ const HR: ElementTransformer = {
   },
 };
 
-const ENHANCED_LEXICAL_TRANSFORMERS = [
-  CHECK_LIST,
-  HR,
-  TABLE,
-  ...BASE_LEXICAL_TRANSFORMERS,
-];
+const ENHANCED_LEXICAL_TRANSFORMERS = [CHECK_LIST, HR, TABLE, ...BASE_LEXICAL_TRANSFORMERS];
 
 export default ENHANCED_LEXICAL_TRANSFORMERS;

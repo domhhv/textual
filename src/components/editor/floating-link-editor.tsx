@@ -1,12 +1,6 @@
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
 import type { LexicalEditor } from 'lexical';
-import {
-  XIcon,
-  CheckIcon,
-  PencilIcon,
-  Trash2Icon,
-  ExternalLinkIcon,
-} from 'lucide-react';
+import { XIcon, CheckIcon, PencilIcon, Trash2Icon, ExternalLinkIcon } from 'lucide-react';
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -19,25 +13,16 @@ type FloatingLinkEditorProps = {
   linkUrl: string;
 };
 
-export default function FloatingLinkEditor({
-  editor,
-  isLink,
-  linkUrl,
-}: FloatingLinkEditorProps) {
+export default function FloatingLinkEditor({ editor, isLink, linkUrl }: FloatingLinkEditorProps) {
   const editorRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [editedLinkUrl, setEditedLinkUrl] = React.useState(linkUrl);
   const [editMode, setEditMode] = React.useState(false);
-  const [lastSelection, setLastSelection] = React.useState<Selection | null>(
-    null
-  );
+  const [lastSelection, setLastSelection] = React.useState<Selection | null>(null);
 
   const handleClickOutside = React.useCallback(
     (event: MouseEvent) => {
-      if (
-        editorRef.current &&
-        !editorRef.current.contains(event.target as Node)
-      ) {
+      if (editorRef.current && !editorRef.current.contains(event.target as Node)) {
         setTimeout(() => {
           setEditMode(false);
           setEditedLinkUrl(linkUrl);
@@ -156,12 +141,7 @@ export default function FloatingLinkEditor({
               setEditedLinkUrl(e.target.value);
             }}
           />
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={handleLinkSave}
-            className="h-8 w-8 shrink-0"
-          >
+          <Button size="icon" variant="ghost" onClick={handleLinkSave} className="h-8 w-8 shrink-0">
             <CheckIcon className="h-4 w-4" />
           </Button>
           <Button
@@ -187,20 +167,10 @@ export default function FloatingLinkEditor({
             <span className="truncate">{linkUrl}</span>
             <ExternalLinkIcon className="h-3 w-3 shrink-0" />
           </a>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={handleLinkEdit}
-            className="h-8 w-8 shrink-0"
-          >
+          <Button size="icon" variant="ghost" onClick={handleLinkEdit} className="h-8 w-8 shrink-0">
             <PencilIcon className="h-4 w-4" />
           </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={handleLinkDelete}
-            className="h-8 w-8 shrink-0"
-          >
+          <Button size="icon" variant="ghost" onClick={handleLinkDelete} className="h-8 w-8 shrink-0">
             <Trash2Icon className="h-4 w-4" />
           </Button>
         </>

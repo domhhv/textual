@@ -94,10 +94,8 @@ export default function Chat() {
       }
 
       editor.read(() => {
-        const {
-          nextEditorMarkdownContent: editorMarkdownContent,
-          nextEditorRootChildren: editorRootChildren,
-        } = $getNextEditorState();
+        const { nextEditorMarkdownContent: editorMarkdownContent, nextEditorRootChildren: editorRootChildren } =
+          $getNextEditorState();
 
         void sendMessage(
           { text: input },
@@ -117,8 +115,14 @@ export default function Chat() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <LoaderPinwheelIcon className="animate-spin" />
+      <div className="flex h-full flex-col">
+        <ChatHeader />
+        <div className="flex h-full items-center justify-center">
+          <LoaderPinwheelIcon className="animate-spin" />
+        </div>
+        <form className="p-4" onSubmit={submitMessage}>
+          <Input disabled placeholder="Add a paragraph or edit existing content..." />
+        </form>
       </div>
     );
   }
@@ -166,8 +170,8 @@ export default function Chat() {
           }}
         />
 
-        <div className="flex flex-1 flex-col justify-between overflow-y-auto p-4">
-          <div className="flex flex-col gap-4 pt-2">
+        <div className="flex flex-1 flex-col justify-between overflow-y-auto">
+          <div className="flex flex-col gap-4 p-4">
             {error && (
               <Alert variant="destructive">
                 <AlertTitle>Error</AlertTitle>
@@ -180,8 +184,7 @@ export default function Chat() {
                   key={message.id}
                   className={cn(
                     'whitespace-pre-wrap',
-                    message.role === 'user' &&
-                      'border-foreground flex items-start gap-2 rounded-lg border p-4'
+                    message.role === 'user' && 'border-foreground flex items-start gap-2 rounded-lg border p-4'
                   )}
                 >
                   {message.role === 'user' && (
@@ -193,12 +196,7 @@ export default function Chat() {
                     switch (part.type) {
                       case 'text':
                         return (
-                          <div
-                            key={`${message.id}-${i}`}
-                            className={cn(
-                              message.role === 'user' ? 'px-2' : 'py-4'
-                            )}
-                          >
+                          <div key={`${message.id}-${i}`} className={cn(message.role === 'user' ? 'px-2' : 'py-4')}>
                             {part.text}
                           </div>
                         );
@@ -224,11 +222,7 @@ export default function Chat() {
                             );
 
                           case 'output-error':
-                            return (
-                              <div key={`${message.id}-${i}`}>
-                                Error: {part.errorText}
-                              </div>
-                            );
+                            return <div key={`${message.id}-${i}`}>Error: {part.errorText}</div>;
 
                           case 'output-available':
                           default:
@@ -277,11 +271,7 @@ export default function Chat() {
                             );
 
                           case 'output-error':
-                            return (
-                              <div key={`${message.id}-${i}`}>
-                                Error: {part.errorText}
-                              </div>
-                            );
+                            return <div key={`${message.id}-${i}`}>Error: {part.errorText}</div>;
 
                           case 'output-available':
                           default:
@@ -330,11 +320,7 @@ export default function Chat() {
                             );
 
                           case 'output-error':
-                            return (
-                              <div key={`${message.id}-${i}`}>
-                                Error: {part.errorText}
-                              </div>
-                            );
+                            return <div key={`${message.id}-${i}`}>Error: {part.errorText}</div>;
 
                           case 'output-available':
                           default:
@@ -355,12 +341,10 @@ export default function Chat() {
                 </div>
               );
             })}
-            {status === 'submitted' && (
-              <LoaderPinwheelIcon className="mx-auto animate-spin" />
-            )}
+            {status === 'submitted' && <LoaderPinwheelIcon className="mx-auto animate-spin" />}
           </div>
 
-          <form onSubmit={submitMessage} className="m-1 mt-2 md:m-2 md:mt-4">
+          <form className="p-4" onSubmit={submitMessage}>
             <Input
               value={input}
               disabled={status === 'submitted'}

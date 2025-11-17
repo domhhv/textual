@@ -1,4 +1,4 @@
-import { Eye, EyeOff, ExternalLink, LoaderPinwheel } from 'lucide-react';
+import { Eye, XIcon, EyeOff, CheckIcon, ExternalLink } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -13,14 +13,8 @@ import {
   DialogContent,
   DialogDescription,
 } from '@/components/ui/dialog';
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from '@/components/ui/form';
+import { Form, FormItem, FormField, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import HelixLoader from '@/components/ui/helix-loader';
 import { Input } from '@/components/ui/input';
 import OPENAI_KEY_ISSUE_MESSAGES from '@/lib/constants/openai-key-messages';
 import checkOpenAIKey from '@/lib/utils/check-openai-key';
@@ -36,11 +30,7 @@ type FormValues = {
   apiKey: string;
 };
 
-export default function ApiKeyDialog({
-  isOpen,
-  onApiKeySet,
-  onOpenChange,
-}: ApiKeyDialogProps) {
+export default function ApiKeyDialog({ isOpen, onApiKeySet, onOpenChange }: ApiKeyDialogProps) {
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [isTesting, setIsTesting] = React.useState(false);
   const [serverValidation, setServerValidation] = React.useState<{
@@ -135,8 +125,8 @@ export default function ApiKeyDialog({
         <DialogHeader>
           <DialogTitle>Set Your OpenAI API Key</DialogTitle>
           <DialogDescription>
-            Enter your OpenAI API key to start using the AI assistant. Your key
-            will be encrypted and stored locally in your browser.
+            Enter your OpenAI API key to start using the AI assistant. Your key will be encrypted and stored locally in
+            your browser.
           </DialogDescription>
         </DialogHeader>
 
@@ -167,11 +157,7 @@ export default function ApiKeyDialog({
                             return setShowApiKey(!showApiKey);
                           }}
                         >
-                          {showApiKey ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
+                          {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
                       </div>
                     </FormControl>
@@ -187,11 +173,7 @@ export default function ApiKeyDialog({
                 <AlertDescription>
                   <ul className="list-disc pl-5">
                     {keyCheck.issues.map((issue) => {
-                      return (
-                        <li key={issue.code}>
-                          {OPENAI_KEY_ISSUE_MESSAGES[issue.code]}
-                        </li>
-                      );
+                      return <li key={issue.code}>{OPENAI_KEY_ISSUE_MESSAGES[issue.code]}</li>;
                     })}
                   </ul>
                 </AlertDescription>
@@ -206,15 +188,19 @@ export default function ApiKeyDialog({
                     : 'border-orange-200 bg-orange-50 text-orange-800 dark:border-orange-800 dark:bg-orange-950 dark:text-orange-300'
                 }
               >
-                <AlertTitle>
-                  {serverValidation.isValid
-                    ? '✓ Connection Test Successful'
-                    : 'Connection Test Failed'}
+                <AlertTitle className="flex items-center gap-2">
+                  {serverValidation.isValid ? (
+                    <>
+                      <CheckIcon size={16} /> Connection Test Successful
+                    </>
+                  ) : (
+                    <>
+                      <XIcon size={16} /> Connection Test Failed
+                    </>
+                  )}
                 </AlertTitle>
                 <AlertDescription>
-                  {serverValidation.isValid
-                    ? 'Your API key is valid and working!'
-                    : serverValidation.error}
+                  {serverValidation.isValid ? 'Your API key is valid and working!' : serverValidation.error}
                 </AlertDescription>
               </Alert>
             )}
@@ -236,49 +222,39 @@ export default function ApiKeyDialog({
 
             <DialogFooter className="flex-col gap-2 sm:flex-row sm:gap-0">
               <div className="flex flex-1 gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={isTesting}
-                  onClick={handleClose}
-                >
+                <Button type="button" variant="outline" disabled={isTesting} onClick={handleClose}>
                   Cancel
                 </Button>
 
-                {!keyCheck.ok &&
-                  apiKeyValue &&
-                  keyCheck.normalized !== apiKeyValue && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        form.setValue('apiKey', keyCheck.normalized, {
-                          shouldDirty: true,
-                          shouldValidate: true,
-                        });
-                      }}
-                    >
-                      Apply Fixes
-                    </Button>
-                  )}
+                {!keyCheck.ok && apiKeyValue && keyCheck.normalized !== apiKeyValue && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      form.setValue('apiKey', keyCheck.normalized, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
+                    }}
+                  >
+                    Apply Fixes
+                  </Button>
+                )}
 
                 <Button
                   type="button"
                   variant="outline"
+                  className="space-x-2"
                   onClick={handleTestConnection}
                   disabled={isTesting || !apiKeyValue.trim()}
                 >
-                  {isTesting && (
-                    <LoaderPinwheel className="mr-2 h-4 w-4 animate-spin" />
-                  )}
+                  {isTesting && <HelixLoader size={16} color="var(--foreground)" />}
                   Test Connection
                 </Button>
               </div>
 
               <div className="flex gap-2">
-                {serverValidation &&
-                !serverValidation.isValid &&
-                serverValidation.tested ? (
+                {serverValidation && !serverValidation.isValid && serverValidation.tested ? (
                   <Button
                     type="button"
                     onClick={handleSetAnyway}
@@ -288,10 +264,7 @@ export default function ApiKeyDialog({
                     Set Anyway
                   </Button>
                 ) : (
-                  <Button
-                    type="submit"
-                    disabled={isTesting || !apiKeyValue.trim()}
-                  >
+                  <Button type="submit" disabled={isTesting || !apiKeyValue.trim()}>
                     Set API Key
                   </Button>
                 )}

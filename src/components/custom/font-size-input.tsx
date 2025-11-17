@@ -4,16 +4,9 @@ import * as React from 'react';
 import Shortcut from '@/components/custom/shortcut';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import EDITOR_SHORTCUTS from '@/lib/constants/editor-shortcuts';
-import {
-  MAX_ALLOWED_FONT_SIZE,
-  MIN_ALLOWED_FONT_SIZE,
-} from '@/lib/constants/initial-editor-toolbar-state';
+import { MAX_ALLOWED_FONT_SIZE, MIN_ALLOWED_FONT_SIZE } from '@/lib/constants/initial-editor-toolbar-state';
 import cn from '@/lib/utils/cn';
 
 type FontSizeInputProps = {

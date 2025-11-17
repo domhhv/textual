@@ -1,7 +1,4 @@
-export default function wrapEditorPrompt(
-  editorMarkdownContent: string,
-  editorRootChildren: string
-) {
+export default function wrapEditorPrompt(editorMarkdownContent: string, editorRootChildren: string) {
   return `You are an AI assistant that helps edit a Lexical text editor. 
       
 Current editor children nodes available at its root level (in JSON format):

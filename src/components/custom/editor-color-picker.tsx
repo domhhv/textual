@@ -29,10 +29,7 @@ type EditorColorPickerProps = {
   onChange: (value: string) => void;
 };
 
-export default function EditorColorPicker({
-  onChange,
-  value,
-}: EditorColorPickerProps) {
+export default function EditorColorPicker({ onChange, value }: EditorColorPickerProps) {
   const [presetColors, setPresetColors] = React.useState<string[]>(() => {
     return generatePastelColors(19);
   });

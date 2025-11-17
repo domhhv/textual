@@ -1,12 +1,5 @@
 import type { HeadingTagType } from '@lexical/rich-text';
-import {
-  Heading1Icon,
-  Heading2Icon,
-  Heading3Icon,
-  Heading4Icon,
-  Heading5Icon,
-  Heading6Icon,
-} from 'lucide-react';
+import { Heading1Icon, Heading2Icon, Heading3Icon, Heading4Icon, Heading5Icon, Heading6Icon } from 'lucide-react';
 import type * as React from 'react';
 
 import EDITOR_SHORTCUTS from '@/lib/constants/editor-shortcuts';

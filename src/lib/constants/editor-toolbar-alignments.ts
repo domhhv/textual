@@ -1,18 +1,10 @@
 import type { ElementFormatType } from 'lexical';
-import {
-  AlignLeftIcon,
-  AlignRightIcon,
-  AlignCenterIcon,
-  AlignJustifyIcon,
-} from 'lucide-react';
+import { AlignLeftIcon, AlignRightIcon, AlignCenterIcon, AlignJustifyIcon } from 'lucide-react';
 import type { SVGProps, ComponentType } from 'react';
 
 import EDITOR_SHORTCUTS from '@/lib/constants/editor-shortcuts';
 
-export type Alignment = Extract<
-  ElementFormatType,
-  'left' | 'center' | 'right' | 'justify'
->;
+export type Alignment = Extract<ElementFormatType, 'left' | 'center' | 'right' | 'justify'>;
 
 type Icon = ComponentType<SVGProps<SVGSVGElement>>;
 

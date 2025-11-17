@@ -8,10 +8,7 @@ interface UseTooltipGroupReturn {
   onGroupMouseLeave: () => void;
 }
 
-export default function useTooltipGroup(
-  normalDelay = 500,
-  skipDelayWindow = 300
-): UseTooltipGroupReturn {
+export default function useTooltipGroup(normalDelay = 500, skipDelayWindow = 300): UseTooltipGroupReturn {
   const [isInSkipDelayWindow, setIsInSkipDelayWindow] = React.useState(false);
   const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 

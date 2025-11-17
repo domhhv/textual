@@ -16,10 +16,7 @@ import {
 import * as React from 'react';
 
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
-import {
-  MAX_ALLOWED_FONT_SIZE,
-  MIN_ALLOWED_FONT_SIZE,
-} from '@/lib/constants/initial-editor-toolbar-state';
+import { MAX_ALLOWED_FONT_SIZE, MIN_ALLOWED_FONT_SIZE } from '@/lib/constants/initial-editor-toolbar-state';
 import {
   formatQuote,
   formatHeading,
@@ -254,17 +251,8 @@ export default function ShortcutsPlugin() {
       return false;
     }
 
-    return editor.registerCommand(
-      KEY_DOWN_COMMAND,
-      keyboardShortcutsHandler,
-      COMMAND_PRIORITY_NORMAL
-    );
-  }, [
-    editor,
-    toolbarState.isLink,
-    toolbarState.blockType,
-    toolbarState.fontSize,
-  ]);
+    return editor.registerCommand(KEY_DOWN_COMMAND, keyboardShortcutsHandler, COMMAND_PRIORITY_NORMAL);
+  }, [editor, toolbarState.isLink, toolbarState.blockType, toolbarState.fontSize]);
 
   return null;
 }

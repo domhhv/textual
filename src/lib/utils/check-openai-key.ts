@@ -17,9 +17,7 @@ type OpenAIKeyCheckResult = {
   ok: boolean;
 };
 
-export default function checkOpenAIKey(
-  input: string | null | undefined
-): OpenAIKeyCheckResult {
+export default function checkOpenAIKey(input: string | null | undefined): OpenAIKeyCheckResult {
   const issues: OpenAIKeyIssue[] = [];
   const normalized = (input ?? '').trim();
 

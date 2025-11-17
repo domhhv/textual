@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import type { PropsWithChildren } from 'react';
 
 type SidebarContextType = {
   isExpanded: boolean;
@@ -9,18 +10,22 @@ type SidebarContextType = {
   toggleSidebar: () => void;
 };
 
-export const SidebarContext = React.createContext<SidebarContextType | null>(
-  null
-);
-
-type SidebarProviderProps = {
-  children: React.ReactNode;
-};
+const SidebarContext = React.createContext<SidebarContextType | null>(null);
 
 const STORAGE_KEY = 'sidebar-expanded';
 const MOBILE_BREAKPOINT = 768;
 
-export default function SidebarProvider({ children }: SidebarProviderProps) {
+export function useSidebar() {
+  const context = React.useContext(SidebarContext);
+
+  if (!context) {
+    throw new Error('useSidebar must be used within a SidebarProvider');
+  }
+
+  return context;
+}
+
+export default function SidebarProvider({ children }: PropsWithChildren) {
   const [isExpanded, setIsExpanded] = React.useState(true);
   const [isMobile, setIsMobile] = React.useState(false);
 
@@ -77,7 +82,5 @@ export default function SidebarProvider({ children }: SidebarProviderProps) {
     };
   }, [isExpanded, toggleSidebar, closeSidebar, isMobile]);
 
-  return (
-    <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
-  );
+  return <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>;
 }

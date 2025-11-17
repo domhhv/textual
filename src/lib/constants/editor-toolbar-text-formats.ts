@@ -12,21 +12,10 @@ import EDITOR_SHORTCUTS from '@/lib/constants/editor-shortcuts';
 
 type FormatOption = Extract<
   TextFormatType,
-  | 'lowercase'
-  | 'uppercase'
-  | 'capitalize'
-  | 'subscript'
-  | 'superscript'
-  | 'highlight'
+  'lowercase' | 'uppercase' | 'capitalize' | 'subscript' | 'superscript' | 'highlight'
 >;
 
-type ToolbarStateKey =
-  | 'isLowercase'
-  | 'isUppercase'
-  | 'isCapitalize'
-  | 'isSubscript'
-  | 'isSuperscript'
-  | 'isHighlight';
+type ToolbarStateKey = 'isLowercase' | 'isUppercase' | 'isCapitalize' | 'isSubscript' | 'isSuperscript' | 'isHighlight';
 
 /* eslint-disable perfectionist/sort-objects */
 const TEXT_FORMAT_OPTIONS: Record<
