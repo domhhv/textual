@@ -24,6 +24,11 @@ type ViewMode = (typeof VIEW_MODES)[number];
 export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
   const { isMobile, setViewMode, viewMode } = React.use(MobileLayoutContext);
   const [lexicalEditor] = useLexicalComposerContext();
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const resetEditorSelection = React.useCallback(() => {
     lexicalEditor.update(() => {
@@ -62,7 +67,7 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
     },
   });
 
-  if (typeof window === 'undefined') {
+  if (!isMounted) {
     return (
       <div className="flex h-full items-center justify-center">
         <HelixLoader color="var(--foreground)" />
