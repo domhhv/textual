@@ -304,13 +304,10 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
       isEditorDirty,
       isEditorEmpty,
       openDocumentDialog,
-      setActiveDocument,
       setDocumentIdInteractedWith,
-      setIsEditorEmpty,
     };
   }, [
     closeActiveDocument,
-    setIsEditorEmpty,
     documentIdInteractedWith,
     openDocumentDialog,
     handleDropdownOpenChange,
@@ -318,7 +315,6 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
     documentIdBeingRemoved,
     initiateDocumentRemoval,
     activeDocument,
-    setActiveDocument,
     handleEditorChange,
     isEditorEmpty,
     isEditorDirty,

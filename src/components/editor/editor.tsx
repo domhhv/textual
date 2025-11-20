@@ -40,7 +40,7 @@ export default function Editor() {
             className="border-border group focus-within:border-foreground relative h-[calc(100%-52px)] overflow-y-auto border-t px-[1px] pb-[1px] focus-within:border focus-within:px-0 focus-within:pb-0.5"
           >
             <ContentEditable
-              className="group peer h-full p-4 outline-none"
+              className="h-full p-4 outline-none"
               aria-placeholder="Start typing your document..."
               onFocus={() => {
                 setIsFocused(true);
@@ -49,7 +49,7 @@ export default function Editor() {
                 setIsFocused(false);
               }}
               placeholder={
-                <div className="text-muted-foreground/80 group-focus-within:text-muted-foreground pointer-events-none absolute top-[18px] left-5 select-none group-focus-within:left-[19px]">
+                <div className="text-muted-foreground/60 group-focus-within:text-muted-foreground pointer-events-none absolute top-[18px] left-5 select-none group-focus-within:left-[19px]">
                   Start typing your document...
                 </div>
               }
