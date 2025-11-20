@@ -4,6 +4,8 @@ import { fileURLToPath } from 'url';
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
 import stylistic from '@stylistic/eslint-plugin';
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
+import nextTypescript from 'eslint-config-next/typescript';
 import perfectionist from 'eslint-plugin-perfectionist';
 import switchCase from 'eslint-plugin-switch-case';
 import unusedImports from 'eslint-plugin-unused-imports';
@@ -17,16 +19,13 @@ const eslintConfig = [
   {
     ignores: ['node_modules/**', '.next/**', 'out/**', 'build/**', 'next-env.d.ts'],
   },
-  ...compat.extends(
-    'eslint:recommended',
-    'next/core-web-vitals',
-    'next/typescript',
-    'plugin:switch-case/recommended',
-    'plugin:import/recommended',
-    'plugin:jsx-a11y/recommended',
-    'plugin:@lexical/recommended',
-    'prettier'
-  ),
+  ...compat.extends('eslint:recommended'),
+  ...nextCoreWebVitals,
+  ...nextTypescript,
+  ...compat.extends('plugin:switch-case/recommended'),
+  ...compat.extends('plugin:import/recommended'),
+  ...compat.extends('plugin:@lexical/recommended'),
+  ...compat.extends('prettier'),
   {
     plugins: {
       '@stylistic': stylistic,

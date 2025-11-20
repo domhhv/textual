@@ -23,7 +23,7 @@ Textual combines a professional-grade rich text editor with OpenAI's GPT-4o to p
 
 ### Developer-friendly Architecture
 
-- **Modern Stack**: Built with Next.js 15, Lexical editor, and Vercel AI SDK
+- **Modern Stack**: Built with Next.js 16, Lexical editor, and Vercel AI SDK
 - **Tool Calling**: Sophisticated AI integration using structured commands
 - **Type-safe**: Full TypeScript implementation with comprehensive linting
 - **Performance-first**: Uses Turbopack for lightning-fast development
@@ -140,7 +140,7 @@ npm run prettier:write  # Auto-format code
 
 ### Architecture Overview
 
-- **Frontend**: Next.js 15 with App Router and Turbopack
+- **Frontend**: Next.js 16 with App Router and Turbopack
 - **Editor**: Lexical 0.35.0 (Facebook's rich text editor framework)
 - **AI Integration**: Vercel AI SDK with OpenAI GPT-4o
 - **Styling**: Tailwind CSS v4 with OKLCH color system

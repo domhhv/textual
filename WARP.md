@@ -37,11 +37,11 @@ The `prebuild` script runs automatically before `build` and executes:
 
 ## Architecture Overview
 
-**Textual** is an AI-powered rich text editor built with Next.js 15 that combines Lexical editor with OpenAI's GPT-4o for intelligent, contextual content editing. The key innovation is using structured AI tool calling for precise text manipulation rather than full document regeneration.
+**Textual** is an AI-powered rich text editor built with Next.js 16 that combines Lexical editor with OpenAI's GPT-4o for intelligent, contextual content editing. The key innovation is using structured AI tool calling for precise text manipulation rather than full document regeneration.
 
 ### Technology Stack
 
-- **Framework**: Next.js 15 (App Router, Turbopack)
+- **Framework**: Next.js 16 (App Router, Turbopack)
 - **Editor**: Lexical 0.35.0 (Facebook's extensible rich text framework)
 - **AI Integration**: Vercel AI SDK with OpenAI GPT-4o tool calling
 - **Styling**: Tailwind CSS v4 with OKLCH color system
