@@ -11,6 +11,7 @@ import { useSidebar } from '@/components/providers/sidebar-provider';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
+import cn from '@/lib/utils/cn';
 
 type ChatHeaderProps = {
   onApiKeyEditClick?: () => void;
@@ -34,11 +35,11 @@ export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
           <span className="border-b border-dashed border-slate-600 dark:border-slate-300">Textual</span> Chat
         </h3>
 
-        <Button size="xs" className="h-8" variant="outline">
-          <Link target="_blank" rel="noopener noreferrer" href="https://github.com/domhhv/textual">
+        <Link target="_blank" rel="noopener noreferrer" href="https://github.com/domhhv/textual">
+          <Button size="xs" className="h-8" variant="outline">
             <GithubIcon className="fill-muted-foreground size-4!" />
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       </div>
     );
   }
@@ -49,7 +50,7 @@ export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
       className="border-border flex items-center gap-2 overflow-x-auto border-b p-2"
     >
       <div className="flex min-w-0 basis-full items-center justify-between gap-2">
-        <div className="flex min-w-0 flex-shrink items-center gap-2 px-2">
+        <div className={cn('flex min-w-0 flex-shrink items-center gap-2', !isMobile && 'px-2')}>
           {isMobile && (
             <Button size="icon" variant="ghost" onClick={toggleSidebar} className="h-8 w-8 flex-shrink-0">
               <PanelLeft className="h-4 w-4" />
@@ -122,11 +123,11 @@ export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
             </div>
             <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
               <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
-                <Button size="xs" className="h-8" variant="outline">
-                  <Link target="_blank" rel="noopener noreferrer" href="https://github.com/domhhv/textual">
+                <Link target="_blank" rel="noopener noreferrer" href="https://github.com/domhhv/textual">
+                  <Button size="xs" variant="outline" className="h-8 w-8">
                     <GithubIcon className="fill-muted-foreground size-4!" />
-                  </Link>
-                </Button>
+                  </Button>
+                </Link>
               </TooltipTrigger>
               <TooltipContent>
                 <div className="flex items-center gap-1">

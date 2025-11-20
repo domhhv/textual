@@ -3,15 +3,7 @@
 import { useUser, SignedIn, SignedOut, UserButton, SignInButton, SignUpButton } from '@clerk/nextjs';
 import { $convertFromMarkdownString } from '@lexical/markdown';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import {
-  LogInIcon,
-  TrashIcon,
-  Settings2Icon,
-  FilePlusCornerIcon,
-  PanelLeftCloseIcon,
-  PanelRightCloseIcon,
-  EllipsisVerticalIcon,
-} from 'lucide-react';
+import { LogInIcon, FilePlusCornerIcon, PanelLeftCloseIcon, PanelRightCloseIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import posthog from 'posthog-js';
@@ -21,12 +13,6 @@ import SidebarDocumentLinkButton from '@/components/custom/sidebar-document-link
 import { useDocument } from '@/components/providers/document-provider';
 import { useSidebar } from '@/components/providers/sidebar-provider';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import editorSampleContent from '@/lib/constants/editor-sample-content';
 import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
 import type { DocumentItem } from '@/lib/models/document.model';
@@ -41,15 +27,8 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
   const { user } = useUser();
   const [editor] = useLexicalComposerContext();
   const { closeSidebar, isExpanded, isMobile, toggleSidebar } = useSidebar();
-  const {
-    activeDropdownDocumentId,
-    documentIdBeingRemoved,
-    documentIdInteractedWith,
-    handleDropdownOpenChange,
-    initiateDocumentRemoval,
-    openDocumentDialog,
-    setDocumentIdInteractedWith,
-  } = useDocument();
+  const { documentIdBeingRemoved, documentIdInteractedWith, openDocumentDialog, setDocumentIdInteractedWith } =
+    useDocument();
   const searchParams = useSearchParams();
 
   const activeDocumentId = React.useMemo(() => {
@@ -72,7 +51,7 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
       const target = event.target as HTMLElement;
       const sidebar = document.getElementById('sidebar');
 
-      if (sidebar && !sidebar.contains(target)) {
+      if (sidebar && !sidebar.contains(target) && !documentIdInteractedWith) {
         closeSidebar();
       }
     }
@@ -82,7 +61,7 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [closeSidebar, isExpanded, isMobile]);
+  }, [closeSidebar, isExpanded, isMobile, documentIdInteractedWith]);
 
   return (
     <>
@@ -94,8 +73,8 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
           'border-border bg-background flex h-full flex-col border-r transition-all duration-30',
           !isAuthenticated && 'justify-between',
           isMobile
-            ? cn('fixed top-0 left-0 z-50 h-full w-72', isExpanded ? 'translate-x-0' : '-translate-x-full')
-            : cn(isExpanded ? 'w-72' : 'w-12')
+            ? cn('fixed top-0 left-0 z-50 h-full w-56', isExpanded ? 'translate-x-0' : '-translate-x-full')
+            : cn(isExpanded ? 'w-56' : 'w-12')
         )}
       >
         <div>
@@ -152,58 +131,21 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
                           prefetch={false}
                           href={{ pathname: '/', query: { document: document.id } }}
                           className={cn(
-                            'focus:ring-accent flex-1 overflow-hidden focus:ring-2 focus:ring-offset-2',
-                            documentIdBeingRemoved === document.id && 'cursor-wait',
-                            activeDocumentId === document.id && 'pointer-events-none cursor-default'
+                            'focus:ring-accent flex-1 overflow-hidden focus:ring-2 focus:ring-offset-2 has-[.pending]:cursor-wait',
+                            documentIdBeingRemoved === document.id && 'pointer-events-none cursor-wait',
+                            activeDocumentId === document.id && 'cursor-default'
                           )}
+                          onClick={(e) => {
+                            if (
+                              activeDocumentId === document.id ||
+                              (e.target instanceof HTMLElement && e.target.dataset.slot === 'dropdown-menu-item')
+                            ) {
+                              e.preventDefault();
+                            }
+                          }}
                         >
                           <SidebarDocumentLinkButton document={document} />
                         </Link>
-                        <DropdownMenu
-                          open={activeDropdownDocumentId === document.id}
-                          onOpenChange={(isOpen) => {
-                            handleDropdownOpenChange(isOpen, document.id);
-                          }}
-                        >
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              disabled={documentIdBeingRemoved === document.id}
-                              className={cn(
-                                'rounded-l-none opacity-0',
-                                (activeDropdownDocumentId === document.id ||
-                                  documentIdBeingRemoved === document.id ||
-                                  activeDropdownDocumentId === document.id ||
-                                  documentIdInteractedWith === document.id ||
-                                  activeDocumentId === document.id) &&
-                                  'opacity-100',
-                                (documentIdInteractedWith === document.id ||
-                                  activeDropdownDocumentId === document.id) &&
-                                  'bg-secondary text-secondary-foreground',
-                                activeDocumentId === document.id &&
-                                  'bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground dark:hover:bg-primary/80'
-                              )}
-                            >
-                              <EllipsisVerticalIcon className="size-3.5" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent side="right" sideOffset={16}>
-                            <DropdownMenuItem className="space-x-2" onClick={openDocumentDialog}>
-                              <Settings2Icon />
-                              Edit details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              variant="destructive"
-                              className="space-x-2"
-                              onClick={() => {
-                                void initiateDocumentRemoval(document.id);
-                              }}
-                            >
-                              <TrashIcon />
-                              Remove document
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
                       </li>
                     );
                   })}
@@ -213,7 +155,7 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
           </>
         )}
 
-        <div className={cn('border-border pt-2', isExpanded && 'border-t p-2')}>
+        <div className={cn('border-border pt-2', isExpanded && 'border-t p-3')}>
           <SignedOut>
             <div className="flex flex-col gap-2">
               {isExpanded ? (
@@ -239,7 +181,7 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
               <UserButton
                 appearance={{
                   elements: {
-                    avatarBox: 'h-10 w-10',
+                    avatarBox: 'h-8 w-8',
                   },
                 }}
               />

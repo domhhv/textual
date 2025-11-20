@@ -10,7 +10,6 @@ import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPl
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
-import type { EditorState } from 'lexical';
 import { FileWarningIcon } from 'lucide-react';
 import * as React from 'react';
 
@@ -21,62 +20,39 @@ import { ChatStatusContext } from '@/components/providers/chat-status-provider';
 import { useDocument } from '@/components/providers/document-provider';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
-import $getNextEditorState from '@/lib/utils/get-next-editor-state';
 import '@/lib/styles/editor-check-list.scss';
 import { validateUrl } from '@/lib/utils/url';
 
 export default function Editor() {
   const [isFocused, setIsFocused] = React.useState(false);
   const { status } = React.use(ChatStatusContext);
-  const { activeDocument, setIsEditorEmpty: setIsDraftDocumentEmpty } = useDocument();
+  const { handleEditorChange } = useDocument();
   const floatingAnchorRef = React.useRef<HTMLDivElement>(null);
-  const [isEditorEmpty, setIsEditorEmpty] = React.useState(true);
-
-  React.useEffect(() => {
-    setTimeout(() => {
-      setIsEditorEmpty(!activeDocument);
-    }, 100);
-  }, [activeDocument]);
-
-  const logEditorChange = React.useCallback(
-    (editorState: EditorState) => {
-      editorState.read(() => {
-        const children = JSON.parse($getNextEditorState().nextEditorRootChildren);
-        const jsonString = JSON.stringify(editorState);
-        const isEmpty =
-          !activeDocument && (children.length === 0 || (children.length === 1 && children[0]?.nodeText === ''));
-        setIsEditorEmpty(isEmpty);
-        setIsDraftDocumentEmpty(isEmpty);
-
-        /* eslint-disable-next-line no-console */
-        console.info('Editor State Updated: ', {
-          children,
-          editorState,
-          jsonString,
-        });
-      });
-    },
-    [activeDocument, setIsDraftDocumentEmpty]
-  );
 
   return (
     <div className="editor h-full">
-      <ToolbarPlugin isEditorEmpty={isEditorEmpty} />
+      <ToolbarPlugin />
       <RichTextPlugin
         ErrorBoundary={LexicalErrorBoundary}
         contentEditable={
           <div
             ref={floatingAnchorRef}
-            className="border-border focus-within:border-foreground relative h-[calc(100%-52px)] overflow-y-auto border-t px-[1px] pb-[1px] focus-within:border focus-within:px-0 focus-within:pb-0.5"
+            className="border-border group focus-within:border-foreground relative h-[calc(100%-52px)] overflow-y-auto border-t px-[1px] pb-[1px] focus-within:border focus-within:px-0 focus-within:pb-0.5"
           >
             <ContentEditable
-              className="h-full p-4 outline-none"
+              className="group peer h-full p-4 outline-none"
+              aria-placeholder="Start typing your document..."
               onFocus={() => {
                 setIsFocused(true);
               }}
               onBlur={() => {
                 setIsFocused(false);
               }}
+              placeholder={
+                <div className="text-muted-foreground/80 group-focus-within:text-muted-foreground pointer-events-none absolute top-[18px] left-5 select-none group-focus-within:left-[19px]">
+                  Start typing your document...
+                </div>
+              }
             />
             {isFocused && (status === 'submitted' || status === 'streaming') && (
               <div className="absolute right-0 bottom-0 left-0 p-2">
@@ -99,7 +75,7 @@ export default function Editor() {
       <CheckListPlugin />
       <TabIndentationPlugin />
       <LinkPlugin validateUrl={validateUrl} />
-      <OnChangePlugin onChange={logEditorChange} />
+      <OnChangePlugin onChange={handleEditorChange} />
       <MarkdownShortcutPlugin transformers={ENHANCED_LEXICAL_TRANSFORMERS} />
       {floatingAnchorRef.current && <FloatingLinkEditorPlugin anchor={floatingAnchorRef.current} />}
     </div>
