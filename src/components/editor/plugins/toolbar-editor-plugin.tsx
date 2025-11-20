@@ -85,16 +85,19 @@ import {
 } from '@/lib/utils/editor-helpers';
 import getErrorMessage from '@/lib/utils/get-error-message';
 
-type ToolbarEditorPluginProps = {
-  isEditorEmpty: boolean;
-};
-
-export default function ToolbarEditorPlugin({ isEditorEmpty }: ToolbarEditorPluginProps) {
+export default function ToolbarEditorPlugin() {
   const [editor] = useLexicalComposerContext();
   const { isSignedIn } = useUser();
   const { toolbarState } = React.use(ToolbarStateContext);
   const tooltipGroup = useTooltipGroup();
-  const { activeDocument, closeActiveDocument, openDocumentDialog } = useDocument();
+  const {
+    activeDocument,
+    closeActiveDocument,
+    hasUnsavedEditorChanges,
+    isEditorDirty,
+    isEditorEmpty,
+    openDocumentDialog,
+  } = useDocument();
   const [isFontColorPickerOpen, setIsFontColorPickerOpen] = React.useState(false);
   const [isBackgroundColorPickerOpen, setIsBackgroundColorPickerOpen] = React.useState(false);
   const [isHeadingsDropdownOpen, setIsHeadingsDropdownOpen] = React.useState(false);
@@ -103,20 +106,7 @@ export default function ToolbarEditorPlugin({ isEditorEmpty }: ToolbarEditorPlug
   const [fontColor, setFontColor] = React.useState<string>('#000000');
   const [backgroundColor, setBackgroundColor] = React.useState<string>('#000000');
   const [isSavingActiveDocument, setIsSavingActiveDocument] = React.useState(false);
-  const [hasUnsavedEditorChanges, setHasUnsavedEditorChanges] = React.useState(false);
   useEditorToolbarSync();
-
-  React.useEffect(() => {
-    return editor.registerUpdateListener(({ editorState }) => {
-      if (!activeDocument) {
-        return;
-      }
-
-      const currentEditorState = JSON.stringify(editorState);
-
-      setHasUnsavedEditorChanges(currentEditorState !== activeDocument.content);
-    });
-  }, [editor, activeDocument]);
 
   React.useEffect(() => {
     setFontColor(toolbarState.fontColor || '#000000');
@@ -224,8 +214,8 @@ export default function ToolbarEditorPlugin({ isEditorEmpty }: ToolbarEditorPlug
         toast.success('Document saved successfully');
       } catch (error) {
         Sentry.captureException(error);
-        console.error(`Error ${activeDocument.title || 'Untitled document'} document: `, error);
-        toast.error(`Error ${activeDocument.title || 'Untitled document'} document`, {
+        console.error(`Error ${activeDocument.title || 'Untitled'} document: `, error);
+        toast.error(`Error ${activeDocument.title || 'Untitled'} document`, {
           description: getErrorMessage(error),
         });
       } finally {
@@ -242,17 +232,19 @@ export default function ToolbarEditorPlugin({ isEditorEmpty }: ToolbarEditorPlug
         onMouseLeave={tooltipGroup.onGroupMouseLeave}
         className="scrollbar-hide flex items-center gap-2 overflow-x-auto p-2"
       >
-        {!isEditorEmpty && isSignedIn && (
+        {(isEditorDirty || !isEditorEmpty) && isSignedIn && (
           <>
-            <TooltipButton
-              {...tooltipGroup.getTooltipProps()}
-              variant="outline"
-              tooltip="Close this file"
-              onClick={closeActiveDocument}
-              disabled={isSavingActiveDocument}
-            >
-              <XIcon />
-            </TooltipButton>
+            {!!activeDocument && (
+              <TooltipButton
+                {...tooltipGroup.getTooltipProps()}
+                variant="outline"
+                tooltip="Close this file"
+                onClick={closeActiveDocument}
+                disabled={isSavingActiveDocument}
+              >
+                <XIcon />
+              </TooltipButton>
+            )}
             <TooltipButton
               {...tooltipGroup.getTooltipProps()}
               variant="outline"
@@ -260,7 +252,7 @@ export default function ToolbarEditorPlugin({ isEditorEmpty }: ToolbarEditorPlug
               disabled={isSavingActiveDocument || !hasUnsavedEditorChanges}
               tooltip={
                 activeDocument
-                  ? `Save changes to ${activeDocument.title || 'Untitled document'}`
+                  ? `Save changes to ${activeDocument.title || 'Untitled'}`
                   : 'Save this content as a new document'
               }
             >

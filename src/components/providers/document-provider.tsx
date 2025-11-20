@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import * as Sentry from '@sentry/nextjs';
-import { $getRoot } from 'lexical';
+import { $getRoot, type EditorState } from 'lexical';
 import { LoaderCircleIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import posthog from 'posthog-js';
@@ -22,19 +22,22 @@ import { Textarea } from '@/components/ui/textarea';
 import { createDocument, removeDocument, updateDocument } from '@/lib/actions/document.actions';
 import type { DocumentItem } from '@/lib/models/document.model';
 import getErrorMessage from '@/lib/utils/get-error-message';
+import $getNextEditorState from '@/lib/utils/get-next-editor-state';
 
 type DocumentContextType = {
   activeDocument: DocumentItem | null;
   activeDropdownDocumentId: string | null;
   documentIdBeingRemoved: string | null;
   documentIdInteractedWith: string;
+  hasUnsavedEditorChanges: boolean;
+  isEditorDirty: boolean;
+  isEditorEmpty: boolean;
   closeActiveDocument: () => void;
   handleDropdownOpenChange: (isOpen: boolean, documentId: string) => void;
+  handleEditorChange: (editorState: EditorState) => void;
   initiateDocumentRemoval: (documentId: string) => Promise<void>;
   openDocumentDialog: () => void;
-  setActiveDocument: (document: DocumentItem | null) => void;
   setDocumentIdInteractedWith: (documentId: string) => void;
-  setIsEditorEmpty: (isEmpty: boolean) => void;
 };
 
 const DocumentContext = React.createContext<DocumentContextType | null>(null);
@@ -64,6 +67,13 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
   const [editor] = useLexicalComposerContext();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const form = useForm<z.infer<typeof documentFormSchema>>({
+    resolver: zodResolver(documentFormSchema),
+    defaultValues: {
+      description: '',
+      title: '',
+    },
+  });
 
   const [isSavingDocument, setIsSavingDocument] = React.useState(false);
   const [isDocumentDialogOpen, setIsDocumentDialogOpen] = React.useState(false);
@@ -72,13 +82,13 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
   const [activeDropdownDocumentId, setActiveDropdownDocumentId] = React.useState('');
   const [documentIdInteractedWith, setDocumentIdInteractedWith] = React.useState('');
   const [isEditorEmpty, setIsEditorEmpty] = React.useState(true);
-  const form = useForm<z.infer<typeof documentFormSchema>>({
-    resolver: zodResolver(documentFormSchema),
-    defaultValues: {
-      description: '',
-      title: '',
-    },
-  });
+  const [isEditorDirty, setIsEditorDirty] = React.useState(false);
+  const [hasUnsavedEditorChanges, setHasUnsavedEditorChanges] = React.useState(false);
+
+  React.useEffect(() => {
+    setHasUnsavedEditorChanges(false);
+    setIsEditorEmpty(!activeDocument);
+  }, [activeDocument]);
 
   React.useEffect(() => {
     if (!isAuthenticated) {
@@ -90,6 +100,12 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
     const documentId = searchParams.get('document');
 
     if (!documentId) {
+      setIsEditorDirty(false);
+
+      editor.update(() => {
+        $getRoot().clear();
+      });
+
       return setActiveDocument(null);
     }
 
@@ -107,6 +123,32 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
 
     editor.setEditorState(editor.parseEditorState(document.content || ''));
   }, [searchParams, documents, editor]);
+
+  const handleEditorChange = React.useCallback(
+    (editorState: EditorState) => {
+      editorState.read(() => {
+        const children = JSON.parse($getNextEditorState().nextEditorRootChildren);
+        const currentEditorState = JSON.stringify(editorState);
+        const hasTextContent = !!$getRoot().getTextContent();
+        const isEmpty = !activeDocument && !hasTextContent;
+        setIsEditorEmpty(isEmpty);
+        setHasUnsavedEditorChanges(
+          (hasTextContent || !!activeDocument?.content) && currentEditorState !== activeDocument?.content
+        );
+
+        setIsEditorDirty((prev) => {
+          return prev || hasTextContent;
+        });
+
+        console.info('Editor State Updated: ', {
+          children,
+          currentEditorState,
+          editorState,
+        });
+      });
+    },
+    [activeDocument]
+  );
 
   const openDocumentDialog = React.useCallback(() => {
     setTimeout(() => {
@@ -140,14 +182,17 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
           documentId: documentIdInteractedWith,
         });
       } else {
-        const { id } = await createDocument({
-          ...values,
-          content: isEditorEmpty ? null : JSON.stringify(editor.getEditorState()),
+        editor.read(async () => {
+          const hasTextContent = !!$getRoot().getTextContent();
+          const { id } = await createDocument({
+            ...values,
+            content: hasTextContent ? JSON.stringify(editor.getEditorState()) : null,
+          });
+          posthog.capture('document_created', {
+            documentId: id,
+          });
+          router.replace(`/?document=${id}`);
         });
-        posthog.capture('document_created', {
-          documentId: id,
-        });
-        router.replace(`/?document=${id}`);
       }
 
       toast.success(`Document ${documentIdInteractedWith ? 'updated' : 'created'} successfully`);
@@ -228,6 +273,10 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
         await removeDocument(documentId);
         posthog.capture('document_removed', { documentId });
         toast.success('Document removed successfully');
+
+        if (documentIdInteractedWith === documentId) {
+          setDocumentIdInteractedWith('');
+        }
       } catch (error) {
         Sentry.captureException(error);
         console.error('Error removing document: ', error);
@@ -238,7 +287,7 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
         setDocumentIdBeingRemoved('');
       }
     },
-    [confirm, activeDocument?.id, closeActiveDocument]
+    [confirm, activeDocument?.id, closeActiveDocument, documentIdInteractedWith]
   );
 
   const value = React.useMemo(() => {
@@ -249,15 +298,16 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
       documentIdBeingRemoved,
       documentIdInteractedWith,
       handleDropdownOpenChange,
+      handleEditorChange,
+      hasUnsavedEditorChanges,
       initiateDocumentRemoval,
+      isEditorDirty,
+      isEditorEmpty,
       openDocumentDialog,
-      setActiveDocument,
       setDocumentIdInteractedWith,
-      setIsEditorEmpty,
     };
   }, [
     closeActiveDocument,
-    setIsEditorEmpty,
     documentIdInteractedWith,
     openDocumentDialog,
     handleDropdownOpenChange,
@@ -265,7 +315,10 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
     documentIdBeingRemoved,
     initiateDocumentRemoval,
     activeDocument,
-    setActiveDocument,
+    handleEditorChange,
+    isEditorEmpty,
+    isEditorDirty,
+    hasUnsavedEditorChanges,
   ]);
 
   return (
@@ -287,7 +340,7 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
                     <FormItem>
                       <FormLabel>Title</FormLabel>
                       <FormControl>
-                        <Input placeholder="Untitled document" {...field} />
+                        <Input placeholder="Untitled" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

@@ -68,7 +68,7 @@ const eslintConfig = [
       'no-console': [
         'warn',
         {
-          allow: ['warn', 'error'],
+          allow: ['info', 'warn', 'error'],
         },
       ],
 
