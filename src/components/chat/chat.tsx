@@ -89,7 +89,7 @@ export default function Chat() {
 
   React.useEffect(() => {
     setStatus(status);
-  }, [status, setStatus, messages]);
+  }, [status, setStatus]);
 
   const submitMessage = React.useCallback(
     async (message: PromptInputMessage) => {
@@ -194,7 +194,7 @@ export default function Chat() {
 
                           case 'tool-insertParagraph':
                             return (
-                              <Tool>
+                              <Tool key={`${message.id}-${i}`}>
                                 <ToolHeader type={part.type} state={part.state} title="New paragraph" />
                                 <ToolContent>
                                   <ToolInput input={part.input} />
@@ -208,7 +208,7 @@ export default function Chat() {
 
                           case 'tool-editParagraph':
                             return (
-                              <Tool>
+                              <Tool key={`${message.id}-${i}`}>
                                 <ToolHeader type={part.type} state={part.state} title="Edit paragraph" />
                                 <ToolContent>
                                   <ToolInput input={part.input} />
@@ -222,7 +222,7 @@ export default function Chat() {
 
                           case 'tool-formatText':
                             return (
-                              <Tool>
+                              <Tool key={`${message.id}-${i}`}>
                                 <ToolHeader type={part.type} state={part.state} title="Format text" />
                                 <ToolContent>
                                   <ToolInput input={part.input} />
