@@ -1,20 +1,15 @@
 'use client';
 
 import { useUser, SignedIn, SignedOut, UserButton, SignInButton, SignUpButton } from '@clerk/nextjs';
-import { $convertFromMarkdownString } from '@lexical/markdown';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { LogInIcon, FilePlusCornerIcon, PanelLeftCloseIcon, PanelRightCloseIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import posthog from 'posthog-js';
 import * as React from 'react';
 
 import SidebarDocumentLinkButton from '@/components/custom/sidebar-document-link-button';
 import { useDocument } from '@/components/providers/document-provider';
 import { useSidebar } from '@/components/providers/sidebar-provider';
 import { Button } from '@/components/ui/button';
-import editorSampleContent from '@/lib/constants/editor-sample-content';
-import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
 import type { DocumentItem } from '@/lib/models/document.model';
 import cn from '@/lib/utils/cn';
 
@@ -25,7 +20,6 @@ type SidebarProps = {
 
 export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
   const { user } = useUser();
-  const [editor] = useLexicalComposerContext();
   const { closeSidebar, isExpanded, isMobile, toggleSidebar } = useSidebar();
   const { documentIdBeingRemoved, documentIdInteractedWith, openDocumentDialog, setDocumentIdInteractedWith } =
     useDocument();
@@ -34,13 +28,6 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
   const activeDocumentId = React.useMemo(() => {
     return searchParams.get('document');
   }, [searchParams]);
-
-  function fillSampleContent() {
-    posthog.capture('fill_sample_content');
-    editor.update(() => {
-      $convertFromMarkdownString(editorSampleContent, ENHANCED_LEXICAL_TRANSFORMERS, undefined, true);
-    });
-  }
 
   React.useEffect(() => {
     if (!isMobile || !isExpanded) {
@@ -83,14 +70,16 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
               {isExpanded ? <PanelLeftCloseIcon /> : <PanelRightCloseIcon />}
             </Button>
           </div>
-          {!isAuthenticated && isExpanded && (
-            <div className="p-4 pt-0">
-              <Button size="sm" variant="secondary" className="mt-3 w-full" onClick={fillSampleContent}>
-                Try Sample Content
-              </Button>
-            </div>
-          )}
         </div>
+
+        {!isAuthenticated && isExpanded && (
+          <div className="p-4">
+            <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Welcome to Textual</h3>
+            <p className="text-muted-foreground mt-2 text-sm">
+              Sign in or create an account to start creating and managing your documents.
+            </p>
+          </div>
+        )}
 
         {isAuthenticated && !isExpanded && (
           <div className="mt-2 flex-1 text-center">
@@ -107,9 +96,6 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
               {documents.length === 0 && <p className="text-muted-foreground mt-2 text-sm">Nothing here yet</p>}
               <Button size="lg" className="mt-3 w-full" onClick={openDocumentDialog}>
                 New Document
-              </Button>
-              <Button size="sm" variant="secondary" className="mt-3 w-full" onClick={fillSampleContent}>
-                Try Sample Content
               </Button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 pt-0">

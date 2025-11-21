@@ -9,6 +9,7 @@ import { Ubuntu, Montserrat } from 'next/font/google';
 import './globals.css';
 import type { PropsWithChildren } from 'react';
 
+import DevelopmentBanner from '@/components/custom/development-banner';
 import ApiKeyProvider from '@/components/providers/api-key-provider';
 import ConfirmProvider from '@/components/providers/confirm-provider';
 import Toaster from '@/components/ui/sonner';
@@ -45,7 +46,10 @@ export default function RootLayout({ children }: Readonly<PropsWithChildren>) {
           <ThemeProvider enableSystem attribute="class" defaultTheme="system" disableTransitionOnChange>
             <ConfirmProvider>
               <ApiKeyProvider>
-                <main className="bg-background h-dvh">{children}</main>
+                <main className="bg-background flex h-dvh flex-col">
+                  <DevelopmentBanner />
+                  <div className="flex-1 overflow-hidden">{children}</div>
+                </main>
                 <Analytics />
                 <SpeedInsights />
                 <Toaster richColors closeButton duration={10_000} />
