@@ -1,6 +1,11 @@
 {
   "permissions": {
-    "allow": ["Bash(npm run typecheck:*)", "Bash(npm run eslint:fix:*)", "Bash(npm run prettier:write:*)"],
+    "allow": [
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run eslint:fix:*)",
+      "Bash(npm run prettier:write:*)",
+      "Bash(npm run eslint:check:*)"
+    ],
     "deny": [],
     "ask": []
   }

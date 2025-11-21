@@ -1,6 +1,6 @@
 const editorSampleContent = `## Welcome to Textual 🚀
 
-**A powerful AI-assisted rich text editor** that combines the elegance of _Lexical_ with the intelligence of _GPT-4o_. Start typing, formatting, or chatting with AI to transform your writing experience.
+**A powerful AI-assisted rich text editor** that combines the elegance of _Lexical_ with the intelligence of OpenAI's _GPT_. Start typing, formatting, or chatting with AI to transform your writing experience.
 
 ### Why You'll Love This Editor
 

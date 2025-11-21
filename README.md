@@ -2,7 +2,7 @@
 
 **An AI-powered rich text editor that transforms how you write and edit content.**
 
-Textual combines a professional-grade rich text editor with OpenAI's GPT-4o to provide intelligent writing assistance. Unlike traditional AI writing tools that generate entire documents, this application focuses on precise, contextual editing within your existing content.
+Textual combines a professional-grade rich text editor with OpenAI's GPT models to provide intelligent writing assistance. Unlike traditional AI writing tools that generate entire documents, this application focuses on precise, contextual editing within your existing content.
 
 🌐 **[Try it live at textual.chat](https://textual.chat)**
 
@@ -142,7 +142,7 @@ npm run prettier:write  # Auto-format code
 
 - **Frontend**: Next.js 16 with App Router and Turbopack
 - **Editor**: Lexical 0.35.0 (Facebook's rich text editor framework)
-- **AI Integration**: Vercel AI SDK with OpenAI GPT-4o
+- **AI Integration**: Vercel AI SDK with OpenAI GPT models and tool calling
 - **Styling**: Tailwind CSS v4 with OKLCH color system
 - **UI Components**: Radix UI primitives with shadcn/ui (New York style)
 
