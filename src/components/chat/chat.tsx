@@ -8,14 +8,15 @@ import { User as UserIcon, LoaderPinwheelIcon } from 'lucide-react';
 import * as React from 'react';
 import { useState } from 'react';
 
+import type { PromptInputMessage } from '@/components/ai-elements/prompt-input';
 import ChatEmptyState from '@/components/chat/chat-empty-state';
 import ChatHeader from '@/components/chat/chat-header';
 import ApiKeyDialog from '@/components/custom/api-key-dialog';
+import ChatPromptInput from '@/components/custom/chat-prompt-input';
 import { ApiKeyContext } from '@/components/providers/api-key-provider';
 import { ChatStatusContext } from '@/components/providers/chat-status-provider';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import HelixLoader from '@/components/ui/helix-loader';
-import { Input } from '@/components/ui/input';
 import type { EditorCommandTools } from '@/lib/models/editor-commands';
 import cn from '@/lib/utils/cn';
 import executeEditorCommand from '@/lib/utils/execute-editor-command';
@@ -24,9 +25,9 @@ import $getNextEditorState from '@/lib/utils/get-next-editor-state';
 
 export default function Chat() {
   const [editor] = useLexicalComposerContext();
+  const [model, setModel] = useState('gpt-5');
   const { setStatus } = React.use(ChatStatusContext);
   const { apiKey, hasApiKey, isLoading, setApiKey } = React.use(ApiKeyContext);
-  const [input, setInput] = useState('');
   const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
   const { addToolResult, error, messages, sendMessage, status } = useChat<
     UIMessage<unknown, UIDataTypes, EditorCommandTools>
@@ -85,33 +86,21 @@ export default function Chat() {
   }, [status, setStatus, messages]);
 
   const submitMessage = React.useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-
-      if (!hasApiKey) {
-        setShowApiKeyDialog(true);
-
-        return;
-      }
-
+    async (message: PromptInputMessage) => {
       editor.read(() => {
         const { nextEditorMarkdownContent: editorMarkdownContent, nextEditorRootChildren: editorRootChildren } =
           $getNextEditorState();
 
-        void sendMessage(
-          { text: input },
-          {
-            body: {
-              apiKey,
-              editorMarkdownContent,
-              editorRootChildren,
-            },
-          }
-        );
+        void sendMessage(message, {
+          body: {
+            apiKey,
+            editorMarkdownContent,
+            editorRootChildren,
+          },
+        });
       });
-      setInput('');
     },
-    [input, editor, sendMessage, hasApiKey, apiKey]
+    [editor, sendMessage, apiKey]
   );
 
   if (isLoading) {
@@ -121,9 +110,9 @@ export default function Chat() {
         <div className="flex h-full items-center justify-center">
           <LoaderPinwheelIcon className="animate-spin" />
         </div>
-        <form className="p-4" onSubmit={submitMessage}>
-          <Input disabled placeholder="Add a paragraph or edit existing content..." />
-        </form>
+        <div className="p-4">
+          <ChatPromptInput />
+        </div>
       </div>
     );
   }
@@ -342,19 +331,14 @@ export default function Chat() {
                 </div>
               );
             })}
-            {status === 'submitted' && <HelixLoader className="ml-3 animate-spin" />}
+            {status === 'submitted' && (
+              <HelixLoader size={30} color="var(--foreground)" className="ml-3 animate-spin" />
+            )}
           </div>
 
-          <form className="p-4" onSubmit={submitMessage}>
-            <Input
-              value={input}
-              disabled={status === 'submitted'}
-              placeholder="Add a paragraph or edit existing content..."
-              onChange={(e) => {
-                return setInput(e.currentTarget.value);
-              }}
-            />
-          </form>
+          <div className="p-4">
+            <ChatPromptInput model={model} status={status} onSubmit={submitMessage} onModelChange={setModel} />
+          </div>
         </div>
       </div>
     </>

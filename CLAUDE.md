@@ -19,7 +19,7 @@ npm run prettier:write   # Auto-format code
 
 ## Architecture Overview
 
-**Textual** is a Next.js 16 application that combines a Lexical rich-text editor with OpenAI's GPT-4o for AI-powered content editing. The app uses a split-pane interface with a chat sidebar for AI interactions.
+**Textual** is a Next.js 16 application that combines a Lexical rich-text editor with OpenAI's GPT models for AI-powered content editing. The app uses a split-pane interface with a chat sidebar for AI interactions.
 
 ### Key Technologies
 

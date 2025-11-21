@@ -143,7 +143,7 @@ const eslintConfig = [
         'error',
         {
           propTypeNames: ['bool', 'mutuallyExclusiveTrueProps'],
-          rule: '^(is|as|has)[A-Z]([A-Za-z0-9]?)+',
+          rule: '^(is|as|has|show)[A-Z]([A-Za-z0-9]?)+',
         },
       ],
     },
