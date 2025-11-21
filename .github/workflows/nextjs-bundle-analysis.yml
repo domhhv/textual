@@ -56,13 +56,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bundle
-          path: .next/analyze/__bundle_analysis.json
+          path: .next/analyze
 
       - name: Download base branch bundle stats
         uses: dawidd6/action-download-artifact@v11
         if: success() && github.event.number
         with:
-          workflow: nextjs_bundle_analysis.yml
+          workflow: nextjs-bundle-analysis.yml
           branch: ${{ github.event.pull_request.base.ref }}
           name: bundle
           path: .next/analyze/base
@@ -71,8 +71,14 @@ jobs:
         if: success() && github.event.number
         run: |
           if [ -d ".next/analyze/base" ]; then
+            echo "Base artifact contents:"
             ls -laR .next/analyze/base
-            npx -p nextjs-bundle-analysis compare
+            if [ -f ".next/analyze/base/bundle/__bundle_analysis.json" ]; then
+              npx -p nextjs-bundle-analysis compare
+            else
+              echo "Expected file .next/analyze/base/bundle/__bundle_analysis.json not found inside downloaded artifact."
+              exit 1
+            fi
           else
             echo "No base bundle artifact found; skipping comparison."
           fi

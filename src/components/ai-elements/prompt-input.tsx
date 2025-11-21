@@ -13,20 +13,19 @@ import {
 } from 'lucide-react';
 import { nanoid } from 'nanoid';
 import Image from 'next/image';
-import React, {
-  Children,
-  Fragment,
-  type FormEvent,
-  type ReactNode,
-  type RefObject,
-  type ChangeEvent,
-  type ComponentProps,
-  type HTMLAttributes,
-  type FormEventHandler,
-  type PropsWithChildren,
-  type ChangeEventHandler,
-  type KeyboardEventHandler,
-  type ClipboardEventHandler,
+import * as React from 'react';
+import type {
+  FormEvent,
+  ReactNode,
+  RefObject,
+  ChangeEvent,
+  ComponentProps,
+  HTMLAttributes,
+  FormEventHandler,
+  PropsWithChildren,
+  ChangeEventHandler,
+  KeyboardEventHandler,
+  ClipboardEventHandler,
 } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -337,7 +336,7 @@ export function PromptInputAttachments({ children, className, ...props }: Prompt
   return (
     <div className={cn('flex flex-wrap items-center gap-2 p-3', className)} {...props}>
       {attachments.files.map((file) => {
-        return <Fragment key={file.id}>{children(file)}</Fragment>;
+        return <React.Fragment key={file.id}>{children(file)}</React.Fragment>;
       })}
     </div>
   );
@@ -902,7 +901,7 @@ export function PromptInputTools({ className, ...props }: PromptInputToolsProps)
 export type PromptInputButtonProps = ComponentProps<typeof InputGroupButton>;
 
 export function PromptInputButton({ className, size, variant = 'ghost', ...props }: PromptInputButtonProps) {
-  const newSize = size ?? (Children.count(props.children) > 1 ? 'sm' : 'icon-sm');
+  const newSize = size ?? (React.Children.count(props.children) > 1 ? 'sm' : 'icon-sm');
 
   return <InputGroupButton type="button" size={newSize} variant={variant} className={cn(className)} {...props} />;
 }

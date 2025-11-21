@@ -4,11 +4,18 @@ import { useChat } from '@ai-sdk/react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import type { UIMessage, UIDataTypes } from 'ai';
 import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
-import { User as UserIcon, LoaderPinwheelIcon } from 'lucide-react';
+import { MessageSquare, LoaderPinwheelIcon } from 'lucide-react';
 import * as React from 'react';
-import { useState } from 'react';
 
+import {
+  Conversation,
+  ConversationContent,
+  ConversationEmptyState,
+  ConversationScrollButton,
+} from '@/components/ai-elements/conversation';
+import { Message, MessageContent, MessageResponse } from '@/components/ai-elements/message';
 import type { PromptInputMessage } from '@/components/ai-elements/prompt-input';
+import { Tool, ToolInput, ToolHeader, ToolOutput, ToolContent } from '@/components/ai-elements/tool';
 import ChatEmptyState from '@/components/chat/chat-empty-state';
 import ChatHeader from '@/components/chat/chat-header';
 import ApiKeyDialog from '@/components/custom/api-key-dialog';
@@ -18,17 +25,16 @@ import { ChatStatusContext } from '@/components/providers/chat-status-provider';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import HelixLoader from '@/components/ui/helix-loader';
 import type { EditorCommandTools } from '@/lib/models/editor-commands';
-import cn from '@/lib/utils/cn';
 import executeEditorCommand from '@/lib/utils/execute-editor-command';
 import getErrorMessage from '@/lib/utils/get-error-message';
 import $getNextEditorState from '@/lib/utils/get-next-editor-state';
 
 export default function Chat() {
   const [editor] = useLexicalComposerContext();
-  const [model, setModel] = useState('gpt-5');
+  const [model, setModel] = React.useState('gpt-5');
   const { setStatus } = React.use(ChatStatusContext);
   const { apiKey, hasApiKey, isLoading, setApiKey } = React.use(ApiKeyContext);
-  const [showApiKeyDialog, setShowApiKeyDialog] = useState(false);
+  const [showApiKeyDialog, setShowApiKeyDialog] = React.useState(false);
   const { addToolResult, error, messages, sendMessage, status } = useChat<
     UIMessage<unknown, UIDataTypes, EditorCommandTools>
   >({
@@ -83,7 +89,7 @@ export default function Chat() {
 
   React.useEffect(() => {
     setStatus(status);
-  }, [status, setStatus, messages]);
+  }, [status, setStatus]);
 
   const submitMessage = React.useCallback(
     async (message: PromptInputMessage) => {
@@ -96,11 +102,12 @@ export default function Chat() {
             apiKey,
             editorMarkdownContent,
             editorRootChildren,
+            model,
           },
         });
       });
     },
-    [editor, sendMessage, apiKey]
+    [editor, sendMessage, apiKey, model]
   );
 
   if (isLoading) {
@@ -160,183 +167,86 @@ export default function Chat() {
           }}
         />
 
-        <div className="flex flex-1 flex-col justify-between overflow-y-auto">
-          <div className="flex flex-col gap-4 p-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{getErrorMessage(error)}</AlertDescription>
-              </Alert>
-            )}
-            {messages.map((message) => {
-              return (
-                <div
-                  key={message.id}
-                  className={cn(
-                    'whitespace-pre-wrap',
-                    message.role === 'user' && 'border-foreground flex items-start gap-2 rounded-lg border p-4'
-                  )}
-                >
-                  {message.role === 'user' && (
-                    <div className="border-border bg-foreground rounded-full border p-1">
-                      <UserIcon className="text-background" />
-                    </div>
-                  )}
-                  {message.parts.map((part, i) => {
-                    switch (part.type) {
-                      case 'text':
-                        return (
-                          <div key={`${message.id}-${i}`} className={cn(message.role === 'user' ? 'px-2' : 'py-4')}>
-                            {part.text}
-                          </div>
-                        );
+        <div className="relative flex flex-1 flex-col justify-between overflow-y-auto">
+          {error && (
+            <Alert variant="destructive">
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{getErrorMessage(error)}</AlertDescription>
+            </Alert>
+          )}
+          <Conversation className="relative size-full">
+            <ConversationContent>
+              {messages.length === 0 && (
+                <ConversationEmptyState
+                  title="No messages yet"
+                  icon={<MessageSquare />}
+                  description="Send a message to start the conversation."
+                />
+              )}
+              {messages.map((message) => {
+                return (
+                  <Message key={message.id} from={message.role}>
+                    <MessageContent className="w-full">
+                      {message.parts.map((part, i) => {
+                        switch (part.type) {
+                          case 'text':
+                            return <MessageResponse key={`${message.id}-${i}`}>{part.text}</MessageResponse>;
 
-                      case 'tool-insertParagraph':
-                        switch (part.state) {
-                          case 'input-streaming':
+                          case 'tool-insertParagraph':
                             return (
-                              <div key={`${message.id}-${i}`}>
-                                <b>Generating new paragraph...</b>
-                                <br />
-                                {part.input?.content}
-                              </div>
+                              <Tool key={`${message.id}-${i}`}>
+                                <ToolHeader type={part.type} state={part.state} title="New paragraph" />
+                                <ToolContent>
+                                  <ToolInput input={part.input} />
+                                  <ToolOutput
+                                    errorText={part.errorText}
+                                    output={<div className="p-2">Inserted new paragraph</div>}
+                                  />
+                                </ToolContent>
+                              </Tool>
                             );
 
-                          case 'input-available':
+                          case 'tool-editParagraph':
                             return (
-                              <div key={`${message.id}-${i}`}>
-                                <b>Inserted new paragraph with content:</b>
-                                <br />
-                                {part.input.content}
-                              </div>
+                              <Tool key={`${message.id}-${i}`}>
+                                <ToolHeader type={part.type} state={part.state} title="Edit paragraph" />
+                                <ToolContent>
+                                  <ToolInput input={part.input} />
+                                  <ToolOutput
+                                    errorText={part.errorText}
+                                    output={<div className="p-2">Edited a paragraph</div>}
+                                  />
+                                </ToolContent>
+                              </Tool>
                             );
 
-                          case 'output-error':
-                            return <div key={`${message.id}-${i}`}>Error: {part.errorText}</div>;
-
-                          case 'output-available':
-                          default:
+                          case 'tool-formatText':
                             return (
-                              <div key={`${message.id}-${i}`}>
-                                <b>Inserted new paragraph with content:</b>
-                                <br />
-                                {part.input.content}
-                              </div>
-                            );
-                        }
-
-                      case 'tool-editParagraph':
-                        switch (part.state) {
-                          case 'input-streaming':
-                            return (
-                              <div key={`${message.id}-${i}`}>
-                                <b>
-                                  <i>Editing paragraph...</i>
-                                </b>
-                                <br />
-                                <b>Current text:</b>
-                                <br />
-                                {part.input?.oldText}
-                                <br />
-                                <b>New text:</b>
-                                <br />
-                                {part.input?.newText}
-                              </div>
-                            );
-
-                          case 'input-available':
-                            return (
-                              <div key={`${message.id}-${i}`}>
-                                <b>
-                                  <i>Successfully edited paragraph.</i>
-                                </b>
-                                <br />
-                                <b>Old text:</b> <br />
-                                {part.input.oldText}
-                                <br />
-                                <b>New text:</b>
-                                <br />
-                                {part.input.newText}
-                              </div>
-                            );
-
-                          case 'output-error':
-                            return <div key={`${message.id}-${i}`}>Error: {part.errorText}</div>;
-
-                          case 'output-available':
-                          default:
-                            return (
-                              <div key={`${message.id}-${i}`}>
-                                <b>
-                                  <i>Successfully edited paragraph.</i>
-                                </b>
-                                <br />
-                                <b>Old text:</b> <br />
-                                {part.input.oldText}
-                                <br />
-                                <b>New text:</b>
-                                <br />
-                                {part.input.newText}
-                              </div>
+                              <Tool key={`${message.id}-${i}`}>
+                                <ToolHeader type={part.type} state={part.state} title="Format text" />
+                                <ToolContent>
+                                  <ToolInput input={part.input} />
+                                  <ToolOutput
+                                    errorText={part.errorText}
+                                    output={<div className="p-2">Formatted text</div>}
+                                  />
+                                </ToolContent>
+                              </Tool>
                             );
                         }
+                      })}
+                    </MessageContent>
+                  </Message>
+                );
+              })}
+              {status === 'submitted' && (
+                <HelixLoader size={30} color="var(--foreground)" className="ml-3 animate-spin" />
+              )}
+            </ConversationContent>
+            <ConversationScrollButton />
+          </Conversation>
 
-                      case 'tool-formatText':
-                        switch (part.state) {
-                          case 'input-streaming':
-                            return (
-                              <div key={`${message.id}-${i}`}>
-                                <b>Applying text format...</b>
-                                <br />
-                                {part.input?.format}
-                                <br />
-                                {part.input?.parentNodeKey}
-                                <br />
-                                {part.input?.textPartToSelect}
-                              </div>
-                            );
-
-                          case 'input-available':
-                            return (
-                              <div key={`${message.id}-${i}`}>
-                                <b>Applied text format:</b>
-                                <br />
-                                {part.input.format}
-                                <br />
-                                {part.input.parentNodeKey}
-                                <br />
-                                {part.input.textPartToSelect}
-                              </div>
-                            );
-
-                          case 'output-error':
-                            return <div key={`${message.id}-${i}`}>Error: {part.errorText}</div>;
-
-                          case 'output-available':
-                          default:
-                            return (
-                              <div key={`${message.id}-${i}`}>
-                                <b>Applied text format:</b>
-                                <br />
-                                {part.input.format}
-                                <br />
-                                {part.input.parentNodeKey}
-                                <br />
-                                {part.input.textPartToSelect}
-                              </div>
-                            );
-                        }
-                    }
-                  })}
-                </div>
-              );
-            })}
-            {status === 'submitted' && (
-              <HelixLoader size={30} color="var(--foreground)" className="ml-3 animate-spin" />
-            )}
-          </div>
-
-          <div className="p-4">
+          <div className="bg-background/80 border-border sticky bottom-0 border-t p-4 backdrop-blur-md">
             <ChatPromptInput model={model} status={status} onSubmit={submitMessage} onModelChange={setModel} />
           </div>
         </div>

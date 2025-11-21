@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode, PropsWithChildren } from 'react';
-import React from 'react';
+import * as React from 'react';
 
 import {
   AlertDialog,

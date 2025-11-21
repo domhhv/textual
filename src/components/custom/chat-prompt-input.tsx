@@ -1,7 +1,7 @@
 'use client';
 
 import { CheckIcon } from 'lucide-react';
-import { useRef, useState } from 'react';
+import * as React from 'react';
 
 import {
   ModelSelector,
@@ -109,8 +109,8 @@ function ChatPromptInput({
   placeholder = 'Add a paragraph or edit existing content...',
   status,
 }: ChatPromptInputProps) {
-  const [modelSelectorOpen, setModelSelectorOpen] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [modelSelectorOpen, setModelSelectorOpen] = React.useState(false);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const selectedModelData = models.find((m) => {
     return m.id === model;
