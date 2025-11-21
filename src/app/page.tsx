@@ -25,7 +25,7 @@ export default async function Home() {
     <LexicalComposerProvider>
       <SidebarProvider>
         <DocumentProvider documents={documents} isAuthenticated={isAuthenticated}>
-          <div className="flex h-dvh">
+          <div className="flex h-full">
             <Sidebar documents={documents} isAuthenticated={isAuthenticated} />
             <div className="flex-1 overflow-hidden">
               <ChatStatusProvider>

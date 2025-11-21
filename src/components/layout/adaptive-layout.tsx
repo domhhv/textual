@@ -77,7 +77,7 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
 
   if (!isMobile) {
     return (
-      <ResizablePanelGroup direction="horizontal" className="min-h-screen">
+      <ResizablePanelGroup direction="horizontal" className="min-h-full">
         <ResizablePanel minSize={10} defaultSize={30}>
           {chat}
         </ResizablePanel>

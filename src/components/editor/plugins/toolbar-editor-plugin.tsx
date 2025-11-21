@@ -230,7 +230,7 @@ export default function ToolbarEditorPlugin() {
     <TooltipProvider>
       <div
         onMouseLeave={tooltipGroup.onGroupMouseLeave}
-        className="scrollbar-hide flex items-center gap-2 overflow-x-auto p-2"
+        className="scrollbar-hide bg-background/80 sticky top-0 z-10 flex items-center gap-2 overflow-x-auto p-2 backdrop-blur-md"
       >
         {(isEditorDirty || !isEditorEmpty) && isSignedIn && (
           <>
