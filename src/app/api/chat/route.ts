@@ -11,10 +11,11 @@ type RequestBody = {
   editorMarkdownContent: string;
   editorRootChildren: string;
   messages: UIMessage[];
+  model: string;
 };
 
 export async function POST(req: Request) {
-  const { apiKey, editorMarkdownContent, editorRootChildren, messages }: RequestBody = await req.json();
+  const { apiKey, editorMarkdownContent, editorRootChildren, messages, model }: RequestBody = await req.json();
 
   const openaiApiKey = apiKey || process.env.OPENAI_API_KEY;
 
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     messages: convertToModelMessages(messages),
-    model: openaiProvider('gpt-4o'),
+    model: openaiProvider(model),
     stopWhen: stepCountIs(5),
     system: wrapEditorPrompt(editorMarkdownContent, editorRootChildren),
     tools,
