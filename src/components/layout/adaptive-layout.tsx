@@ -1,7 +1,6 @@
 'use client';
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $setSelection } from 'lexical';
 import { Edit3, Columns2, MessageSquare } from 'lucide-react';
 import posthog from 'posthog-js';
 import * as React from 'react';
@@ -12,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import HelixLoader from '@/components/ui/helix-loader';
 import { ResizablePanel, ResizableHandle, ResizablePanelGroup } from '@/components/ui/resizable';
 import cn from '@/lib/utils/cn';
+import { resetEditorSelection } from '@/lib/utils/editor-helpers';
 
 type AdaptiveLayoutProps = {
   chat: React.ReactNode;
@@ -30,15 +30,9 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
     setIsMounted(true);
   }, []);
 
-  const resetEditorSelection = React.useCallback(() => {
-    lexicalEditor.update(() => {
-      $setSelection(null);
-    });
-  }, [lexicalEditor]);
-
   const cycleViewMode = React.useCallback(
     (direction: 'left' | 'right') => {
-      resetEditorSelection();
+      resetEditorSelection(lexicalEditor);
 
       const currentIndex = VIEW_MODES.indexOf(viewMode as ViewMode);
       let nextIndex: number;
@@ -52,7 +46,7 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
       posthog.capture('swiped_to_view_mode', { mode: VIEW_MODES[nextIndex] });
       setViewMode(VIEW_MODES[nextIndex]);
     },
-    [viewMode, setViewMode, resetEditorSelection]
+    [viewMode, setViewMode, lexicalEditor]
   );
 
   const swipeHandlers = useSwipeable({
@@ -132,7 +126,7 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
               className={cn(viewMode === 'chat' && 'flex-1')}
               variant={viewMode === 'chat' ? 'default' : 'outline'}
               onClick={() => {
-                resetEditorSelection();
+                resetEditorSelection(lexicalEditor);
 
                 posthog.capture('clicked_on_mobile_view_mode', {
                   mode: 'chat',
@@ -148,7 +142,7 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
               className={cn(viewMode === 'split' && 'flex-1')}
               variant={viewMode === 'split' ? 'default' : 'outline'}
               onClick={() => {
-                resetEditorSelection();
+                resetEditorSelection(lexicalEditor);
 
                 posthog.capture('clicked_on_mobile_view_mode', {
                   mode: 'split',
@@ -164,7 +158,7 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
               className={cn(viewMode === 'editor' && 'flex-1')}
               variant={viewMode === 'editor' ? 'default' : 'outline'}
               onClick={() => {
-                resetEditorSelection();
+                resetEditorSelection(lexicalEditor);
 
                 posthog.capture('clicked_on_mobile_view_mode', {
                   mode: 'editor',

@@ -24,18 +24,17 @@ type ColorPickerContextValue = {
   setSaturation: (saturation: number) => void;
 };
 
-const ColorPickerContext = React.createContext<ColorPickerContextValue>({
-  alpha: 100,
-  hue: 0,
-  lightness: 50,
-  mode: 'hex',
-  saturation: 100,
-  setAlpha: () => {},
-  setHue: () => {},
-  setLightness: () => {},
-  setMode: () => {},
-  setSaturation: () => {},
-});
+const ColorPickerContext = React.createContext<ColorPickerContextValue | null>(null);
+
+function useColorPickerContext() {
+  const context = React.useContext(ColorPickerContext);
+
+  if (!context) {
+    throw new Error('ColorPicker components must be used within a ColorPicker');
+  }
+
+  return context;
+}
 
 export type ColorPickerProps = Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> & {
   defaultValue?: Parameters<typeof Color>[0];
@@ -66,6 +65,7 @@ function ColorPicker({ className, defaultValue = '#000000', onChange, value, ...
   const [alpha, setAlpha] = React.useState((selectedColor.alpha() ?? defaultColor.alpha()) * 100);
   const [mode, setMode] = React.useState('hex');
 
+  const onChangeRef = React.useRef(onChange);
   const isInternalUpdate = React.useRef(false);
 
   React.useEffect(() => {
@@ -86,7 +86,6 @@ function ColorPicker({ className, defaultValue = '#000000', onChange, value, ...
     isInternalUpdate.current = false;
   }, [value]);
 
-  const onChangeRef = React.useRef(onChange);
   React.useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
@@ -129,9 +128,11 @@ const ColorPickerSelection = React.memo(function ColorPickerSelection({
 }: ColorPickerSelectionProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = React.useState(false);
-  const [positionX, setPositionX] = React.useState(0);
-  const [positionY, setPositionY] = React.useState(0);
-  const { hue, setLightness, setSaturation } = React.use(ColorPickerContext);
+  const { hue, lightness, saturation, setLightness, setSaturation } = useColorPickerContext();
+
+  const positionX = saturation / 100;
+  const topLightness = positionX < 0.01 ? 100 : 50 + 50 * (1 - positionX);
+  const positionY = topLightness > 0 ? Math.max(0, Math.min(1, 1 - lightness / topLightness)) : 0;
 
   const backgroundGradient = React.useMemo(() => {
     return `linear-gradient(0deg, rgba(0,0,0,1), rgba(0,0,0,0)),
@@ -148,13 +149,11 @@ const ColorPickerSelection = React.memo(function ColorPickerSelection({
       const rect = containerRef.current.getBoundingClientRect();
       const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
       const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
-      setPositionX(x);
-      setPositionY(y);
       setSaturation(x * 100);
-      const topLightness = x < 0.01 ? 100 : 50 + 50 * (1 - x);
-      const lightness = topLightness * (1 - y);
+      const topLightnessForDrag = x < 0.01 ? 100 : 50 + 50 * (1 - x);
+      const newLightness = topLightnessForDrag * (1 - y);
 
-      setLightness(lightness);
+      setLightness(newLightness);
     },
     [isDragging, setSaturation, setLightness]
   );
@@ -204,7 +203,7 @@ const ColorPickerSelection = React.memo(function ColorPickerSelection({
 export type ColorPickerHueProps = ComponentProps<typeof Slider.Root>;
 
 function ColorPickerHue({ className, ...props }: ColorPickerHueProps) {
-  const { hue, setHue } = React.use(ColorPickerContext);
+  const { hue, setHue } = useColorPickerContext();
 
   return (
     <Slider.Root
@@ -228,7 +227,7 @@ function ColorPickerHue({ className, ...props }: ColorPickerHueProps) {
 export type ColorPickerAlphaProps = ComponentProps<typeof Slider.Root>;
 
 function ColorPickerAlpha({ className, ...props }: ColorPickerAlphaProps) {
-  const { alpha, setAlpha } = React.use(ColorPickerContext);
+  const { alpha, setAlpha } = useColorPickerContext();
 
   return (
     <Slider.Root
@@ -259,7 +258,7 @@ function ColorPickerAlpha({ className, ...props }: ColorPickerAlphaProps) {
 export type ColorPickerEyeDropperProps = ComponentProps<typeof Button>;
 
 function ColorPickerEyeDropper({ className, ...props }: ColorPickerEyeDropperProps) {
-  const { setAlpha, setHue, setLightness, setSaturation } = React.use(ColorPickerContext);
+  const { setAlpha, setHue, setLightness, setSaturation } = useColorPickerContext();
 
   const handleEyeDropper = React.useCallback(async () => {
     try {
@@ -298,7 +297,7 @@ export type ColorPickerOutputProps = ComponentProps<typeof SelectTrigger>;
 const formats = ['hex', 'rgb', 'css', 'hsl'];
 
 function ColorPickerOutput({ className, ...props }: ColorPickerOutputProps) {
-  const { mode, setMode } = React.use(ColorPickerContext);
+  const { mode, setMode } = useColorPickerContext();
 
   return (
     <Select value={mode} onValueChange={setMode}>
@@ -337,7 +336,7 @@ function PercentageInput({ className, ...props }: PercentageInputProps) {
 export type ColorPickerFormatProps = HTMLAttributes<HTMLDivElement>;
 
 function ColorPickerFormat({ className, ...props }: ColorPickerFormatProps) {
-  const { alpha, hue, lightness, mode, saturation } = React.use(ColorPickerContext);
+  const { alpha, hue, lightness, mode, saturation } = useColorPickerContext();
   const color = Color.hsl(hue, saturation, lightness, alpha / 100);
 
   if (mode === 'hex') {

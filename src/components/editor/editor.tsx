@@ -27,6 +27,7 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import editorSampleContents, { type SampleContentKey } from '@/lib/constants/editor-sample-contents';
 import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
+import { resetEditorSelection } from '@/lib/utils/editor-helpers';
 import { validateUrl } from '@/lib/utils/url';
 
 export default function Editor() {
@@ -39,8 +40,6 @@ export default function Editor() {
   function fillSampleContent(content: string, key: SampleContentKey) {
     posthog.capture('fill_sample_content', { content_type: key });
 
-    // First, ensure the editor has a proper initial state in history
-    // by adding an empty paragraph if root is empty
     editor.update(
       () => {
         const root = $getRoot();
@@ -55,6 +54,8 @@ export default function Editor() {
     editor.update(() => {
       $convertFromMarkdownString(content, ENHANCED_LEXICAL_TRANSFORMERS, undefined, true);
     });
+
+    resetEditorSelection(editor);
   }
 
   function focusEditor() {
