@@ -17,8 +17,8 @@ import {
 function generatePastelColors(count: number) {
   return Array.from({ length: count }, () => {
     const hue = Math.floor(Math.random() * 360);
-    const saturation = Math.floor(Math.random() * 30) + 60;
-    const lightness = Math.floor(Math.random() * 20) + 70;
+    const saturation = Math.floor(Math.random() * 30) + 30;
+    const lightness = Math.floor(Math.random() * 20) + 30;
 
     return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
   });

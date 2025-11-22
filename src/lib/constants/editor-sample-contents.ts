@@ -253,11 +253,11 @@ For mathematical expressions, we use subscript and superscript notation.
 
 ### Superscript (Exponents)
 
-Einstein's famous equation: E = mc^2
+Einstein's famous equation: E = mc^2^
 
-The area of a circle: A = πr^2
+The area of a circle: A = πr^2^
 
-Quadratic formula components: ax^2 + bx + c = 0
+Quadratic formula components: ax^2^ + bx + c = 0
 
 ### Subscript (Indices)
 
@@ -265,13 +265,13 @@ Chemical formulas: H~2~O (water), CO~2~ (carbon dioxide), C~6~H~12~O~6~ (glucose
 
 Sequences: a~1~, a~2~, a~3~, ..., a~n~
 
-Variables with indices: x~i~ represents the i^th element
+Variables with indices: x~i~ represents the i^th^ element
 
 ### Combining Both
 
-The general term of a sequence: a~n~ = a~1~ × r^n-1
+The general term of a sequence: a~n~ = a~1~ × r^n-1^
 
-Logarithmic notation: log~2~(8) = 3 because 2^3 = 8
+Logarithmic notation: log~2~(8) = 3 because 2^3^ = 8
 
 Chemical equations with states: 2H~2~(g) + O~2~(g) → 2H~2~O(l)`;
 
@@ -479,9 +479,9 @@ LIMIT 10;
 
 ### Scientific Formulas
 
-- Einstein's equation: E = mc^2
-- Pythagorean theorem: a^2 + b^2 = c^2
-- Compound interest: A = P(1 + r)^n
+- Einstein's equation: E = mc^2^
+- Pythagorean theorem: a^2^ + b^2^ = c^2^
+- Compound interest: A = P(1 + r)^n^
 
 ### Chemical Formulas
 
@@ -492,7 +492,7 @@ LIMIT 10;
 
 ### Combined Notation
 
-- pH calculation: pH = -log~10~[H^+]
+- pH calculation: pH = -log~10~[H^+^]
 - Quadratic: x = (-b ± √(b^2 - 4ac)) / 2a
 - Exponential decay: N~t~ = N~0~ × e^-λt
 
@@ -536,7 +536,7 @@ LIMIT 10;
 This document demonstrates how different formatting elements work together to create **clear**, _engaging_, and well-structured content. Whether you're writing:
 
 1. Technical documentation with \`code samples\`
-2. Scientific papers with formulas like E = mc^2 and H~2~O
+2. Scientific papers with formulas like E = mc^2^ and H~2~O
 3. Project plans with task lists and status tables
 4. Creative content with quotes and emphasis
 
@@ -549,7 +549,7 @@ This document demonstrates how different formatting elements work together to cr
 | Bold | \`**text**\` | **text** |
 | Italic | \`_text_\` | _text_ |
 | Code | \`\\\`code\\\`\` | \`code\` |
-| Superscript | \`x^2\` | x^2 |
+| Superscript | \`x^2^\` | x^2^ |
 | Subscript | \`H~2~O\` | H~2~O |
 
 ---

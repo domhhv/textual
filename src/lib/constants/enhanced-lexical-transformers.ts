@@ -1,4 +1,4 @@
-import type { ElementTransformer } from '@lexical/markdown';
+import type { ElementTransformer, TextMatchTransformer, TextFormatTransformer } from '@lexical/markdown';
 import {
   CHECK_LIST,
   $convertToMarkdownString,
@@ -22,8 +22,8 @@ import {
   $createTableCellNode,
   TableCellHeaderStates,
 } from '@lexical/table';
-import type { LexicalNode } from 'lexical';
-import { $isTextNode, $isParagraphNode } from 'lexical';
+import type { TextNode, LexicalNode } from 'lexical';
+import { $isTextNode, $createTextNode, $isParagraphNode } from 'lexical';
 
 const TABLE_ROW_REG_EXP = /^(?:\|)(.+)(?:\|)\s?$/;
 const TABLE_ROW_DIVIDER_REG_EXP = /^(\| ?:?-*:? ?)+\|\s?$/;
@@ -207,6 +207,55 @@ const HR: ElementTransformer = {
   },
 };
 
-const ENHANCED_LEXICAL_TRANSFORMERS = [CHECK_LIST, HR, TABLE, ...BASE_LEXICAL_TRANSFORMERS];
+const SUPERSCRIPT: TextFormatTransformer = {
+  format: ['superscript'],
+  tag: '^',
+  type: 'text-format',
+};
+
+const SUPERSCRIPT_HTML: TextMatchTransformer = {
+  dependencies: [],
+  importRegExp: /<sup>([^<]+)<\/sup>/,
+  regExp: /<sup>([^<]+)<\/sup>/,
+  trigger: '>',
+  type: 'text-match',
+  replace: (node: TextNode, match: RegExpMatchArray) => {
+    const textContent = match[1];
+    const textNode = $createTextNode(textContent);
+    textNode.setFormat('superscript');
+    node.replace(textNode);
+  },
+};
+
+const SUBSCRIPT: TextFormatTransformer = {
+  format: ['subscript'],
+  tag: '~',
+  type: 'text-format',
+};
+
+const SUBSCRIPT_HTML: TextMatchTransformer = {
+  dependencies: [],
+  importRegExp: /<sub>([^<]+)<\/sub>/,
+  regExp: /<sub>([^<]+)<\/sub>/,
+  trigger: '>',
+  type: 'text-match',
+  replace: (node: TextNode, match: RegExpMatchArray) => {
+    const textContent = match[1];
+    const textNode = $createTextNode(textContent);
+    textNode.setFormat('subscript');
+    node.replace(textNode);
+  },
+};
+
+const ENHANCED_LEXICAL_TRANSFORMERS = [
+  CHECK_LIST,
+  HR,
+  TABLE,
+  SUPERSCRIPT,
+  SUBSCRIPT,
+  SUBSCRIPT_HTML,
+  SUPERSCRIPT_HTML,
+  ...BASE_LEXICAL_TRANSFORMERS,
+];
 
 export default ENHANCED_LEXICAL_TRANSFORMERS;

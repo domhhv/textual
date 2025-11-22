@@ -10,11 +10,18 @@ import type { LexicalNode, LexicalEditor, RangeSelection, ElementFormatType } fr
 import {
   $getRoot,
   $isTextNode,
+  $setSelection,
   $getSelection,
   $isRangeSelection,
   $isRootOrShadowRoot,
   $createParagraphNode,
 } from 'lexical';
+
+export function resetEditorSelection(editor: LexicalEditor) {
+  editor.update(() => {
+    $setSelection(null);
+  });
+}
 
 export function updateFontSize(editor: LexicalEditor, newFontSize: string) {
   editor.update(() => {
