@@ -134,17 +134,17 @@ Use numbered lists when sequence matters:
 Nested numbered lists work for complex procedures:
 
 1. Planning phase
-   1. Define project scope
-   2. Identify stakeholders
-   3. Create timeline
+    1. Define project scope
+    2. Identify stakeholders
+    3. Create timeline
 2. Execution phase
-   1. Assign tasks
-   2. Monitor progress
-   3. Address blockers
+    1. Assign tasks
+    2. Monitor progress
+    3. Address blockers
 3. Review phase
-   1. Gather feedback
-   2. Document lessons learned
-   3. Celebrate success
+  1. Gather feedback
+  2. Document lessons learned
+  3. Celebrate success
 
 ## Checklists
 

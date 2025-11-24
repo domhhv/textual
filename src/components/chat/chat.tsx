@@ -31,7 +31,7 @@ import $getNextEditorState from '@/lib/utils/get-next-editor-state';
 
 export default function Chat() {
   const [editor] = useLexicalComposerContext();
-  const [model, setModel] = React.useState('gpt-5');
+  const [model, setModel] = React.useState('gpt-4o');
   const { setStatus } = React.use(ChatStatusContext);
   const { apiKey, hasApiKey, isLoading, setApiKey } = React.use(ApiKeyContext);
   const [showApiKeyDialog, setShowApiKeyDialog] = React.useState(false);

@@ -63,6 +63,12 @@ const INITIAL_EDITOR_CONFIG: InitialConfigType = {
         'p-0 m-0 list-outside list-[upper-roman]!',
         'p-0 m-0 list-outside list-[lower-roman]!',
       ],
+      ulDepth: [
+        'p-0 m-0 list-outside',
+        'p-0 m-0 list-outside list-[circle]!',
+        'p-0 m-0 list-outside list-[square]!',
+        'p-0 m-0 list-outside list-[disc]!',
+      ],
     },
     text: {
       bold: 'font-bold',

@@ -162,7 +162,6 @@ export function MessageBranchContent({ children, ...props }: MessageBranchConten
     return Array.isArray(children) ? children : [children];
   }, [children]);
 
-  // Use useEffect to update branches when they change
   React.useEffect(() => {
     if (branches.length !== childrenArray.length) {
       setBranches(childrenArray);
@@ -189,7 +188,6 @@ export type MessageBranchSelectorProps = HTMLAttributes<HTMLDivElement> & {
 export function MessageBranchSelector(props: MessageBranchSelectorProps) {
   const { totalBranches } = useMessageBranch();
 
-  // Don't render if there's only one branch
   if (totalBranches <= 1) {
     return null;
   }

@@ -82,16 +82,13 @@ export default function useEditorToolbarSync() {
         if (fontColors.size > 1) {
           updateToolbarState('fontColor', '');
         } else {
-          updateToolbarState('fontColor', $getSelectionStyleValueForProperty(selection, 'color', '#000'));
+          updateToolbarState('fontColor', $getSelectionStyleValueForProperty(selection, 'color'));
         }
 
         if (backgroundColors.size > 1) {
           updateToolbarState('backgroundColor', '');
         } else {
-          updateToolbarState(
-            'backgroundColor',
-            $getSelectionStyleValueForProperty(selection, 'background-color', '#fff')
-          );
+          updateToolbarState('backgroundColor', $getSelectionStyleValueForProperty(selection, 'background-color'));
         }
       } else {
         const fontSizeNumeric = fontSize.replace('px', '');
