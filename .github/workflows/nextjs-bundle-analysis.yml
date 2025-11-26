@@ -18,6 +18,9 @@ permissions:
 
 jobs:
   analyze:
+    # Temporarily disabled
+    # TODO: fix bundle analysis JSON not found issue in pull requests and re-enable
+    if: false
     runs-on: ubuntu-latest
     env:
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}

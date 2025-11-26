@@ -26,7 +26,7 @@ export function useSidebar() {
 }
 
 export default function SidebarProvider({ children }: PropsWithChildren) {
-  const [isExpanded, setIsExpanded] = React.useState(true);
+  const [isExpanded, setIsExpanded] = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {

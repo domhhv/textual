@@ -26,25 +26,25 @@ function generatePastelColors(count: number) {
 
 type EditorColorPickerProps = {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, skipHistoryStack: boolean) => void;
 };
 
-export default function EditorColorPicker({ onChange, value }: EditorColorPickerProps) {
+function EditorColorPicker({ onChange, value }: EditorColorPickerProps) {
   const [presetColors, setPresetColors] = React.useState<string[]>(() => {
     return generatePastelColors(19);
   });
 
   const handleChange = React.useCallback(
-    (rgba: [number, number, number, number]) => {
+    (rgba: [number, number, number, number], skipHistoryStack: boolean) => {
       const color = `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${rgba[3]})`;
-      onChange(color);
+      onChange(color, skipHistoryStack);
     },
     [onChange]
   );
 
   const handlePresetClick = React.useCallback(
     (color: string) => {
-      onChange(color);
+      onChange(color, false);
     },
     [onChange]
   );
@@ -94,3 +94,5 @@ export default function EditorColorPicker({ onChange, value }: EditorColorPicker
     </ColorPicker>
   );
 }
+
+export default React.memo(EditorColorPicker);

@@ -9,6 +9,8 @@ import {
   UNDO_COMMAND,
   HISTORIC_TAG,
   $getSelection,
+  $addUpdateTag,
+  $isRangeSelection,
   FORMAT_TEXT_COMMAND,
   type TextFormatType,
   FORMAT_ELEMENT_COMMAND,
@@ -70,8 +72,11 @@ import ELEMENT_FORMAT_OPTIONS from '@/lib/constants/editor-toolbar-alignments';
 import HEADINGS from '@/lib/constants/editor-toolbar-headings';
 import LISTS from '@/lib/constants/editor-toolbar-lists';
 import TEXT_FORMAT_OPTIONS from '@/lib/constants/editor-toolbar-text-formats';
+import useCssVar from '@/lib/hooks/use-css-var';
 import useEditorToolbarSync from '@/lib/hooks/use-editor-toolbar-sync';
+import useOnClickOutside from '@/lib/hooks/use-on-click-outside';
 import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
+import cssColorToRgba from '@/lib/utils/css-color-to-rgba';
 import {
   formatQuote,
   clearEditor,
@@ -103,43 +108,136 @@ export default function ToolbarEditorPlugin() {
   const [isHeadingsDropdownOpen, setIsHeadingsDropdownOpen] = React.useState(false);
   const [isListsDropdownOpen, setIsListsDropdownOpen] = React.useState(false);
   const [isTextFormatDropdownOpen, setIsTextFormatDropdownOpen] = React.useState(false);
-  const [fontColor, setFontColor] = React.useState<string>('#000000');
-  const [backgroundColor, setBackgroundColor] = React.useState<string>('#000000');
+  const [fontColor, setFontColor] = React.useState('');
+  const [backgroundColor, setBackgroundColor] = React.useState('');
   const [isSavingActiveDocument, setIsSavingActiveDocument] = React.useState(false);
   useEditorToolbarSync();
 
+  const foreground = useCssVar('--foreground');
+  const background = useCssVar('--background');
+
+  const currentForegroundColor = React.useMemo(() => {
+    const [r, g, b, a] = cssColorToRgba(foreground);
+
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  }, [foreground]);
+
+  const currentBackgroundColor = React.useMemo(() => {
+    const [r, g, b, a] = cssColorToRgba(background);
+
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  }, [background]);
+
+  const fontColorPickerContainer = React.useRef<HTMLDivElement>(null);
+  const backgroundColorPickerContainer = React.useRef<HTMLDivElement>(null);
+
+  function handleClickOutsideFontColorPicker(event: MouseEvent | TouchEvent | FocusEvent) {
+    if (
+      !isFontColorPickerOpen ||
+      (event.target instanceof HTMLElement && event.target.dataset.slot === 'select-item')
+    ) {
+      return;
+    }
+
+    handleFontColorChange(fontColor, false);
+    setIsFontColorPickerOpen(false);
+  }
+
+  function handleClickOutsideBackgroundColorPicker(event: MouseEvent | TouchEvent | FocusEvent) {
+    if (
+      !isBackgroundColorPickerOpen ||
+      (event.target instanceof HTMLElement && event.target.dataset.slot === 'select-item')
+    ) {
+      return;
+    }
+
+    handleBackgroundColorChange(backgroundColor, false);
+    setIsBackgroundColorPickerOpen(false);
+  }
+
+  useOnClickOutside(backgroundColorPickerContainer, handleClickOutsideBackgroundColorPicker);
+
+  useOnClickOutside(fontColorPickerContainer, handleClickOutsideFontColorPicker);
+
+  const applyStyleText = React.useCallback(
+    (property: 'color' | 'background-color', value: string, skipHistoryStack?: boolean) => {
+      editor.update(() => {
+        const selection = $getSelection();
+
+        if (selection !== null && $isRangeSelection(selection)) {
+          const nodes = selection.getNodes();
+          const fontColors = new Set<string>();
+          const backgroundColors = new Set<string>();
+
+          nodes.forEach((node) => {
+            const element = editor.getElementByKey(node.getKey());
+
+            if (element && element instanceof Element) {
+              const { backgroundColor, color } = window.getComputedStyle(element);
+
+              fontColors.add(color);
+              backgroundColors.add(backgroundColor);
+            }
+          });
+
+          if (property === 'color' && value === currentForegroundColor && fontColors.size > 1 && !skipHistoryStack) {
+            return;
+          }
+
+          if (
+            property === 'background-color' &&
+            value === currentBackgroundColor &&
+            backgroundColors.size > 1 &&
+            !skipHistoryStack
+          ) {
+            return;
+          }
+
+          if (skipHistoryStack) {
+            $addUpdateTag(HISTORIC_TAG);
+          }
+
+          $patchStyleText(selection, { [property]: value });
+        }
+      });
+    },
+    [editor, currentBackgroundColor, currentForegroundColor]
+  );
+
+  function handleFontColorChange(newColor: string, skipHistoryStack: boolean) {
+    if (!skipHistoryStack && newColor === currentForegroundColor) {
+      return;
+    }
+
+    setFontColor(newColor);
+    applyStyleText('color', newColor, skipHistoryStack);
+  }
+
+  function handleBackgroundColorChange(newColor: string, skipHistoryStack: boolean) {
+    if (!skipHistoryStack && newColor === currentBackgroundColor) {
+      return;
+    }
+
+    setBackgroundColor(newColor);
+    applyStyleText('background-color', newColor, skipHistoryStack);
+  }
+
   React.useEffect(() => {
-    setFontColor(toolbarState.fontColor || '#000000');
+    setFontColor(toolbarState.fontColor);
   }, [toolbarState.fontColor]);
 
   React.useEffect(() => {
-    setBackgroundColor(toolbarState.backgroundColor || '#ffffff');
+    setBackgroundColor(toolbarState.backgroundColor);
   }, [toolbarState.backgroundColor]);
-
-  const applyStyleText = React.useCallback(
-    (styles: Record<string, string>) => {
-      editor.update(
-        () => {
-          const selection = $getSelection();
-
-          if (selection !== null) {
-            $patchStyleText(selection, styles);
-          }
-        },
-        { tag: HISTORIC_TAG }
-      );
-    },
-    [editor]
-  );
 
   const applyFontColor = React.useCallback(() => {
     setIsFontColorPickerOpen(false);
-    applyStyleText({ color: fontColor });
+    applyStyleText('color', fontColor, true);
   }, [applyStyleText, fontColor]);
 
   const applyBackgroundColor = React.useCallback(() => {
     setIsBackgroundColorPickerOpen(false);
-    applyStyleText({ 'background-color': backgroundColor });
+    applyStyleText('background-color', backgroundColor, true);
   }, [applyStyleText, backgroundColor]);
 
   const applyFontFamily = React.useCallback(
@@ -509,14 +607,13 @@ export default function ToolbarEditorPlugin() {
         <Popover open={isFontColorPickerOpen} onOpenChange={handleFontColorOpenChange}>
           <PopoverTrigger asChild>
             <Button size="sm" variant="secondary" className="flex-shrink-0 gap-0 space-x-2">
-              <div className="flex items-center gap-2">
-                <BaselineIcon />
-                <div
-                  className="h-4 w-4 rounded"
-                  style={{
-                    backgroundColor: Color(fontColor).alpha(0.8).string(),
-                  }}
-                />
+              <div
+                className="flex size-4 items-center justify-center rounded-md"
+                style={{
+                  color: fontColor ? Color(fontColor).alpha(0.8).string() : 'var(--text-foreground)',
+                }}
+              >
+                <BaselineIcon strokeWidth="2.5px" />
               </div>
               <ChevronDownIcon />
             </Button>
@@ -527,7 +624,7 @@ export default function ToolbarEditorPlugin() {
               event.preventDefault();
             }}
           >
-            <div className="w-[305px] space-y-4">
+            <div ref={fontColorPickerContainer} className="w-[305px] space-y-4">
               <div className="text-muted-foreground flex items-center justify-between">
                 <p className="text-sm">Font color</p>
                 <Button
@@ -540,7 +637,7 @@ export default function ToolbarEditorPlugin() {
                   <XIcon className="size-4" />
                 </Button>
               </div>
-              <EditorColorPicker value={fontColor} onChange={setFontColor} />
+              <EditorColorPicker value={fontColor} onChange={handleFontColorChange} />
               <Button
                 variant="outline"
                 className="w-full"
@@ -561,14 +658,13 @@ export default function ToolbarEditorPlugin() {
         <Popover open={isBackgroundColorPickerOpen} onOpenChange={handleBackgroundColorOpenChange}>
           <PopoverTrigger asChild>
             <Button size="sm" variant="secondary" className="flex-shrink-0 gap-0 space-x-2">
-              <div className="flex items-center gap-2">
-                <PaintBucketIcon />
-                <div
-                  className="h-4 w-4 rounded"
-                  style={{
-                    backgroundColor: Color(backgroundColor).alpha(0.8).string(),
-                  }}
-                />
+              <div
+                className="flex size-4 items-center justify-center rounded-md"
+                style={{
+                  color: backgroundColor ? Color(backgroundColor).alpha(0.8).string() : 'var(--text-foreground)',
+                }}
+              >
+                <PaintBucketIcon strokeWidth="2.5px" />
               </div>
               <ChevronDownIcon />
             </Button>
@@ -579,7 +675,7 @@ export default function ToolbarEditorPlugin() {
               event.preventDefault();
             }}
           >
-            <div className="w-[305px] space-y-4">
+            <div className="w-[305px] space-y-4" ref={backgroundColorPickerContainer}>
               <div className="text-muted-foreground flex items-center justify-between">
                 <p className="text-sm">Background color</p>
                 <Button
@@ -592,7 +688,7 @@ export default function ToolbarEditorPlugin() {
                   <XIcon className="size-4" />
                 </Button>
               </div>
-              <EditorColorPicker value={backgroundColor} onChange={setBackgroundColor} />
+              <EditorColorPicker value={backgroundColor} onChange={handleBackgroundColorChange} />
               <Button
                 variant="outline"
                 className="w-full"

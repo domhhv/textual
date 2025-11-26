@@ -17,11 +17,10 @@ type ColorPickerContextValue = {
   lightness: number;
   mode: string;
   saturation: number;
-  setAlpha: (alpha: number) => void;
-  setHue: (hue: number) => void;
-  setLightness: (lightness: number) => void;
+  changeAlpha: (alpha: number, skipHistoryStack: boolean) => void;
+  changeHue: (hue: number, skipHistoryStack: boolean) => void;
+  changeLightnessSaturation: (lightness: number, saturation: number, skipHistoryStack: boolean) => void;
   setMode: (mode: string) => void;
-  setSaturation: (saturation: number) => void;
 };
 
 const ColorPickerContext = React.createContext<ColorPickerContextValue | null>(null);
@@ -39,10 +38,10 @@ function useColorPickerContext() {
 export type ColorPickerProps = Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> & {
   defaultValue?: Parameters<typeof Color>[0];
   value?: Parameters<typeof Color>[0];
-  onChange?: (value: [number, number, number, number]) => void;
+  onChange?: (value: [number, number, number, number], skipHistoryStack: boolean) => void;
 };
 
-function ColorPicker({ className, defaultValue = '#000000', onChange, value, ...props }: ColorPickerProps) {
+function ColorPicker({ className, defaultValue = 'rgba(0, 0, 0, 1)', onChange, value, ...props }: ColorPickerProps) {
   type ColorInstance = ReturnType<typeof Color>;
   let selectedColor: ColorInstance;
   let defaultColor: ColorInstance;
@@ -56,34 +55,68 @@ function ColorPicker({ className, defaultValue = '#000000', onChange, value, ...
   try {
     defaultColor = Color(defaultValue);
   } catch {
-    defaultColor = Color('#000000');
+    defaultColor = Color('rgba(0, 0, 0, 1)');
   }
 
+  const initialLightness = selectedColor.lightness() ?? defaultColor.lightness() ?? 50;
+  const initialSaturation = selectedColor.saturationl() ?? defaultColor.saturationl() ?? 100;
+
   const [hue, setHue] = React.useState(selectedColor.hue() ?? defaultColor.hue() ?? 0);
-  const [saturation, setSaturation] = React.useState(selectedColor.saturationl() ?? defaultColor.saturationl() ?? 100);
-  const [lightness, setLightness] = React.useState(selectedColor.lightness() ?? defaultColor.lightness() ?? 50);
+  const [lightnessSaturation, setLightnessSaturation] = React.useState(`${initialLightness}-${initialSaturation}`);
   const [alpha, setAlpha] = React.useState((selectedColor.alpha() ?? defaultColor.alpha()) * 100);
+  const [skipHistoryStack, setSkipHistoryStack] = React.useState(false);
   const [mode, setMode] = React.useState('hex');
+
+  const [lightness, saturation] = React.useMemo(() => {
+    const [l, s] = lightnessSaturation.split('-').map(Number);
+
+    return [l, s];
+  }, [lightnessSaturation]);
 
   const onChangeRef = React.useRef(onChange);
   const isInternalUpdate = React.useRef(false);
+  const previousValueRef = React.useRef(value);
+
+  const changeHue = React.useCallback((newHue: number, skipHistoryStack: boolean) => {
+    isInternalUpdate.current = true;
+    setHue(newHue);
+    setSkipHistoryStack(skipHistoryStack);
+  }, []);
+
+  const changeLightnessSaturation = React.useCallback(
+    (newLightness: number, newSaturation: number, skipHistoryStack: boolean) => {
+      isInternalUpdate.current = true;
+      setLightnessSaturation(`${newLightness}-${newSaturation}`);
+      setSkipHistoryStack(skipHistoryStack);
+    },
+    []
+  );
+
+  const changeAlpha = React.useCallback((newAlpha: number, skipHistoryStack: boolean) => {
+    isInternalUpdate.current = true;
+    setAlpha(newAlpha);
+    setSkipHistoryStack(skipHistoryStack);
+  }, []);
 
   React.useEffect(() => {
-    if (value && !isInternalUpdate.current) {
-      try {
-        const color = Color(value);
-        const [h, s, l] = color.hsl().array();
+    if (value && value !== previousValueRef.current) {
+      previousValueRef.current = value;
 
-        setHue(h);
-        setSaturation(s);
-        setLightness(l);
-        setAlpha(color.alpha() * 100);
-      } catch (error) {
-        console.error('Invalid color value provided:', value, error);
+      if (!isInternalUpdate.current) {
+        try {
+          const color = Color(value);
+          const [h, s, l] = color.hsl().array();
+
+          setHue(h);
+          setLightnessSaturation(`${l}-${s}`);
+          setAlpha(color.alpha() * 100);
+        } catch (error) {
+          console.error('Invalid color value provided:', value, error);
+        }
       }
-    }
 
-    isInternalUpdate.current = false;
+      isInternalUpdate.current = false;
+    }
   }, [value]);
 
   React.useEffect(() => {
@@ -92,27 +125,30 @@ function ColorPicker({ className, defaultValue = '#000000', onChange, value, ...
 
   React.useEffect(() => {
     if (onChangeRef.current) {
-      isInternalUpdate.current = true;
       const color = Color.hsl(hue, saturation, lightness).alpha(alpha / 100);
       const rgba = color.rgb().array();
 
-      onChangeRef.current([Math.round(rgba[0]), Math.round(rgba[1]), Math.round(rgba[2]), alpha / 100]);
+      previousValueRef.current = `rgba(${Math.round(rgba[0])}, ${Math.round(rgba[1])}, ${Math.round(rgba[2])}, ${alpha / 100})`;
+
+      onChangeRef.current(
+        [Math.round(rgba[0]), Math.round(rgba[1]), Math.round(rgba[2]), alpha / 100],
+        skipHistoryStack
+      );
     }
-  }, [hue, saturation, lightness, alpha]);
+  }, [hue, lightnessSaturation, alpha, skipHistoryStack, lightness, saturation]);
 
   return (
     <ColorPickerContext.Provider
       value={{
         alpha,
+        changeAlpha,
+        changeHue,
+        changeLightnessSaturation,
         hue,
         lightness,
         mode,
         saturation,
-        setAlpha,
-        setHue,
-        setLightness,
         setMode,
-        setSaturation,
       }}
     >
       <div className={cn('flex size-full flex-col gap-4', className)} {...props} />
@@ -128,7 +164,7 @@ const ColorPickerSelection = React.memo(function ColorPickerSelection({
 }: ColorPickerSelectionProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = React.useState(false);
-  const { hue, lightness, saturation, setLightness, setSaturation } = useColorPickerContext();
+  const { changeLightnessSaturation, hue, lightness, saturation } = useColorPickerContext();
 
   const positionX = saturation / 100;
   const topLightness = positionX < 0.01 ? 100 : 50 + 50 * (1 - positionX);
@@ -149,28 +185,26 @@ const ColorPickerSelection = React.memo(function ColorPickerSelection({
       const rect = containerRef.current.getBoundingClientRect();
       const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
       const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
-      setSaturation(x * 100);
+      const newSaturation = x * 100;
       const topLightnessForDrag = x < 0.01 ? 100 : 50 + 50 * (1 - x);
       const newLightness = topLightnessForDrag * (1 - y);
 
-      setLightness(newLightness);
+      changeLightnessSaturation(newLightness, newSaturation, event.type !== 'pointerup');
+
+      setIsDragging(event.type === 'pointermove');
     },
-    [isDragging, setSaturation, setLightness]
+    [isDragging, changeLightnessSaturation]
   );
 
   React.useEffect(() => {
-    function handlePointerUp() {
-      return setIsDragging(false);
-    }
-
     if (isDragging) {
       window.addEventListener('pointermove', handlePointerMove);
-      window.addEventListener('pointerup', handlePointerUp);
+      window.addEventListener('pointerup', handlePointerMove);
     }
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointerup', handlePointerMove);
     };
   }, [isDragging, handlePointerMove]);
 
@@ -203,7 +237,7 @@ const ColorPickerSelection = React.memo(function ColorPickerSelection({
 export type ColorPickerHueProps = ComponentProps<typeof Slider.Root>;
 
 function ColorPickerHue({ className, ...props }: ColorPickerHueProps) {
-  const { hue, setHue } = useColorPickerContext();
+  const { changeHue, hue } = useColorPickerContext();
 
   return (
     <Slider.Root
@@ -212,7 +246,10 @@ function ColorPickerHue({ className, ...props }: ColorPickerHueProps) {
       value={[hue]}
       className={cn('relative flex h-4 w-full touch-none', className)}
       onValueChange={([hue]) => {
-        return setHue(hue);
+        return changeHue(hue, true);
+      }}
+      onValueCommit={([hue]) => {
+        return changeHue(hue, false);
       }}
       {...props}
     >
@@ -227,7 +264,7 @@ function ColorPickerHue({ className, ...props }: ColorPickerHueProps) {
 export type ColorPickerAlphaProps = ComponentProps<typeof Slider.Root>;
 
 function ColorPickerAlpha({ className, ...props }: ColorPickerAlphaProps) {
-  const { alpha, setAlpha } = useColorPickerContext();
+  const { alpha, changeAlpha } = useColorPickerContext();
 
   return (
     <Slider.Root
@@ -236,7 +273,10 @@ function ColorPickerAlpha({ className, ...props }: ColorPickerAlphaProps) {
       value={[alpha]}
       className={cn('relative flex h-4 w-full touch-none', className)}
       onValueChange={([alpha]) => {
-        return setAlpha(alpha);
+        return changeAlpha(alpha, true);
+      }}
+      onValueCommit={([alpha]) => {
+        return changeAlpha(alpha, false);
       }}
       {...props}
     >
@@ -258,7 +298,7 @@ function ColorPickerAlpha({ className, ...props }: ColorPickerAlphaProps) {
 export type ColorPickerEyeDropperProps = ComponentProps<typeof Button>;
 
 function ColorPickerEyeDropper({ className, ...props }: ColorPickerEyeDropperProps) {
-  const { setAlpha, setHue, setLightness, setSaturation } = useColorPickerContext();
+  const { changeAlpha, changeHue, changeLightnessSaturation } = useColorPickerContext();
 
   const handleEyeDropper = React.useCallback(async () => {
     try {
@@ -268,14 +308,13 @@ function ColorPickerEyeDropper({ className, ...props }: ColorPickerEyeDropperPro
       const color = Color(result.sRGBHex);
       const [h, s, l] = color.hsl().array();
 
-      setHue(h);
-      setSaturation(s);
-      setLightness(l);
-      setAlpha(100);
+      changeHue(h, false);
+      changeLightnessSaturation(l, s, false);
+      changeAlpha(color.alpha() * 100, false);
     } catch (error) {
       console.error('EyeDropper failed:', error);
     }
-  }, [setAlpha, setHue, setLightness, setSaturation]);
+  }, [changeAlpha, changeHue, changeLightnessSaturation]);
 
   return (
     <Button
