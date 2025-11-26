@@ -10,8 +10,7 @@ import {
   ColorPickerAlpha,
   ColorPickerFormat,
   ColorPickerOutput,
-  ColorPickerLightness,
-  ColorPickerSaturation,
+  ColorPickerSelection,
   ColorPickerEyeDropper,
 } from '@/components/ui/color-picker';
 
@@ -45,7 +44,7 @@ function EditorColorPicker({ onChange, value }: EditorColorPickerProps) {
 
   const handlePresetClick = React.useCallback(
     (color: string) => {
-      onChange(color, true);
+      onChange(color, false);
     },
     [onChange]
   );
@@ -80,12 +79,11 @@ function EditorColorPicker({ onChange, value }: EditorColorPickerProps) {
           <RefreshCwIcon className="size-3" />
         </Button>
       </div>
+      <ColorPickerSelection />
       <div className="flex items-center gap-4">
         <ColorPickerEyeDropper />
         <div className="grid w-full gap-1">
           <ColorPickerHue />
-          <ColorPickerSaturation />
-          <ColorPickerLightness />
           <ColorPickerAlpha />
         </div>
       </div>

@@ -72,9 +72,11 @@ import ELEMENT_FORMAT_OPTIONS from '@/lib/constants/editor-toolbar-alignments';
 import HEADINGS from '@/lib/constants/editor-toolbar-headings';
 import LISTS from '@/lib/constants/editor-toolbar-lists';
 import TEXT_FORMAT_OPTIONS from '@/lib/constants/editor-toolbar-text-formats';
+import useCssVar from '@/lib/hooks/use-css-var';
 import useEditorToolbarSync from '@/lib/hooks/use-editor-toolbar-sync';
 import useOnClickOutside from '@/lib/hooks/use-on-click-outside';
 import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
+import cssColorToRgba from '@/lib/utils/css-color-to-rgba';
 import {
   formatQuote,
   clearEditor,
@@ -87,8 +89,6 @@ import {
   formatNumberedList,
 } from '@/lib/utils/editor-helpers';
 import getErrorMessage from '@/lib/utils/get-error-message';
-
-const DEFAULT_COLOR = 'rgba(0, 0, 0, 1)';
 
 export default function ToolbarEditorPlugin() {
   const [editor] = useLexicalComposerContext();
@@ -112,6 +112,21 @@ export default function ToolbarEditorPlugin() {
   const [backgroundColor, setBackgroundColor] = React.useState('');
   const [isSavingActiveDocument, setIsSavingActiveDocument] = React.useState(false);
   useEditorToolbarSync();
+
+  const foreground = useCssVar('--foreground');
+  const background = useCssVar('--background');
+
+  const currentForegroundColor = React.useMemo(() => {
+    const [r, g, b, a] = cssColorToRgba(foreground);
+
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  }, [foreground]);
+
+  const currentBackgroundColor = React.useMemo(() => {
+    const [r, g, b, a] = cssColorToRgba(background);
+
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  }, [background]);
 
   const fontColorPickerContainer = React.useRef<HTMLDivElement>(null);
   const backgroundColorPickerContainer = React.useRef<HTMLDivElement>(null);
@@ -165,20 +180,20 @@ export default function ToolbarEditorPlugin() {
             }
           });
 
-          if (property === 'color' && value === DEFAULT_COLOR && fontColors.size > 1 && !skipHistoryStack) {
+          if (property === 'color' && value === currentForegroundColor && fontColors.size > 1 && !skipHistoryStack) {
             return;
           }
 
           if (
             property === 'background-color' &&
-            value === DEFAULT_COLOR &&
+            value === currentBackgroundColor &&
             backgroundColors.size > 1 &&
             !skipHistoryStack
           ) {
             return;
           }
 
-          if (!skipHistoryStack) {
+          if (skipHistoryStack) {
             $addUpdateTag(HISTORIC_TAG);
           }
 
@@ -186,11 +201,11 @@ export default function ToolbarEditorPlugin() {
         }
       });
     },
-    [editor]
+    [editor, currentBackgroundColor, currentForegroundColor]
   );
 
   function handleFontColorChange(newColor: string, skipHistoryStack: boolean) {
-    if (!skipHistoryStack && newColor === DEFAULT_COLOR) {
+    if (!skipHistoryStack && newColor === currentForegroundColor) {
       return;
     }
 
@@ -199,7 +214,7 @@ export default function ToolbarEditorPlugin() {
   }
 
   function handleBackgroundColorChange(newColor: string, skipHistoryStack: boolean) {
-    if (!skipHistoryStack && newColor === DEFAULT_COLOR) {
+    if (!skipHistoryStack && newColor === currentBackgroundColor) {
       return;
     }
 

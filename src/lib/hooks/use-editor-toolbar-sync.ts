@@ -17,11 +17,27 @@ import * as React from 'react';
 
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
 import { blockTypeToBlockName } from '@/lib/constants/initial-editor-toolbar-state';
+import useCssVar from '@/lib/hooks/use-css-var';
+import cssColorToRgba from '@/lib/utils/css-color-to-rgba';
 import { getSelectedNode, normalizeFormatType, $findTopLevelElement } from '@/lib/utils/editor-helpers';
 
 export default function useEditorToolbarSync() {
   const [editor] = useLexicalComposerContext();
   const { updateToolbarState } = React.use(ToolbarStateContext);
+  const foreground = useCssVar('--foreground');
+  const background = useCssVar('--background');
+
+  const currentForegroundColor = React.useMemo(() => {
+    const [r, g, b, a] = cssColorToRgba(foreground);
+
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  }, [foreground]);
+
+  const currentBackgroundColor = React.useMemo(() => {
+    const [r, g, b, a] = cssColorToRgba(background);
+
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+  }, [background]);
 
   const $updateToolbar = React.useCallback(() => {
     const selection = $getSelection();
@@ -82,13 +98,19 @@ export default function useEditorToolbarSync() {
         if (fontColors.size > 1) {
           updateToolbarState('fontColor', '');
         } else {
-          updateToolbarState('fontColor', $getSelectionStyleValueForProperty(selection, 'color'));
+          updateToolbarState(
+            'fontColor',
+            $getSelectionStyleValueForProperty(selection, 'color', currentForegroundColor)
+          );
         }
 
         if (backgroundColors.size > 1) {
           updateToolbarState('backgroundColor', '');
         } else {
-          updateToolbarState('backgroundColor', $getSelectionStyleValueForProperty(selection, 'background-color'));
+          updateToolbarState(
+            'backgroundColor',
+            $getSelectionStyleValueForProperty(selection, 'background-color', currentBackgroundColor)
+          );
         }
       } else {
         const fontSizeNumeric = fontSize.replace('px', '');
@@ -176,7 +198,7 @@ export default function useEditorToolbarSync() {
       updateToolbarState('isUppercase', selection.hasFormat('uppercase'));
       updateToolbarState('isCapitalize', selection.hasFormat('capitalize'));
     }
-  }, [updateToolbarState, editor]);
+  }, [updateToolbarState, editor, currentForegroundColor, currentBackgroundColor]);
 
   React.useEffect(() => {
     return mergeRegister(

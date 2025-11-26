@@ -84,6 +84,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "color": "^5.0.2",
+    "colorjs.io": "^0.5.2",
     "crypto-js": "^4.2.0",
     "decamelize-keys": "^2.0.1",
     "lexical": "^0.35.0",

@@ -19,8 +19,7 @@ type ColorPickerContextValue = {
   saturation: number;
   changeAlpha: (alpha: number, skipHistoryStack: boolean) => void;
   changeHue: (hue: number, skipHistoryStack: boolean) => void;
-  changeLightness: (lightness: number, skipHistoryStack: boolean) => void;
-  changeSaturation: (saturation: number, skipHistoryStack: boolean) => void;
+  changeLightnessSaturation: (lightness: number, saturation: number, skipHistoryStack: boolean) => void;
   setMode: (mode: string) => void;
 };
 
@@ -59,52 +58,65 @@ function ColorPicker({ className, defaultValue = 'rgba(0, 0, 0, 1)', onChange, v
     defaultColor = Color('rgba(0, 0, 0, 1)');
   }
 
+  const initialLightness = selectedColor.lightness() ?? defaultColor.lightness() ?? 50;
+  const initialSaturation = selectedColor.saturationl() ?? defaultColor.saturationl() ?? 100;
+
   const [hue, setHue] = React.useState(selectedColor.hue() ?? defaultColor.hue() ?? 0);
-  const [saturation, setSaturation] = React.useState(selectedColor.saturationl() ?? defaultColor.saturationl() ?? 100);
-  const [lightness, setLightness] = React.useState(selectedColor.lightness() ?? defaultColor.lightness() ?? 50);
+  const [lightnessSaturation, setLightnessSaturation] = React.useState(`${initialLightness}-${initialSaturation}`);
   const [alpha, setAlpha] = React.useState((selectedColor.alpha() ?? defaultColor.alpha()) * 100);
   const [skipHistoryStack, setSkipHistoryStack] = React.useState(false);
   const [mode, setMode] = React.useState('hex');
 
+  const [lightness, saturation] = React.useMemo(() => {
+    const [l, s] = lightnessSaturation.split('-').map(Number);
+
+    return [l, s];
+  }, [lightnessSaturation]);
+
   const onChangeRef = React.useRef(onChange);
   const isInternalUpdate = React.useRef(false);
+  const previousValueRef = React.useRef(value);
 
   const changeHue = React.useCallback((newHue: number, skipHistoryStack: boolean) => {
+    isInternalUpdate.current = true;
     setHue(newHue);
     setSkipHistoryStack(skipHistoryStack);
   }, []);
 
-  const changeSaturation = React.useCallback((newSaturation: number, skipHistoryStack: boolean) => {
-    setSaturation(newSaturation);
-    setSkipHistoryStack(skipHistoryStack);
-  }, []);
-
-  const changeLightness = React.useCallback((newLightness: number, skipHistoryStack: boolean) => {
-    setLightness(newLightness);
-    setSkipHistoryStack(skipHistoryStack);
-  }, []);
+  const changeLightnessSaturation = React.useCallback(
+    (newLightness: number, newSaturation: number, skipHistoryStack: boolean) => {
+      isInternalUpdate.current = true;
+      setLightnessSaturation(`${newLightness}-${newSaturation}`);
+      setSkipHistoryStack(skipHistoryStack);
+    },
+    []
+  );
 
   const changeAlpha = React.useCallback((newAlpha: number, skipHistoryStack: boolean) => {
+    isInternalUpdate.current = true;
     setAlpha(newAlpha);
     setSkipHistoryStack(skipHistoryStack);
   }, []);
 
   React.useEffect(() => {
-    if (value && !isInternalUpdate.current) {
-      try {
-        const color = Color(value);
-        const [h, s, l] = color.hsl().array();
+    if (value && value !== previousValueRef.current) {
+      previousValueRef.current = value;
 
-        setHue(h);
-        setSaturation(s);
-        setLightness(l);
-        setAlpha(color.alpha() * 100);
-      } catch (error) {
-        console.error('Invalid color value provided:', value, error);
+      if (!isInternalUpdate.current) {
+        try {
+          const color = Color(value);
+          const [h, s, l] = color.hsl().array();
+
+          setHue(h);
+          setLightnessSaturation(`${l}-${s}`);
+          setAlpha(color.alpha() * 100);
+        } catch (error) {
+          console.error('Invalid color value provided:', value, error);
+        }
       }
-    }
 
-    isInternalUpdate.current = false;
+      isInternalUpdate.current = false;
+    }
   }, [value]);
 
   React.useEffect(() => {
@@ -113,16 +125,17 @@ function ColorPicker({ className, defaultValue = 'rgba(0, 0, 0, 1)', onChange, v
 
   React.useEffect(() => {
     if (onChangeRef.current) {
-      isInternalUpdate.current = true;
       const color = Color.hsl(hue, saturation, lightness).alpha(alpha / 100);
       const rgba = color.rgb().array();
+
+      previousValueRef.current = `rgba(${Math.round(rgba[0])}, ${Math.round(rgba[1])}, ${Math.round(rgba[2])}, ${alpha / 100})`;
 
       onChangeRef.current(
         [Math.round(rgba[0]), Math.round(rgba[1]), Math.round(rgba[2]), alpha / 100],
         skipHistoryStack
       );
     }
-  }, [hue, saturation, lightness, alpha, skipHistoryStack]);
+  }, [hue, lightnessSaturation, alpha, skipHistoryStack, lightness, saturation]);
 
   return (
     <ColorPickerContext.Provider
@@ -130,8 +143,7 @@ function ColorPicker({ className, defaultValue = 'rgba(0, 0, 0, 1)', onChange, v
         alpha,
         changeAlpha,
         changeHue,
-        changeLightness,
-        changeSaturation,
+        changeLightnessSaturation,
         hue,
         lightness,
         mode,
@@ -144,77 +156,83 @@ function ColorPicker({ className, defaultValue = 'rgba(0, 0, 0, 1)', onChange, v
   );
 }
 
-export type ColorPickerSaturationProps = ComponentProps<typeof Slider.Root>;
+export type ColorPickerSelectionProps = HTMLAttributes<HTMLDivElement>;
 
-function ColorPickerSaturation({ className, ...props }: ColorPickerSaturationProps) {
-  const { changeSaturation, hue, lightness, saturation } = useColorPickerContext();
+const ColorPickerSelection = React.memo(function ColorPickerSelection({
+  className,
+  ...props
+}: ColorPickerSelectionProps) {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = React.useState(false);
+  const { changeLightnessSaturation, hue, lightness, saturation } = useColorPickerContext();
+
+  const positionX = saturation / 100;
+  const topLightness = positionX < 0.01 ? 100 : 50 + 50 * (1 - positionX);
+  const positionY = topLightness > 0 ? Math.max(0, Math.min(1, 1 - lightness / topLightness)) : 0;
 
   const backgroundGradient = React.useMemo(() => {
-    return `linear-gradient(90deg, hsl(${hue}, 0%, ${lightness}%), hsl(${hue}, 100%, ${lightness}%))`;
-  }, [hue, lightness]);
+    return `linear-gradient(0deg, rgba(0,0,0,1), rgba(0,0,0,0)),
+            linear-gradient(90deg, rgba(255,255,255,1), rgba(255,255,255,0)),
+            hsl(${hue}, 100%, 50%)`;
+  }, [hue]);
+
+  const handlePointerMove = React.useCallback(
+    (event: PointerEvent) => {
+      if (!(isDragging && containerRef.current)) {
+        return;
+      }
+
+      const rect = containerRef.current.getBoundingClientRect();
+      const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+      const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
+      const newSaturation = x * 100;
+      const topLightnessForDrag = x < 0.01 ? 100 : 50 + 50 * (1 - x);
+      const newLightness = topLightnessForDrag * (1 - y);
+
+      changeLightnessSaturation(newLightness, newSaturation, event.type !== 'pointerup');
+
+      setIsDragging(event.type === 'pointermove');
+    },
+    [isDragging, changeLightnessSaturation]
+  );
+
+  React.useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('pointermove', handlePointerMove);
+      window.addEventListener('pointerup', handlePointerMove);
+    }
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerMove);
+    };
+  }, [isDragging, handlePointerMove]);
 
   return (
-    <Slider.Root
-      step={1}
-      max={100}
-      value={[saturation]}
-      className={cn('relative flex h-4 w-full touch-none', className)}
-      onValueChange={([saturation]) => {
-        return changeSaturation(saturation, true);
+    <div
+      ref={containerRef}
+      style={{
+        background: backgroundGradient,
       }}
-      onValueCommit={([saturation]) => {
-        return changeSaturation(saturation, false);
+      className={cn('relative size-full cursor-crosshair rounded', className)}
+      onPointerDown={(e) => {
+        e.preventDefault();
+        setIsDragging(true);
+        handlePointerMove(e.nativeEvent);
       }}
       {...props}
     >
-      <Slider.Track
-        className="relative my-0.5 h-3 w-full grow rounded-full"
+      <div
+        className="pointer-events-none absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white"
         style={{
-          background: backgroundGradient,
+          boxShadow: '0 0 0 1px rgba(0,0,0,0.5)',
+          left: `${positionX * 100}%`,
+          top: `${positionY * 100}%`,
         }}
-      >
-        <Slider.Range className="absolute h-full" />
-      </Slider.Track>
-      <Slider.Thumb className="border-primary/50 bg-background focus-visible:ring-ring block h-4 w-4 rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50" />
-    </Slider.Root>
+      />
+    </div>
   );
-}
-
-export type ColorPickerLightnessProps = ComponentProps<typeof Slider.Root>;
-
-function ColorPickerLightness({ className, ...props }: ColorPickerLightnessProps) {
-  const { changeLightness, hue, lightness, saturation } = useColorPickerContext();
-
-  const backgroundGradient = React.useMemo(() => {
-    return `linear-gradient(90deg, hsl(${hue}, ${saturation}%, 0%), hsl(${hue}, ${saturation}%, 50%), hsl(${hue}, ${saturation}%, 100%))`;
-  }, [hue, saturation]);
-
-  return (
-    <Slider.Root
-      step={1}
-      max={100}
-      value={[lightness]}
-      className={cn('relative flex h-4 w-full touch-none', className)}
-      onValueChange={([lightness]) => {
-        return changeLightness(lightness, true);
-      }}
-      onValueCommit={([lightness]) => {
-        return changeLightness(lightness, false);
-      }}
-      {...props}
-    >
-      <Slider.Track
-        className="relative my-0.5 h-3 w-full grow rounded-full"
-        style={{
-          background: backgroundGradient,
-        }}
-      >
-        <Slider.Range className="absolute h-full" />
-      </Slider.Track>
-      <Slider.Thumb className="border-primary/50 bg-background focus-visible:ring-ring block h-4 w-4 rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50" />
-    </Slider.Root>
-  );
-}
+});
 
 export type ColorPickerHueProps = ComponentProps<typeof Slider.Root>;
 
@@ -280,7 +298,7 @@ function ColorPickerAlpha({ className, ...props }: ColorPickerAlphaProps) {
 export type ColorPickerEyeDropperProps = ComponentProps<typeof Button>;
 
 function ColorPickerEyeDropper({ className, ...props }: ColorPickerEyeDropperProps) {
-  const { changeAlpha, changeHue, changeLightness, changeSaturation } = useColorPickerContext();
+  const { changeAlpha, changeHue, changeLightnessSaturation } = useColorPickerContext();
 
   const handleEyeDropper = React.useCallback(async () => {
     try {
@@ -290,14 +308,13 @@ function ColorPickerEyeDropper({ className, ...props }: ColorPickerEyeDropperPro
       const color = Color(result.sRGBHex);
       const [h, s, l] = color.hsl().array();
 
-      changeAlpha(h, false);
-      changeSaturation(s, false);
-      changeLightness(l, false);
-      changeHue(100, false);
+      changeHue(h, false);
+      changeLightnessSaturation(l, s, false);
+      changeAlpha(color.alpha() * 100, false);
     } catch (error) {
       console.error('EyeDropper failed:', error);
     }
-  }, [changeAlpha, changeSaturation, changeLightness, changeHue]);
+  }, [changeAlpha, changeHue, changeLightnessSaturation]);
 
   return (
     <Button
@@ -460,7 +477,6 @@ export {
   ColorPickerEyeDropper,
   ColorPickerFormat,
   ColorPickerHue,
-  ColorPickerLightness,
   ColorPickerOutput,
-  ColorPickerSaturation,
+  ColorPickerSelection,
 };
