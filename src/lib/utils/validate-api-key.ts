@@ -1,9 +1,12 @@
-export default async function validateApiKeyWithServer(apiKey: string): Promise<{
+export default async function validateApiKeyWithServer(
+  apiKey: string,
+  providerName: string
+): Promise<{
   error?: string;
   isValid: boolean;
 }> {
   try {
-    const response = await fetch('/api/validate-key', {
+    const response = await fetch(`/api/validate-api-key/${providerName}`, {
       body: JSON.stringify({ apiKey }),
       method: 'POST',
       headers: {
@@ -11,10 +14,12 @@ export default async function validateApiKeyWithServer(apiKey: string): Promise<
       },
     });
 
-    return await response.json();
-  } catch (error) {
-    console.error('Server validation error:', error);
+    if (!response.ok) {
+      return { error: `Request failed with status ${response.status}`, isValid: false };
+    }
 
-    return { error: 'Failed to validate API key with server', isValid: false };
+    return await response.json();
+  } catch {
+    return { error: 'Network error', isValid: false };
   }
 }

@@ -34,8 +34,24 @@ export default function Editor() {
   const [editor] = useLexicalComposerContext();
   const [isFocused, setIsFocused] = React.useState(false);
   const { status } = React.use(ChatStatusContext);
-  const { handleEditorChange } = useDocument();
+  const { activeDocument, handleEditorChange } = useDocument();
   const floatingAnchorRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!activeDocument) {
+      return editor.update(() => {
+        $getRoot().clear();
+      });
+    }
+
+    if (typeof activeDocument.content !== 'string') {
+      return editor.update(() => {
+        $getRoot().clear();
+      });
+    }
+
+    editor.setEditorState(editor.parseEditorState(activeDocument.content || ''));
+  }, [editor, activeDocument]);
 
   function fillSampleContent(content: string, key: SampleContentKey) {
     posthog.capture('fill_sample_content', { content_type: key });

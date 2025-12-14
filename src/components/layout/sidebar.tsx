@@ -1,15 +1,16 @@
 'use client';
 
 import { useUser, SignedIn, SignedOut, UserButton, SignInButton, SignUpButton } from '@clerk/nextjs';
-import { LogInIcon, FilePlusCornerIcon, PanelLeftCloseIcon, PanelRightCloseIcon } from 'lucide-react';
+import { KeyIcon, LogInIcon, FilePlusCornerIcon, PanelLeftCloseIcon, PanelRightCloseIcon } from 'lucide-react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSelectedLayoutSegment } from 'next/navigation';
 import * as React from 'react';
 
-import SidebarDocumentLinkButton from '@/components/custom/sidebar-document-link-button';
+import SidebarDocumentLinkButton from '@/components/layout/sidebar-document-link-button';
 import { useDocument } from '@/components/providers/document-provider';
 import { useSidebar } from '@/components/providers/sidebar-provider';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import type { DocumentItem } from '@/lib/models/document.model';
 import cn from '@/lib/utils/cn';
 
@@ -19,15 +20,16 @@ type SidebarProps = {
 };
 
 export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
-  const { user } = useUser();
+  const { isLoaded, user } = useUser();
   const { closeSidebar, isExpanded, isMobile, toggleSidebar } = useSidebar();
-  const { documentIdBeingRemoved, documentIdInteractedWith, openDocumentDialog, setDocumentIdInteractedWith } =
-    useDocument();
-  const searchParams = useSearchParams();
-
-  const activeDocumentId = React.useMemo(() => {
-    return searchParams.get('document');
-  }, [searchParams]);
+  const {
+    activeDocument,
+    documentIdBeingRemoved,
+    documentIdInteractedWith,
+    openDocumentDialog,
+    setDocumentIdInteractedWith,
+  } = useDocument();
+  const segment = useSelectedLayoutSegment();
 
   React.useEffect(() => {
     if (!isMobile || !isExpanded) {
@@ -50,6 +52,10 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
     };
   }, [closeSidebar, isExpanded, isMobile, documentIdInteractedWith]);
 
+  if (['login', 'register'].includes(segment || '')) {
+    return null;
+  }
+
   return (
     <>
       {isMobile && isExpanded && <div className="bg-background/80 fixed inset-0 z-40 backdrop-blur-xs" />}
@@ -57,7 +63,7 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
       <aside
         id="sidebar"
         className={cn(
-          'border-border bg-background flex h-full flex-col border-r transition-all duration-30',
+          'border-border bg-background sticky top-0 flex h-full flex-col border-r transition-all duration-30',
           !isAuthenticated && 'justify-between',
           isMobile
             ? cn('fixed top-0 left-0 z-50 h-full w-56', isExpanded ? 'translate-x-0' : '-translate-x-full')
@@ -94,9 +100,17 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
             <div className="p-4 pb-0">
               <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Your documents</h3>
               {documents.length === 0 && <p className="text-muted-foreground mt-2 text-sm">Nothing here yet</p>}
-              <Button size="lg" className="mt-3 w-full" onClick={openDocumentDialog}>
-                New Document
-              </Button>
+              {segment === null ? (
+                <Button className="mt-3 w-full" onClick={openDocumentDialog}>
+                  New Document
+                </Button>
+              ) : (
+                <Link href="/">
+                  <Button variant="outline" className="mt-3 w-full">
+                    Go to Editor
+                  </Button>
+                </Link>
+              )}
             </div>
             <div className="flex-1 overflow-y-auto p-4 pt-0">
               {documents.length > 0 && (
@@ -105,7 +119,7 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
                     return (
                       <li
                         key={document.id}
-                        className="relative flex items-center rounded-md py-2"
+                        className="relative flex items-center rounded-md"
                         onMouseLeave={() => {
                           setDocumentIdInteractedWith('');
                         }}
@@ -119,14 +133,18 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
                           className={cn(
                             'focus:ring-accent flex-1 overflow-hidden focus:ring-2 focus:ring-offset-2 has-[.pending]:cursor-wait',
                             documentIdBeingRemoved === document.id && 'pointer-events-none cursor-wait',
-                            activeDocumentId === document.id && 'cursor-default'
+                            document.id === activeDocument?.id && 'cursor-default'
                           )}
                           onClick={(e) => {
                             if (
-                              activeDocumentId === document.id ||
+                              document.id === activeDocument?.id ||
                               (e.target instanceof HTMLElement && e.target.dataset.slot === 'dropdown-menu-item')
                             ) {
-                              e.preventDefault();
+                              return e.preventDefault();
+                            }
+
+                            if (isMobile) {
+                              toggleSidebar();
                             }
                           }}
                         >
@@ -142,15 +160,16 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
         )}
 
         <div className={cn('border-border pt-2', isExpanded && 'border-t p-3')}>
+          {!isLoaded && <Spinner className="mx-auto mb-2 size-6" />}
           <SignedOut>
             <div className="flex flex-col gap-2">
               {isExpanded ? (
                 <>
-                  <SignInButton mode="modal">
-                    <Button variant="secondary">Sign In</Button>
+                  <SignInButton>
+                    <Button variant="secondary">Log In</Button>
                   </SignInButton>
-                  <SignUpButton mode="modal">
-                    <Button>Sign Up</Button>
+                  <SignUpButton>
+                    <Button>Register</Button>
                   </SignUpButton>
                 </>
               ) : (
@@ -165,12 +184,18 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
           <SignedIn>
             <div className={cn('flex items-center gap-3', !isExpanded && 'justify-center pb-2')}>
               <UserButton
+                userProfileUrl="/account"
+                userProfileMode="navigation"
                 appearance={{
                   elements: {
                     avatarBox: 'h-8 w-8',
                   },
                 }}
-              />
+              >
+                <UserButton.MenuItems>
+                  <UserButton.Link label="API Keys" href="/account/api-keys" labelIcon={<KeyIcon size={16} />} />
+                </UserButton.MenuItems>
+              </UserButton>
               {isExpanded && user && (
                 <div className="flex-1 overflow-hidden">
                   <p className="text-foreground truncate text-sm font-medium">{user.fullName}</p>

@@ -106,7 +106,7 @@ export default function ConfirmProvider({ children }: PropsWithChildren) {
               onClick={handleConfirm}
               className={
                 (state.variant || 'destructive') === 'destructive'
-                  ? 'hover:bg-destructive/90 bg-red-500 text-white'
+                  ? 'bg-destructive hover:bg-destructive/90 dark:bg-destructive/60 text-white'
                   : ''
               }
             >

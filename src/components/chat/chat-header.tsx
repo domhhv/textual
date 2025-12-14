@@ -1,24 +1,17 @@
-import { SunIcon, MoonIcon, PanelLeft, MonitorIcon, ExternalLinkIcon } from 'lucide-react';
+import { SunIcon, KeyIcon, MoonIcon, PanelLeft, MonitorIcon, ExternalLinkIcon } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import posthog from 'posthog-js';
 import * as React from 'react';
 
-import ApiKeyManagerButton from '@/components/custom/api-key-manager-button';
 import GithubIcon from '@/components/icons/github';
-import { ApiKeyContext } from '@/components/providers/api-key-provider';
 import { useSidebar } from '@/components/providers/sidebar-provider';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
 import cn from '@/lib/utils/cn';
 
-type ChatHeaderProps = {
-  onApiKeyEditClick?: () => void;
-};
-
-export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
-  const { hasApiKey } = React.use(ApiKeyContext);
+export default function ChatHeader() {
   const { isMobile, toggleSidebar } = useSidebar();
   const { setTheme, theme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
@@ -140,7 +133,16 @@ export default function ChatHeader({ onApiKeyEditClick }: ChatHeaderProps) {
         </TooltipProvider>
       </div>
 
-      {hasApiKey && onApiKeyEditClick && <ApiKeyManagerButton onEditClick={onApiKeyEditClick} />}
+      <Link href="/account/api-keys">
+        <Button
+          size="sm"
+          variant="outline"
+          title="Manage API Key"
+          className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
+        >
+          <KeyIcon className="size-3.5" />
+        </Button>
+      </Link>
     </div>
   );
 }
