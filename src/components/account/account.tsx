@@ -76,6 +76,7 @@ function useApiKeyRow(provider: 'openai') {
         return;
       }
 
+      setIsRemoving(true);
       await updateUserApiKey(provider, '');
       setIsEditing(false);
       setServerValidation(null);
@@ -158,7 +159,7 @@ export default function Account({ hasOpenaiApiKey }: AccountProps) {
           <ApiKeyRow
             {...openAiApiKeyRow}
             isSet={hasOpenaiApiKey}
-            providerPlatformUrl="https://platform.openai.com/api-keys"
+            providerPlatformUrl="https://platform.openai.com/account/api-keys"
           />
 
           {openAiApiKeyRow.isEditing && (
