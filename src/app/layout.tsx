@@ -1,15 +1,16 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import { auth } from '@clerk/nextjs/server';
 import { shadcn } from '@clerk/themes';
+import * as Sentry from '@sentry/nextjs';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import camelcaseKeys from 'camelcase-keys';
-import type { Metadata, Viewport } from 'next';
 
 import './globals.css';
+import type { Metadata, Viewport } from 'next';
 import { ThemeProvider } from 'next-themes';
 import { Ubuntu, Montserrat } from 'next/font/google';
-import type { PropsWithChildren } from 'react';
+import * as React from 'react';
 
 import DevelopmentBanner from '@/components/layout/development-banner';
 import Sidebar from '@/components/layout/sidebar';
@@ -18,6 +19,7 @@ import DocumentProvider from '@/components/providers/document-provider';
 import LexicalComposerProvider from '@/components/providers/lexical-composer-provider';
 import SidebarProvider from '@/components/providers/sidebar-provider';
 import Toaster from '@/components/ui/sonner';
+import type { DocumentItem } from '@/lib/models/document.model';
 import createClerkSupabaseSsrClient from '@/lib/utils/create-clerk-supabase-ssr-client';
 
 export const viewport: Viewport = {
@@ -44,13 +46,28 @@ export const metadata: Metadata = {
   title: 'Rich Textual Editor',
 };
 
-export default async function RootLayout({ children }: Readonly<PropsWithChildren>) {
-  const { isAuthenticated } = await auth();
-  const client = await createClerkSupabaseSsrClient();
+const getDocuments = React.cache(async (userId: string) => {
+  let documents: DocumentItem[] = [];
 
-  const { data } = await client.from('documents').select('*').order('created_at', { ascending: false });
+  try {
+    const client = await createClerkSupabaseSsrClient();
+    const { data } = await client
+      .from('documents')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
 
-  const documents = camelcaseKeys(data || []);
+    documents = camelcaseKeys(data || []);
+  } catch (error) {
+    Sentry.captureException(error);
+  }
+
+  return documents;
+});
+
+export default async function RootLayout({ children }: Readonly<React.PropsWithChildren>) {
+  const { isAuthenticated, userId } = await auth();
+  const documents = isAuthenticated ? await getDocuments(userId) : [];
 
   return (
     <html lang="en" suppressHydrationWarning>
