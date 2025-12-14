@@ -51,11 +51,17 @@ const getDocuments = React.cache(async (userId: string) => {
 
   try {
     const client = await createClerkSupabaseSsrClient();
-    const { data } = await client
+    const { data, error } = await client
       .from('documents')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
+
+    if (error) {
+      Sentry.captureException(error);
+
+      return [];
+    }
 
     documents = camelcaseKeys(data || []);
   } catch (error) {
