@@ -1,3 +1,5 @@
+import { auth } from '@clerk/nextjs/server';
+
 export const maxDuration = 30;
 
 type RequestBody = {
@@ -5,6 +7,12 @@ type RequestBody = {
 };
 
 export async function POST(req: Request) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { apiKey }: RequestBody = await req.json();
 
   const response = await fetch('https://api.openai.com/v1/models', {
@@ -18,8 +26,23 @@ export async function POST(req: Request) {
     return Response.json({ isValid: true });
   }
 
+  let errorMessage = 'Invalid API key';
+
+  try {
+    const data = await response.json();
+    errorMessage = data.error?.message || errorMessage;
+  } catch {
+    try {
+      const text = await response.text();
+      errorMessage = text || errorMessage;
+    } catch {
+      errorMessage = response.statusText || errorMessage;
+    }
+  }
+
   return Response.json({
-    error: (await response.json()).error?.message || 'Invalid API key',
+    error: errorMessage,
     isValid: false,
+    status: response.status,
   });
 }

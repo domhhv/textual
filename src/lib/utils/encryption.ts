@@ -4,6 +4,10 @@ const SECRET = process.env.ENCRYPTION_SECRET!;
 const ALGORITHM = 'aes-256-gcm';
 
 export function encryptKey(plaintext: string) {
+  if (plaintext === '') {
+    return '';
+  }
+
   const iv = randomBytes(16);
   const key = Buffer.from(SECRET, 'hex');
   const cipher = createCipheriv(ALGORITHM, key, iv);

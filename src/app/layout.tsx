@@ -1,5 +1,5 @@
 import { ClerkProvider } from '@clerk/nextjs';
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
 import { shadcn } from '@clerk/themes';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -46,9 +46,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: Readonly<PropsWithChildren>) {
   const { isAuthenticated } = await auth();
-  const user = await currentUser();
   const client = await createClerkSupabaseSsrClient();
-  const hasOpenaiApiKey = Boolean(user?.privateMetadata.openaiApiKey);
 
   const { data } = await client.from('documents').select('*').order('created_at', { ascending: false });
 
@@ -66,11 +64,7 @@ export default async function RootLayout({ children }: Readonly<PropsWithChildre
                     <div className="bg-background relative flex h-full flex-col">
                       <DevelopmentBanner />
                       <div className="relative flex h-full flex-1">
-                        <Sidebar
-                          documents={documents}
-                          isAuthenticated={isAuthenticated}
-                          hasOpenaiApiKey={hasOpenaiApiKey}
-                        />
+                        <Sidebar documents={documents} isAuthenticated={isAuthenticated} />
                         <main className="flex-1 overflow-scroll">{children}</main>
                       </div>
                       <Analytics />

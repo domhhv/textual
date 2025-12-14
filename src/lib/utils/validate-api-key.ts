@@ -5,13 +5,21 @@ export default async function validateApiKeyWithServer(
   error?: string;
   isValid: boolean;
 }> {
-  const response = await fetch(`/api/validate-api-key/${providerName}`, {
-    body: JSON.stringify({ apiKey }),
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
+  try {
+    const response = await fetch(`/api/validate-api-key/${providerName}`, {
+      body: JSON.stringify({ apiKey }),
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
-  return await response.json();
+    if (!response.ok) {
+      return { error: `Request failed with status ${response.status}`, isValid: false };
+    }
+
+    return await response.json();
+  } catch {
+    return { error: 'Network error', isValid: false };
+  }
 }

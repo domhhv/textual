@@ -49,41 +49,55 @@ function useApiKeyRow(provider: 'openai') {
   });
 
   async function onSave(apiKey: string) {
-    setIsSaving(true);
-    await updateUserApiKey(provider, apiKey);
-    setIsSaving(false);
-    setIsEditing(false);
-    setServerValidation(null);
-    form.reset();
+    try {
+      setIsSaving(true);
+      await updateUserApiKey(provider, apiKey);
+      setIsEditing(false);
+      setServerValidation(null);
+      form.reset();
+    } catch (error) {
+      setServerValidation({ error: 'Failed to save API key. Please try again.', isValid: false });
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   async function onRemove() {
-    const confirmed = await confirm({
-      cancelText: 'Cancel',
-      confirmText: 'Remove',
-      description: `Are you sure you want to remove your ${providerLabel} API key? This action cannot be undone.`,
-      title: `Remove ${providerLabel} API Key`,
-      variant: 'destructive',
-    });
+    try {
+      const confirmed = await confirm({
+        cancelText: 'Cancel',
+        confirmText: 'Remove',
+        description: `Are you sure you want to remove your ${providerLabel} API key? This action cannot be undone.`,
+        title: `Remove ${providerLabel} API Key`,
+        variant: 'destructive',
+      });
 
-    if (!confirmed) {
-      return;
+      if (!confirmed) {
+        return;
+      }
+
+      await updateUserApiKey(provider, '');
+      setIsEditing(false);
+      setServerValidation(null);
+      form.reset();
+    } catch (error) {
+      setServerValidation({ error: 'Failed to remove API key. Please try again.', isValid: false });
+    } finally {
+      setIsRemoving(false);
     }
-
-    setIsRemoving(true);
-    await updateUserApiKey(provider, '');
-    setIsRemoving(false);
-    setIsEditing(false);
-    setServerValidation(null);
-    form.reset();
   }
 
   async function onTestConnection(value: string = '') {
-    setIsTesting(true);
-    setServerValidation(null);
-    const result = await validateApiKeyWithServer(value, provider);
-    setServerValidation({ ...result, tested: true });
-    setIsTesting(false);
+    try {
+      setIsTesting(true);
+      setServerValidation(null);
+      const result = await validateApiKeyWithServer(value, provider);
+      setServerValidation({ ...result, tested: true });
+    } catch (error) {
+      setServerValidation({ error: 'Connection test failed. Please try again.', isValid: false, tested: true });
+    } finally {
+      setIsTesting(false);
+    }
   }
 
   function onCancel() {
@@ -133,6 +147,7 @@ export default function Account({ hasOpenaiApiKey }: AccountProps) {
       appearance={{
         elements: {
           profileSection: 'border-t-border!',
+          rootBox: 'max-h-full mt-8',
         },
       }}
     >

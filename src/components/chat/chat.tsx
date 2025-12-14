@@ -126,10 +126,12 @@ export default function Chat({ hasOpenaiApiKey, isAuthenticated }: ChatProps) {
 
         <div className="relative flex flex-1 flex-col justify-between overflow-y-auto">
           {error && (
-            <Alert variant="destructive">
-              <AlertTitle>Error</AlertTitle>
-              <AlertDescription>{getErrorMessage(error)}</AlertDescription>
-            </Alert>
+            <div className="m-4">
+              <Alert variant="destructive">
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{getErrorMessage(error)}</AlertDescription>
+              </Alert>
+            </div>
           )}
           <Conversation className="relative size-full">
             <ConversationContent>

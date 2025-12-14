@@ -15,7 +15,7 @@ export async function updateUserApiKey(provider: 'openai', apiKey: string) {
 
   await client.users.updateUserMetadata(userId, {
     privateMetadata: {
-      [`${provider}ApiKey`]: apiKey ?? encryptKey(apiKey),
+      [`${provider}ApiKey`]: encryptKey(apiKey),
     },
   });
 

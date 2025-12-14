@@ -87,7 +87,7 @@ function ApiKeyRow({
           render={({ field }) => {
             return (
               <FormItem>
-                <FormLabel>OpenAI</FormLabel>
+                <FormLabel>{providerLabel}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
@@ -164,10 +164,10 @@ function ApiKeyRow({
               Test Connection
             </Button>
           )}
-          <Button variant="outline" onClick={onCancel}>
+          <Button type="button" variant="outline" onClick={onCancel}>
             Cancel
           </Button>
-          <Button onClick={onRemove} variant="destructive" disabled={isTesting || !isSet}>
+          <Button type="button" onClick={onRemove} variant="destructive" disabled={isTesting || !isSet}>
             {isRemoving && <HelixLoader size={16} color="var(--color-white)" />}
             Remove
           </Button>

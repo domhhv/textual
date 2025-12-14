@@ -16,7 +16,6 @@ import cn from '@/lib/utils/cn';
 
 type SidebarProps = {
   documents: DocumentItem[];
-  hasOpenaiApiKey: boolean;
   isAuthenticated: boolean;
 };
 
