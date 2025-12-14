@@ -1,6 +1,5 @@
 import { TrashIcon, Settings2Icon, LoaderCircleIcon, EllipsisVerticalIcon } from 'lucide-react';
 import { useLinkStatus } from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import * as React from 'react';
 
 import { useDocument } from '@/components/providers/document-provider';
@@ -18,6 +17,7 @@ import cn from '@/lib/utils/cn';
 export default function SidebarDocumentLinkButton({ document }: { document: DocumentItem }) {
   const { pending } = useLinkStatus();
   const {
+    activeDocument,
     activeDropdownDocumentId,
     documentIdBeingRemoved,
     documentIdInteractedWith,
@@ -26,10 +26,6 @@ export default function SidebarDocumentLinkButton({ document }: { document: Docu
     openDocumentDialog,
   } = useDocument();
   const { isMobile } = useSidebar();
-
-  const searchParams = useSearchParams();
-
-  const activeDocumentId = searchParams.get('document');
 
   return (
     <div className="flex">
@@ -40,11 +36,10 @@ export default function SidebarDocumentLinkButton({ document }: { document: Docu
         className={cn(
           'flex-1 justify-start overflow-hidden rounded-r-none pr-9 pl-4! transition-none hover:bg-transparent dark:hover:bg-transparent',
           pending && 'pending',
-          (pending || documentIdBeingRemoved === document.id) && 'justify-between pr-0',
-          (pending || documentIdInteractedWith === document.id || activeDropdownDocumentId === document.id) &&
-            'bg-secondary hover:bg-secondary dark:hover:bg-secondary text-secondary-foreground',
-          activeDocumentId === document.id &&
-            'bg-primary text-primary-foreground hover:bg-primary pointer-events-none cursor-default'
+          (pending || document.id === documentIdBeingRemoved) && 'justify-between pr-0',
+          (pending || document.id === documentIdInteractedWith || document.id === activeDropdownDocumentId) &&
+            'bg-secondary/50 hover:bg-secondary/50 dark:hover:bg-secondary/50 text-secondary-foreground',
+          document.id === activeDocument?.id && 'bg-secondary hover:bg-secondary pointer-events-none cursor-default'
         )}
       >
         <p className="overflow-hidden text-left text-sm font-medium text-ellipsis">{document.title || 'Untitled'}</p>
@@ -68,15 +63,14 @@ export default function SidebarDocumentLinkButton({ document }: { document: Docu
               pending && 'cursor-wait',
               (isMobile ||
                 pending ||
-                activeDropdownDocumentId === document.id ||
-                documentIdBeingRemoved === document.id ||
-                documentIdInteractedWith === document.id ||
-                activeDocumentId === document.id) &&
+                document.id === activeDropdownDocumentId ||
+                document.id === documentIdBeingRemoved ||
+                document.id === documentIdInteractedWith ||
+                document.id === activeDocument?.id) &&
                 'opacity-100',
               (pending || documentIdInteractedWith === document.id || activeDropdownDocumentId === document.id) &&
-                'bg-secondary text-secondary-foreground',
-              activeDocumentId === document.id &&
-                'bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground dark:hover:bg-primary/80'
+                'bg-secondary/50 text-secondary-foreground hover:bg-secondary/75',
+              document.id === activeDocument?.id && 'bg-secondary hover:bg-secondary/75 dark:hover:bg-secondary/75'
             )}
           >
             <EllipsisVerticalIcon className="size-3.5" />

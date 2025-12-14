@@ -102,10 +102,6 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
     if (!documentId) {
       setIsEditorDirty(false);
 
-      editor.update(() => {
-        $getRoot().clear();
-      });
-
       return setActiveDocument(null);
     }
 
@@ -114,15 +110,7 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
     });
 
     setActiveDocument(document || null);
-
-    if (typeof document?.content !== 'string') {
-      return editor.update(() => {
-        $getRoot().clear();
-      });
-    }
-
-    editor.setEditorState(editor.parseEditorState(document.content || ''));
-  }, [searchParams, documents, editor]);
+  }, [searchParams, documents]);
 
   const handleEditorChange = React.useCallback(
     (editorState: EditorState) => {
@@ -236,11 +224,8 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
   const closeActiveDocument = React.useCallback(() => {
     setActiveDocument(null);
     setIsEditorEmpty(true);
-    editor.update(() => {
-      $getRoot().clear();
-    });
     void router.replace('/');
-  }, [router, editor]);
+  }, [router]);
 
   const initiateDocumentRemoval = React.useCallback(
     async (documentId: string) => {

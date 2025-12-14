@@ -1,4 +1,4 @@
-import type { ReactNode, ComponentProps } from 'react';
+import type { Ref, ReactNode, ComponentProps } from 'react';
 import * as React from 'react';
 
 import Shortcut from '@/components/custom/shortcut';
@@ -8,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 type TooltipButtonProps = {
   children: ReactNode;
   delayDuration: number;
+  ref?: Ref<HTMLButtonElement>;
   shortcut?: readonly string[];
   tooltip: string;
   onClick: () => void;
@@ -20,6 +21,7 @@ export default function TooltipButton({
   disabled = false,
   onClick,
   onMouseEnter,
+  ref,
   shortcut,
   size = 'icon',
   tooltip,
@@ -28,7 +30,7 @@ export default function TooltipButton({
   return (
     <Tooltip delayDuration={delayDuration}>
       <TooltipTrigger asChild onMouseEnter={onMouseEnter}>
-        <Button size={size} variant={variant} onClick={onClick} disabled={disabled}>
+        <Button ref={ref} size={size} variant={variant} onClick={onClick} disabled={disabled}>
           {children}
         </Button>
       </TooltipTrigger>

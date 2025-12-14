@@ -84,7 +84,7 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
   }
 
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-full flex-col">
       <div className="relative flex-1 overflow-hidden">
         {viewMode === 'split' ? (
           <ResizablePanelGroup className="h-full" direction="vertical">

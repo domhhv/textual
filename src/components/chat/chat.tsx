@@ -4,7 +4,7 @@ import { useChat } from '@ai-sdk/react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import type { UIMessage, UIDataTypes } from 'ai';
 import { lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
-import { MessageSquare, LoaderPinwheelIcon } from 'lucide-react';
+import { MessageSquare } from 'lucide-react';
 import * as React from 'react';
 
 import {
@@ -18,9 +18,7 @@ import type { PromptInputMessage } from '@/components/ai-elements/prompt-input';
 import { Tool, ToolInput, ToolHeader, ToolOutput, ToolContent } from '@/components/ai-elements/tool';
 import ChatEmptyState from '@/components/chat/chat-empty-state';
 import ChatHeader from '@/components/chat/chat-header';
-import ApiKeyDialog from '@/components/custom/api-key-dialog';
-import ChatPromptInput from '@/components/custom/chat-prompt-input';
-import { ApiKeyContext } from '@/components/providers/api-key-provider';
+import ChatPromptInput from '@/components/chat/chat-prompt-input';
 import { ChatStatusContext } from '@/components/providers/chat-status-provider';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import HelixLoader from '@/components/ui/helix-loader';
@@ -29,12 +27,15 @@ import executeEditorCommand from '@/lib/utils/execute-editor-command';
 import getErrorMessage from '@/lib/utils/get-error-message';
 import $getNextEditorState from '@/lib/utils/get-next-editor-state';
 
-export default function Chat() {
+type ChatProps = {
+  hasOpenaiApiKey: boolean;
+  isAuthenticated: boolean;
+};
+
+export default function Chat({ hasOpenaiApiKey, isAuthenticated }: ChatProps) {
   const [editor] = useLexicalComposerContext();
   const [model, setModel] = React.useState('gpt-4o');
   const { setStatus } = React.use(ChatStatusContext);
-  const { apiKey, hasApiKey, isLoading, setApiKey } = React.use(ApiKeyContext);
-  const [showApiKeyDialog, setShowApiKeyDialog] = React.useState(false);
   const { addToolResult, error, messages, sendMessage, status } = useChat<
     UIMessage<unknown, UIDataTypes, EditorCommandTools>
   >({
@@ -99,7 +100,6 @@ export default function Chat() {
 
         void sendMessage(message, {
           body: {
-            apiKey,
             editorMarkdownContent,
             editorRootChildren,
             model,
@@ -107,65 +107,22 @@ export default function Chat() {
         });
       });
     },
-    [editor, sendMessage, apiKey, model]
+    [editor, sendMessage, model]
   );
 
-  if (isLoading) {
+  if (!hasOpenaiApiKey) {
     return (
       <div className="flex h-full flex-col">
         <ChatHeader />
-        <div className="flex h-full items-center justify-center">
-          <LoaderPinwheelIcon className="animate-spin" />
-        </div>
-        <div className="p-4">
-          <ChatPromptInput />
-        </div>
-      </div>
-    );
-  }
-
-  if (!hasApiKey) {
-    return (
-      <div className="flex h-full flex-col">
-        <ChatHeader
-          onApiKeyEditClick={() => {
-            return setShowApiKeyDialog(true);
-          }}
-        />
-        <ChatEmptyState
-          onSetApiKey={() => {
-            return setShowApiKeyDialog(true);
-          }}
-        />
-        <ApiKeyDialog
-          isOpen={showApiKeyDialog}
-          onOpenChange={setShowApiKeyDialog}
-          onApiKeySet={(key) => {
-            setApiKey(key);
-            setShowApiKeyDialog(false);
-          }}
-        />
+        <ChatEmptyState isAuthenticated={isAuthenticated} />
       </div>
     );
   }
 
   return (
     <>
-      <ApiKeyDialog
-        isOpen={showApiKeyDialog}
-        onOpenChange={setShowApiKeyDialog}
-        onApiKeySet={(key) => {
-          setApiKey(key);
-          setShowApiKeyDialog(false);
-        }}
-      />
-
       <div className="flex h-full flex-col overflow-x-auto">
-        <ChatHeader
-          onApiKeyEditClick={() => {
-            return setShowApiKeyDialog(true);
-          }}
-        />
+        <ChatHeader />
 
         <div className="relative flex flex-1 flex-col justify-between overflow-y-auto">
           {error && (
