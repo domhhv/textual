@@ -9,11 +9,15 @@ const withBundleAnalyzer = analyzer({
 });
 
 export default withSentryConfig(withBundleAnalyzer(nextConfig), {
-  automaticVercelMonitors: true,
-  disableLogger: true,
   org: 'doms-org',
   project: 'textual',
   silent: !process.env.CI,
   tunnelRoute: '/monitoring',
   widenClientFileUpload: true,
+  webpack: {
+    automaticVercelMonitors: true,
+    treeshake: {
+      removeDebugLogging: true,
+    },
+  },
 });
