@@ -77,6 +77,7 @@ import LISTS from '@/lib/constants/editor-toolbar-lists';
 import TEXT_FORMAT_OPTIONS from '@/lib/constants/editor-toolbar-text-formats';
 import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
 import useCssVar from '@/lib/hooks/use-css-var';
+import useDragToScroll from '@/lib/hooks/use-drag-to-scroll';
 import useEditorToolbarSync from '@/lib/hooks/use-editor-toolbar-sync';
 import useOnClickOutside from '@/lib/hooks/use-on-click-outside';
 import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
@@ -99,6 +100,7 @@ export default function ToolbarEditorPlugin() {
   const { isSignedIn } = useUser();
   const { toolbarState } = React.use(ToolbarStateContext);
   const tooltipGroup = useTooltipGroup();
+  const toolbarRef = useDragToScroll<HTMLDivElement>();
   const {
     activeDocument,
     closeActiveDocument,
@@ -328,7 +330,7 @@ export default function ToolbarEditorPlugin() {
     }
   }, [activeDocument, editor, openDocumentDialog]);
 
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const markdownFileInputRef = React.useRef<HTMLInputElement>(null);
 
   const downloadEditorMarkdown = React.useCallback(() => {
     editor.read(() => {
@@ -380,6 +382,7 @@ export default function ToolbarEditorPlugin() {
   return (
     <TooltipProvider>
       <div
+        ref={toolbarRef}
         onMouseLeave={tooltipGroup.onGroupMouseLeave}
         className="scrollbar-hide bg-background/80 sticky top-0 z-10 flex items-center gap-2 overflow-x-auto p-2 backdrop-blur-md"
       >
@@ -885,9 +888,9 @@ export default function ToolbarEditorPlugin() {
 
         <input
           type="file"
-          ref={fileInputRef}
           className="hidden"
           onChange={importMarkdown}
+          ref={markdownFileInputRef}
           accept=".md,.markdown,text/markdown"
         />
 
@@ -897,7 +900,7 @@ export default function ToolbarEditorPlugin() {
             variant="ghost"
             tooltip="Import Markdown"
             onClick={() => {
-              fileInputRef.current?.click();
+              markdownFileInputRef.current?.click();
             }}
           >
             <UploadIcon />
