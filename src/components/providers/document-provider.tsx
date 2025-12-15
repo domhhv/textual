@@ -132,6 +132,7 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
           children,
           currentEditorState,
           editorState,
+          textContent: $getRoot().getTextContent(),
         });
       });
     },
