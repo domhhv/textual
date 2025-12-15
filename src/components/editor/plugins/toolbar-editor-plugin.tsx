@@ -1,5 +1,6 @@
 import { useUser } from '@clerk/nextjs';
 import { TOGGLE_LINK_COMMAND } from '@lexical/link';
+import { $convertToMarkdownString, $convertFromMarkdownString } from '@lexical/markdown';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $patchStyleText } from '@lexical/selection';
 import * as Sentry from '@sentry/nextjs';
@@ -30,8 +31,10 @@ import {
   IndentIcon,
   ItalicIcon,
   EraserIcon,
+  UploadIcon,
   HeadingIcon,
   BaselineIcon,
+  DownloadIcon,
   UnderlineIcon,
   ChevronDownIcon,
   TextInitialIcon,
@@ -72,6 +75,7 @@ import ELEMENT_FORMAT_OPTIONS from '@/lib/constants/editor-toolbar-alignments';
 import HEADINGS from '@/lib/constants/editor-toolbar-headings';
 import LISTS from '@/lib/constants/editor-toolbar-lists';
 import TEXT_FORMAT_OPTIONS from '@/lib/constants/editor-toolbar-text-formats';
+import ENHANCED_LEXICAL_TRANSFORMERS from '@/lib/constants/enhanced-lexical-transformers';
 import useCssVar from '@/lib/hooks/use-css-var';
 import useEditorToolbarSync from '@/lib/hooks/use-editor-toolbar-sync';
 import useOnClickOutside from '@/lib/hooks/use-on-click-outside';
@@ -323,6 +327,55 @@ export default function ToolbarEditorPlugin() {
       openDocumentDialog();
     }
   }, [activeDocument, editor, openDocumentDialog]);
+
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const downloadEditorMarkdown = React.useCallback(() => {
+    editor.read(() => {
+      const markdown = $convertToMarkdownString(ENHANCED_LEXICAL_TRANSFORMERS, undefined, true);
+      const blob = new Blob([markdown], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${activeDocument?.title || 'Untitled'}.md`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success('Markdown file exported successfully');
+    });
+  }, [editor, activeDocument?.title]);
+
+  const importMarkdown = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+
+      if (!file) {
+        return;
+      }
+
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+
+        editor.update(() => {
+          $convertFromMarkdownString(content, ENHANCED_LEXICAL_TRANSFORMERS, undefined, true);
+        });
+
+        toast.success(`Imported "${file.name}" successfully`);
+      };
+
+      reader.onerror = () => {
+        toast.error('Failed to read the file');
+      };
+
+      reader.readAsText(file);
+
+      event.target.value = '';
+    },
+    [editor]
+  );
 
   return (
     <TooltipProvider>
@@ -827,6 +880,37 @@ export default function ToolbarEditorPlugin() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <Separator orientation="vertical" className="h-6! flex-shrink-0 self-center justify-self-center" />
+
+        <input
+          type="file"
+          ref={fileInputRef}
+          className="hidden"
+          onChange={importMarkdown}
+          accept=".md,.markdown,text/markdown"
+        />
+
+        <ButtonGroup>
+          <TooltipButton
+            {...tooltipGroup.getTooltipProps()}
+            variant="ghost"
+            tooltip="Import Markdown"
+            onClick={() => {
+              fileInputRef.current?.click();
+            }}
+          >
+            <UploadIcon />
+          </TooltipButton>
+          <TooltipButton
+            {...tooltipGroup.getTooltipProps()}
+            variant="ghost"
+            tooltip="Export as Markdown"
+            onClick={downloadEditorMarkdown}
+          >
+            <DownloadIcon />
+          </TooltipButton>
+        </ButtonGroup>
       </div>
     </TooltipProvider>
   );
