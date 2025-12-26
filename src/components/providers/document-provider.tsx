@@ -171,7 +171,7 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
           documentId: documentIdInteractedWith,
         });
       } else {
-        editor.read(async () => {
+        await editor.read(async () => {
           const hasTextContent = !!$getRoot().getTextContent();
           const { id } = await createDocument({
             ...values,
