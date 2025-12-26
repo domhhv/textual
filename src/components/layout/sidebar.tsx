@@ -12,6 +12,7 @@ import { useSidebar } from '@/components/providers/sidebar-provider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import useIsMobile from '@/lib/hooks/use-is-mobile';
 import type { DocumentItem } from '@/lib/models/document.model';
 import cn from '@/lib/utils/cn';
 
@@ -23,7 +24,8 @@ type SidebarProps = {
 
 export default function Sidebar({ documents, isAuthenticated, isDocumentsError }: SidebarProps) {
   const { isLoaded, user } = useUser();
-  const { closeSidebar, isExpanded, isMobile, toggleSidebar } = useSidebar();
+  const isMobile = useIsMobile();
+  const { closeSidebar, isExpanded, toggleSidebar } = useSidebar();
   const {
     activeDocument,
     documentIdBeingRemoved,

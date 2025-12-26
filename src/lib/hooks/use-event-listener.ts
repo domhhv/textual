@@ -1,7 +1,7 @@
 import * as React from 'react';
 import type { RefObject } from 'react';
 
-import useIsomorphicLayoutEffect from './use-isomorphic-layout';
+import useIsomorphicLayoutEffect from './use-isomorphic-layout-effect';
 
 export default function useEventListener<K extends keyof MediaQueryListEventMap>(
   eventName: K,
