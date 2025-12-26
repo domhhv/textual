@@ -3,6 +3,8 @@
 import * as React from 'react';
 import type { PropsWithChildren } from 'react';
 
+import useIsMobile from '@/lib/hooks/use-is-mobile';
+
 type SidebarContextType = {
   isExpanded: boolean;
   isMobile: boolean;
@@ -13,7 +15,6 @@ type SidebarContextType = {
 const SidebarContext = React.createContext<SidebarContextType | null>(null);
 
 const STORAGE_KEY = 'sidebar-expanded';
-const MOBILE_BREAKPOINT = 768;
 
 export function useSidebar() {
   const context = React.useContext(SidebarContext);
@@ -27,31 +28,19 @@ export function useSidebar() {
 
 export default function SidebarProvider({ children }: PropsWithChildren) {
   const [isExpanded, setIsExpanded] = React.useState(false);
-  const [isMobile, setIsMobile] = React.useState(false);
+  const isMobile = useIsMobile();
 
   React.useEffect(() => {
-    function checkMobile() {
-      const mobile = window.innerWidth < MOBILE_BREAKPOINT;
-      setIsMobile(mobile);
+    if (!isMobile) {
+      const stored = localStorage.getItem(STORAGE_KEY);
 
-      if (!mobile) {
-        const stored = localStorage.getItem(STORAGE_KEY);
-
-        if (stored !== null) {
-          setIsExpanded(stored === 'true');
-        }
-      } else {
-        setIsExpanded(false);
+      if (stored !== null) {
+        setIsExpanded(stored === 'true');
       }
+    } else {
+      setIsExpanded(false);
     }
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
-    return () => {
-      return window.removeEventListener('resize', checkMobile);
-    };
-  }, []);
+  }, [isMobile]);
 
   const toggleSidebar = React.useCallback(() => {
     setIsExpanded((prev) => {

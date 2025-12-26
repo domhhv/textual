@@ -3,7 +3,6 @@ import { useLinkStatus } from 'next/link';
 import * as React from 'react';
 
 import { useDocument } from '@/components/providers/document-provider';
-import { useSidebar } from '@/components/providers/sidebar-provider';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,6 +10,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import useIsMobile from '@/lib/hooks/use-is-mobile';
 import type { DocumentItem } from '@/lib/models/document.model';
 import cn from '@/lib/utils/cn';
 
@@ -25,7 +25,7 @@ export default function SidebarDocumentLinkButton({ document }: { document: Docu
     initiateDocumentRemoval,
     openDocumentDialog,
   } = useDocument();
-  const { isMobile } = useSidebar();
+  const isMobile = useIsMobile();
 
   return (
     <div className="flex">

@@ -8,11 +8,13 @@ import GithubIcon from '@/components/icons/github';
 import { useSidebar } from '@/components/providers/sidebar-provider';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import useIsMobile from '@/lib/hooks/use-is-mobile';
 import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
 import cn from '@/lib/utils/cn';
 
 export default function ChatHeader() {
-  const { isMobile, toggleSidebar } = useSidebar();
+  const { toggleSidebar } = useSidebar();
+  const isMobile = useIsMobile();
   const { setTheme, theme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   const tooltipGroup = useTooltipGroup();
