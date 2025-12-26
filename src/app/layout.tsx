@@ -19,7 +19,6 @@ import DocumentProvider from '@/components/providers/document-provider';
 import LexicalComposerProvider from '@/components/providers/lexical-composer-provider';
 import SidebarProvider from '@/components/providers/sidebar-provider';
 import Toaster from '@/components/ui/sonner';
-import type { DocumentItem } from '@/lib/models/document.model';
 import createClerkSupabaseSsrClient from '@/lib/utils/create-clerk-supabase-ssr-client';
 
 export const viewport: Viewport = {
@@ -46,8 +45,13 @@ export const metadata: Metadata = {
   title: 'Rich Textual Editor',
 };
 
-const getDocuments = React.cache(async (userId: string) => {
-  let documents: DocumentItem[] = [];
+const getDocuments = React.cache(async (userId: string | null) => {
+  if (!userId) {
+    return {
+      documents: [],
+      error: null,
+    };
+  }
 
   try {
     const client = await createClerkSupabaseSsrClient();
@@ -60,20 +64,29 @@ const getDocuments = React.cache(async (userId: string) => {
     if (error) {
       Sentry.captureException(error);
 
-      return [];
+      return {
+        documents: [],
+        error,
+      };
     }
 
-    documents = camelcaseKeys(data || []);
+    return {
+      documents: camelcaseKeys(data || []),
+      error: null,
+    };
   } catch (error) {
     Sentry.captureException(error);
-  }
 
-  return documents;
+    return {
+      documents: [],
+      error,
+    };
+  }
 });
 
 export default async function RootLayout({ children }: Readonly<React.PropsWithChildren>) {
   const { isAuthenticated, userId } = await auth();
-  const documents = isAuthenticated ? await getDocuments(userId) : [];
+  const { documents, error } = await getDocuments(userId);
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -87,7 +100,7 @@ export default async function RootLayout({ children }: Readonly<React.PropsWithC
                     <div className="bg-background relative flex h-full flex-col">
                       <DevelopmentBanner />
                       <div className="relative flex h-full flex-1">
-                        <Sidebar documents={documents} isAuthenticated={isAuthenticated} />
+                        <Sidebar documents={documents} isDocumentsError={!!error} isAuthenticated={isAuthenticated} />
                         <main className="flex-1 overflow-scroll">{children}</main>
                       </div>
                       <Analytics />

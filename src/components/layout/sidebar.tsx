@@ -9,6 +9,7 @@ import * as React from 'react';
 import SidebarDocumentLinkButton from '@/components/layout/sidebar-document-link-button';
 import { useDocument } from '@/components/providers/document-provider';
 import { useSidebar } from '@/components/providers/sidebar-provider';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import type { DocumentItem } from '@/lib/models/document.model';
@@ -17,9 +18,10 @@ import cn from '@/lib/utils/cn';
 type SidebarProps = {
   documents: DocumentItem[];
   isAuthenticated: boolean;
+  isDocumentsError: boolean;
 };
 
-export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
+export default function Sidebar({ documents, isAuthenticated, isDocumentsError }: SidebarProps) {
   const { isLoaded, user } = useUser();
   const { closeSidebar, isExpanded, isMobile, toggleSidebar } = useSidebar();
   const {
@@ -99,7 +101,14 @@ export default function Sidebar({ documents, isAuthenticated }: SidebarProps) {
           <>
             <div className="p-4 pb-0">
               <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Your documents</h3>
-              {documents.length === 0 && <p className="text-muted-foreground mt-2 text-sm">Nothing here yet</p>}
+              {documents.length === 0 && !isDocumentsError && (
+                <p className="text-muted-foreground mt-2 text-sm">Nothing here yet</p>
+              )}
+              {documents.length === 0 && isDocumentsError && (
+                <Alert className="mt-1" variant="destructive">
+                  <AlertDescription>Something went wrong while loading your documents</AlertDescription>
+                </Alert>
+              )}
               {segment === null ? (
                 <Button className="mt-3 w-full" onClick={openDocumentDialog}>
                   New Document
