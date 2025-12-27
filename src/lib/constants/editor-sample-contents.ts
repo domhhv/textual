@@ -561,7 +561,7 @@ const editorSampleContents = [
   { content: formattedText, key: 'formattedText', label: 'Formatted Text' },
   { content: headings, key: 'headings', label: 'Headings' },
   { content: lists, key: 'lists', label: 'Lists' },
-  { content: quotesCodeMath, key: 'quotesCodeMath', label: 'Quotes & Code' },
+  { content: quotesCodeMath, key: 'quotesCodeMath', label: 'Quotes, Code, and Math' },
   { content: tables, key: 'tables', label: 'Tables' },
   { content: everything, key: 'everything', label: 'Show Me Everything!' },
 ] as const;

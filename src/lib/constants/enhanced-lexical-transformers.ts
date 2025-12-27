@@ -227,10 +227,18 @@ const SUPERSCRIPT_HTML: TextMatchTransformer = {
   },
 };
 
-const SUBSCRIPT: TextFormatTransformer = {
-  format: ['subscript'],
-  tag: '~',
-  type: 'text-format',
+const SUBSCRIPT: TextMatchTransformer = {
+  dependencies: [],
+  importRegExp: /(?<!~)~([^~\s]+(?:\s+[^~\s]+)*)~(?!~)/,
+  regExp: /(?<!~)~([^~\s]+(?:\s+[^~\s]+)*)~(?!~)/,
+  trigger: '~',
+  type: 'text-match',
+  replace: (node: TextNode, match: RegExpMatchArray) => {
+    const textContent = match[1];
+    const textNode = $createTextNode(textContent);
+    textNode.setFormat('subscript');
+    node.replace(textNode);
+  },
 };
 
 const SUBSCRIPT_HTML: TextMatchTransformer = {
