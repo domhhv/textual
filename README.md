@@ -1,5 +1,7 @@
 # Textual
 
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/domhhv/textual?utm_source=oss&utm_medium=github&utm_campaign=domhhv%2Ftextual&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+
 **An AI-powered rich text editor that transforms how you write and edit content.**
 
 Textual combines a professional-grade rich text editor with OpenAI's GPT models to provide intelligent writing assistance. Unlike traditional AI writing tools that generate entire documents, this application focuses on precise, contextual editing within your existing content.
