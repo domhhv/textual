@@ -1,18 +1,33 @@
 'use client';
 
 import { useUser, SignedIn, SignedOut, UserButton, SignInButton, SignUpButton } from '@clerk/nextjs';
-import { KeyIcon, LogInIcon, FilePlusCornerIcon, PanelLeftCloseIcon, PanelRightCloseIcon } from 'lucide-react';
+import {
+  KeyIcon,
+  SunIcon,
+  MoonIcon,
+  LogInIcon,
+  MonitorIcon,
+  ExternalLinkIcon,
+  FilePlusCornerIcon,
+  PanelLeftCloseIcon,
+  PanelRightCloseIcon,
+} from 'lucide-react';
+import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { useSelectedLayoutSegment } from 'next/navigation';
+import posthog from 'posthog-js';
 import * as React from 'react';
 
+import GithubIcon from '@/components/icons/github';
 import SidebarDocumentLinkButton from '@/components/layout/sidebar-document-link-button';
 import { useDocument } from '@/components/providers/document-provider';
 import { useSidebar } from '@/components/providers/sidebar-provider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import useIsMobile from '@/lib/hooks/use-is-mobile';
+import useTooltipGroup from '@/lib/hooks/use-tooltip-group';
 import type { DocumentItem } from '@/lib/models/document.model';
 import cn from '@/lib/utils/cn';
 
@@ -34,6 +49,13 @@ export default function Sidebar({ documents, isAuthenticated, isDocumentsError }
     setDocumentIdInteractedWith,
   } = useDocument();
   const segment = useSelectedLayoutSegment();
+  const { setTheme, theme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+  const tooltipGroup = useTooltipGroup();
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   React.useEffect(() => {
     if (!isMobile || !isExpanded) {
@@ -75,10 +97,93 @@ export default function Sidebar({ documents, isAuthenticated, isDocumentsError }
         )}
       >
         <div>
-          <div className="border-border flex items-center border-b px-1.5 py-2 transition-all">
+          <div
+            onMouseLeave={tooltipGroup.onGroupMouseLeave}
+            className="border-border flex items-center border-b px-1.5 py-2 transition-all"
+          >
             <Button size="icon" variant="ghost" onClick={toggleSidebar} className="flex-shrink-0">
               {isExpanded ? <PanelLeftCloseIcon /> : <PanelRightCloseIcon />}
             </Button>
+            {mounted && isExpanded && (
+              <TooltipProvider>
+                <div className="ml-auto flex flex-shrink-0 items-center gap-2">
+                  <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
+                    <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
+                      <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
+                        <Button
+                          size="icon"
+                          variant={theme === 'light' ? 'secondary' : 'ghost'}
+                          onClick={() => {
+                            posthog.capture('clicked_on_theme_mode', {
+                              mode: 'light',
+                            });
+                            setTheme('light');
+                          }}
+                        >
+                          <SunIcon className="size-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <span className="text-sm">Light</span>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
+                      <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
+                        <Button
+                          size="icon"
+                          variant={theme === 'system' ? 'secondary' : 'ghost'}
+                          onClick={() => {
+                            posthog.capture('clicked_on_theme_mode', {
+                              mode: 'system',
+                            });
+                            setTheme('system');
+                          }}
+                        >
+                          <MonitorIcon className="size-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <span className="text-sm">System</span>
+                      </TooltipContent>
+                    </Tooltip>
+                    <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
+                      <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
+                        <Button
+                          size="icon"
+                          variant={theme === 'dark' ? 'secondary' : 'ghost'}
+                          onClick={() => {
+                            posthog.capture('clicked_on_theme_mode', {
+                              mode: 'dark',
+                            });
+                            setTheme('dark');
+                          }}
+                        >
+                          <MoonIcon className="size-3.5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <span className="text-sm">Dark</span>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
+                    <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
+                      <Link target="_blank" rel="noopener noreferrer" href="https://github.com/domhhv/textual">
+                        <Button size="xs" variant="outline" className="h-8 w-8">
+                          <GithubIcon className="fill-muted-foreground size-4!" />
+                        </Button>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="flex items-center gap-1">
+                        <ExternalLinkIcon className="size-3" />
+                        <span>View source code on GitHub</span>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
+            )}
           </div>
         </div>
 
