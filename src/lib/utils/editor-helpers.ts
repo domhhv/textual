@@ -230,6 +230,11 @@ export function normalizeFormatType(format: ElementFormatType) {
 
 export function clearEditor(editor: LexicalEditor) {
   editor.update(() => {
-    $getRoot().clear();
+    const root = $getRoot();
+
+    if (!root.isEmpty()) {
+      root.clear();
+      root.append($createParagraphNode());
+    }
   });
 }

@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import getErrorMessage from '@/lib/utils/get-error-message';
 
 const INITIAL_EDITOR_CONFIG: InitialConfigType = {
+  editorState: null,
   namespace: 'MyEditor',
   onError: (error) => {
     toast('An error occurred in the editor', {

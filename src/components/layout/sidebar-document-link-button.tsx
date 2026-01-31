@@ -30,11 +30,12 @@ export default function SidebarDocumentLinkButton({ document }: { document: Docu
   return (
     <div className="flex">
       <Button
+        size="sm"
         tabIndex={-1}
         variant="ghost"
         disabled={documentIdBeingRemoved === document.id || pending}
         className={cn(
-          'flex-1 justify-start overflow-hidden rounded-r-none pr-9 pl-4! transition-none hover:bg-transparent dark:hover:bg-transparent',
+          'flex-1 justify-start overflow-hidden rounded-r-none pl-4! transition-none hover:bg-transparent dark:hover:bg-transparent',
           pending && 'pending',
           (pending || document.id === documentIdBeingRemoved) && 'justify-between pr-0',
           (pending || document.id === documentIdInteractedWith || document.id === activeDropdownDocumentId) &&
@@ -56,11 +57,12 @@ export default function SidebarDocumentLinkButton({ document }: { document: Docu
       >
         <DropdownMenuTrigger asChild>
           <Button
+            size="sm"
             variant="ghost"
             disabled={pending || documentIdBeingRemoved === document.id}
             className={cn(
               'focus:bg-accent rounded-l-none opacity-0 transition-none focus:opacity-100 focus:ring-0! focus:outline-none',
-              pending && 'cursor-wait',
+              (pending || documentIdBeingRemoved === document.id) && 'hidden',
               (isMobile ||
                 pending ||
                 document.id === activeDropdownDocumentId ||
