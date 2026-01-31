@@ -30,7 +30,6 @@ type DocumentContextType = {
   documentIdBeingRemoved: string | null;
   documentIdInteractedWith: string;
   hasUnsavedEditorChanges: boolean;
-  isEditorDirty: boolean;
   isEditorEmpty: boolean;
   closeActiveDocument: () => void;
   handleDropdownOpenChange: (isOpen: boolean, documentId: string) => void;
@@ -82,7 +81,6 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
   const [activeDropdownDocumentId, setActiveDropdownDocumentId] = React.useState('');
   const [documentIdInteractedWith, setDocumentIdInteractedWith] = React.useState('');
   const [isEditorEmpty, setIsEditorEmpty] = React.useState(true);
-  const [isEditorDirty, setIsEditorDirty] = React.useState(false);
   const [hasUnsavedEditorChanges, setHasUnsavedEditorChanges] = React.useState(false);
 
   React.useEffect(() => {
@@ -100,8 +98,6 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
     const documentId = searchParams.get('document');
 
     if (!documentId) {
-      setIsEditorDirty(false);
-
       return setActiveDocument(null);
     }
 
@@ -109,8 +105,15 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
       return doc.id === documentId;
     });
 
+    if (!document) {
+      router.replace('/');
+      toast.error('The requested document does not exist or is not accessible.');
+
+      return setActiveDocument(null);
+    }
+
     setActiveDocument(document || null);
-  }, [searchParams, documents]);
+  }, [searchParams, documents, router]);
 
   const handleEditorChange = React.useCallback(
     (editorState: EditorState) => {
@@ -123,10 +126,6 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
         setHasUnsavedEditorChanges(
           (hasTextContent || !!activeDocument?.content) && currentEditorState !== activeDocument?.content
         );
-
-        setIsEditorDirty((prev) => {
-          return prev || hasTextContent;
-        });
 
         console.info('Editor State Updated: ', {
           children,
@@ -172,7 +171,7 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
         });
       } else {
         await editor.read(async () => {
-          const hasTextContent = !!$getRoot().getTextContent();
+          const hasTextContent = !activeDocument && !!$getRoot().getTextContent();
           const { id } = await createDocument({
             ...values,
             content: hasTextContent ? JSON.stringify(editor.getEditorState()) : null,
@@ -287,7 +286,6 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
       handleEditorChange,
       hasUnsavedEditorChanges,
       initiateDocumentRemoval,
-      isEditorDirty,
       isEditorEmpty,
       openDocumentDialog,
       setDocumentIdInteractedWith,
@@ -303,7 +301,6 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
     activeDocument,
     handleEditorChange,
     isEditorEmpty,
-    isEditorDirty,
     hasUnsavedEditorChanges,
   ]);
 

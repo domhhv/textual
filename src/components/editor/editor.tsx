@@ -40,7 +40,11 @@ export default function Editor() {
   React.useEffect(() => {
     if (!activeDocument) {
       return editor.update(() => {
-        $getRoot().clear();
+        const root = $getRoot();
+
+        if (!root.isEmpty()) {
+          $getRoot().clear();
+        }
       });
     }
 
@@ -68,6 +72,12 @@ export default function Editor() {
     );
 
     editor.update(() => {
+      const root = $getRoot();
+
+      if (root.isEmpty()) {
+        root.append($createParagraphNode());
+      }
+
       $convertFromMarkdownString(content, ENHANCED_LEXICAL_TRANSFORMERS, undefined, true);
     });
 

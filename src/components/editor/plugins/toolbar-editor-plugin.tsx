@@ -98,20 +98,14 @@ import {
 import getErrorMessage from '@/lib/utils/get-error-message';
 
 export default function ToolbarEditorPlugin() {
-  const [editor] = useLexicalComposerContext();
   const { isSignedIn } = useUser();
+  const [editor] = useLexicalComposerContext();
   const { toolbarState } = React.use(ToolbarStateContext);
   const { isChatVisible, setIsChatVisible } = React.use(ChatStatusContext);
   const tooltipGroup = useTooltipGroup();
   const toolbarRef = useDragToScroll<HTMLDivElement>();
-  const {
-    activeDocument,
-    closeActiveDocument,
-    hasUnsavedEditorChanges,
-    isEditorDirty,
-    isEditorEmpty,
-    openDocumentDialog,
-  } = useDocument();
+  const { activeDocument, closeActiveDocument, hasUnsavedEditorChanges, isEditorEmpty, openDocumentDialog } =
+    useDocument();
   const [isFontColorPickerOpen, setIsFontColorPickerOpen] = React.useState(false);
   const [isBackgroundColorPickerOpen, setIsBackgroundColorPickerOpen] = React.useState(false);
   const [isHeadingsDropdownOpen, setIsHeadingsDropdownOpen] = React.useState(false);
@@ -404,22 +398,23 @@ export default function ToolbarEditorPlugin() {
 
         <Separator orientation="vertical" className="h-6! flex-shrink-0 self-center justify-self-center" />
 
-        {(isEditorDirty || !isEditorEmpty) && isSignedIn && (
+        {!!activeDocument && (
+          <TooltipButton
+            {...tooltipGroup.getTooltipProps()}
+            variant="secondary"
+            tooltip="Close this file"
+            onClick={closeActiveDocument}
+            disabled={isSavingActiveDocument}
+          >
+            <XIcon />
+          </TooltipButton>
+        )}
+
+        {isSignedIn && (
           <>
-            {!!activeDocument && (
-              <TooltipButton
-                {...tooltipGroup.getTooltipProps()}
-                variant="outline"
-                tooltip="Close this file"
-                onClick={closeActiveDocument}
-                disabled={isSavingActiveDocument}
-              >
-                <XIcon />
-              </TooltipButton>
-            )}
             <TooltipButton
               {...tooltipGroup.getTooltipProps()}
-              variant="outline"
+              variant="secondary"
               onClick={handleSave}
               disabled={isSavingActiveDocument || !hasUnsavedEditorChanges}
               tooltip={
@@ -431,19 +426,19 @@ export default function ToolbarEditorPlugin() {
               {isSavingActiveDocument ? <LoaderCircleIcon className="animate-spin" /> : <SaveIcon />}
             </TooltipButton>
             <Separator orientation="vertical" className="h-6! flex-shrink-0 self-center justify-self-center" />
-            <TooltipButton
-              {...tooltipGroup.getTooltipProps()}
-              variant="outline"
-              tooltip="Clear editor"
-              shortcut={KBD.CLEAR_EDITOR}
-              disabled={isSavingActiveDocument}
-              onClick={clearEditor.bind(null, editor)}
-            >
-              <BrushCleaningIcon />
-            </TooltipButton>
-            <Separator orientation="vertical" className="h-6! flex-shrink-0 self-center justify-self-center" />
           </>
         )}
+        <TooltipButton
+          {...tooltipGroup.getTooltipProps()}
+          variant="secondary"
+          tooltip="Clear editor"
+          shortcut={KBD.CLEAR_EDITOR}
+          onClick={clearEditor.bind(null, editor)}
+          disabled={isSavingActiveDocument || isEditorEmpty}
+        >
+          <BrushCleaningIcon />
+        </TooltipButton>
+        <Separator orientation="vertical" className="h-6! flex-shrink-0 self-center justify-self-center" />
 
         <ButtonGroup>
           <TooltipButton
