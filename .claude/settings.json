@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run eslint:fix:*)",
+      "Bash(npm run eslint:check:*)",
+      "Bash(npm run prettier:write:*)",
+      "mcp__chrome-devtools__click",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__chrome-devtools__take_screenshot",
+      "mcp__chrome-devtools__evaluate_script"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

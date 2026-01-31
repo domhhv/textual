@@ -6,6 +6,7 @@ import posthog from 'posthog-js';
 import * as React from 'react';
 import { useSwipeable } from 'react-swipeable';
 
+import { ChatStatusContext } from '@/components/providers/chat-status-provider';
 import { MobileLayoutContext } from '@/components/providers/mobile-layout-provider';
 import { Button } from '@/components/ui/button';
 import HelixLoader from '@/components/ui/helix-loader';
@@ -23,12 +24,19 @@ type ViewMode = (typeof VIEW_MODES)[number];
 
 export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
   const { isMobile, setViewMode, viewMode } = React.use(MobileLayoutContext);
+  const { isChatVisible } = React.use(ChatStatusContext);
   const [lexicalEditor] = useLexicalComposerContext();
   const [isMounted, setIsMounted] = React.useState(false);
 
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  React.useEffect(() => {
+    if (isMobile && isChatVisible) {
+      setViewMode('split');
+    }
+  }, [isMobile, isChatVisible, setViewMode]);
 
   const cycleViewMode = React.useCallback(
     (direction: 'left' | 'right') => {
@@ -70,6 +78,10 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
   }
 
   if (!isMobile) {
+    if (!isChatVisible) {
+      return <div className="h-full">{editor}</div>;
+    }
+
     return (
       <ResizablePanelGroup direction="horizontal" className="min-h-full">
         <ResizablePanel minSize={10} defaultSize={30}>
@@ -81,6 +93,10 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
         </ResizablePanel>
       </ResizablePanelGroup>
     );
+  }
+
+  if (!isChatVisible) {
+    return <div className="flex h-full flex-col">{editor}</div>;
   }
 
   return (

@@ -92,8 +92,8 @@ export default function Sidebar({ documents, isAuthenticated, isDocumentsError }
           'border-border bg-background sticky top-0 flex h-full flex-col border-r transition-all duration-30',
           !isAuthenticated && 'justify-between',
           isMobile
-            ? cn('fixed top-0 left-0 z-50 h-full w-56', isExpanded ? 'translate-x-0' : '-translate-x-full')
-            : cn(isExpanded ? 'w-56' : 'w-12')
+            ? cn('fixed top-0 left-0 z-50 h-full w-64', isExpanded ? 'translate-x-0' : '-translate-x-full')
+            : cn(isExpanded ? 'w-64' : 'w-12')
         )}
       >
         <div>
