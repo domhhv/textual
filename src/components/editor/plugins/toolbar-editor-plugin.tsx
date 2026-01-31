@@ -42,6 +42,7 @@ import {
   TypeOutlineIcon,
   LoaderCircleIcon,
   StrikethroughIcon,
+  MessageSquareIcon,
   BrushCleaningIcon,
   IndentDecreaseIcon,
 } from 'lucide-react';
@@ -53,6 +54,7 @@ import EditorColorPicker from '@/components/custom/editor-color-picker';
 import FontSizeInput from '@/components/custom/font-size-input';
 import Shortcut from '@/components/custom/shortcut';
 import TooltipButton from '@/components/custom/tooltip-button';
+import { ChatStatusContext } from '@/components/providers/chat-status-provider';
 import { useDocument } from '@/components/providers/document-provider';
 import { ToolbarStateContext } from '@/components/providers/editor-toolbar-state-provider';
 import { Button } from '@/components/ui/button';
@@ -99,6 +101,7 @@ export default function ToolbarEditorPlugin() {
   const [editor] = useLexicalComposerContext();
   const { isSignedIn } = useUser();
   const { toolbarState } = React.use(ToolbarStateContext);
+  const { isChatVisible, setIsChatVisible } = React.use(ChatStatusContext);
   const tooltipGroup = useTooltipGroup();
   const toolbarRef = useDragToScroll<HTMLDivElement>();
   const {
@@ -386,6 +389,21 @@ export default function ToolbarEditorPlugin() {
         onMouseLeave={tooltipGroup.onGroupMouseLeave}
         className="scrollbar-hide bg-background/80 sticky top-0 z-10 flex items-center gap-2 overflow-x-auto p-2 backdrop-blur-md"
       >
+        <TooltipButton
+          {...tooltipGroup.getTooltipProps()}
+          variant={isChatVisible ? 'secondary' : 'ghost'}
+          tooltip={isChatVisible ? 'Hide chat' : 'Show chat'}
+          onClick={() => {
+            setIsChatVisible((prev) => {
+              return !prev;
+            });
+          }}
+        >
+          <MessageSquareIcon />
+        </TooltipButton>
+
+        <Separator orientation="vertical" className="h-6! flex-shrink-0 self-center justify-self-center" />
+
         {(isEditorDirty || !isEditorEmpty) && isSignedIn && (
           <>
             {!!activeDocument && (

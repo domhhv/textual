@@ -11,7 +11,7 @@ export default function ChatHeader() {
   const isMobile = useIsMobile();
 
   return (
-    <div className="border-border flex items-center gap-2 overflow-x-auto border-b p-2">
+    <div className="border-border flex items-center gap-2 overflow-x-auto border-b p-2 py-2.5">
       <div className="flex min-w-0 basis-full items-center justify-between gap-2">
         <div className={cn('flex min-w-0 flex-shrink items-center gap-2', !isMobile && 'px-2')}>
           {isMobile && (
