@@ -8,14 +8,16 @@ import type { Database } from '@db-types';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
+async function getAccessToken() {
+  return (await auth()).getToken();
+}
+
 export default async function createClerkSupabaseSsrClient() {
   if (!supabaseUrl || !supabaseKey) {
     throw new Error('Missing Supabase environment variables');
   }
 
   return createClient<Database>(supabaseUrl, supabaseKey, {
-    async accessToken() {
-      return (await auth()).getToken();
-    },
+    accessToken: getAccessToken,
   });
 }
