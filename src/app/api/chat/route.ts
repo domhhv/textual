@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   });
 
   const result = streamText({
-    messages: convertToModelMessages(messages),
+    messages: await convertToModelMessages(messages),
     model: openaiProvider(model),
     stopWhen: stepCountIs(5),
     system: wrapEditorPrompt(editorMarkdownContent, editorRootChildren),

@@ -83,7 +83,7 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
     }
 
     return (
-      <ResizablePanelGroup direction="horizontal" className="min-h-full">
+      <ResizablePanelGroup className="min-h-full" orientation="horizontal">
         <ResizablePanel minSize={10} defaultSize={30}>
           {chat}
         </ResizablePanel>
@@ -103,7 +103,7 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
     <div className="flex h-full flex-col">
       <div className="relative flex-1 overflow-hidden">
         {viewMode === 'split' ? (
-          <ResizablePanelGroup className="h-full" direction="vertical">
+          <ResizablePanelGroup className="h-full" orientation="vertical">
             <ResizablePanel minSize={30} defaultSize={50}>
               {chat}
             </ResizablePanel>

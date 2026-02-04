@@ -24,7 +24,7 @@ const CodeBlockContext = React.createContext<CodeBlockContextType>({
 
 const lineNumberTransformer: ShikiTransformer = {
   name: 'line-numbers',
-  line(node, line) {
+  line(node: Parameters<NonNullable<ShikiTransformer['line']>>[0], line: number) {
     node.children.unshift({
       children: [{ type: 'text', value: String(line) }],
       tagName: 'span',
