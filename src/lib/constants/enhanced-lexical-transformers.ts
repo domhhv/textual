@@ -25,6 +25,8 @@ import {
 import type { TextNode, LexicalNode } from 'lexical';
 import { $isTextNode, $createTextNode, $isParagraphNode } from 'lexical';
 
+import { ImageNode, $isImageNode, $createImageNode } from '@/components/editor/nodes/image-node';
+
 const TABLE_ROW_REG_EXP = /^(?:\|)(.+)(?:\|)\s?$/;
 const TABLE_ROW_DIVIDER_REG_EXP = /^(\| ?:?-*:? ?)+\|\s?$/;
 
@@ -255,10 +257,35 @@ const SUBSCRIPT_HTML: TextMatchTransformer = {
   },
 };
 
+const IMAGE: TextMatchTransformer = {
+  dependencies: [ImageNode],
+  importRegExp: /!(?:\[([^[]*)\])(?:\(([^(]+)\))/,
+  regExp: /!(?:\[([^[]*)\])(?:\(([^(]+)\))$/,
+  trigger: ')',
+  type: 'text-match',
+  export: (node: LexicalNode) => {
+    if (!$isImageNode(node)) {
+      return null;
+    }
+
+    return `![${node.getAltText()}](${node.getSrc()})`;
+  },
+  replace: (textNode: TextNode, match: RegExpMatchArray) => {
+    const [, altText, src] = match;
+    const imageNode = $createImageNode({
+      altText,
+      maxWidth: 800,
+      src,
+    });
+    textNode.replace(imageNode);
+  },
+};
+
 const ENHANCED_LEXICAL_TRANSFORMERS = [
   CHECK_LIST,
   HR,
   TABLE,
+  IMAGE,
   SUPERSCRIPT,
   SUBSCRIPT,
   SUBSCRIPT_HTML,
