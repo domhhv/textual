@@ -107,65 +107,31 @@ export default function Sidebar({ documents, isAuthenticated, isDocumentsError }
             {mounted && isExpanded && (
               <TooltipProvider>
                 <div className="ml-auto flex flex-shrink-0 items-center gap-2">
-                  <div className="[&>*]:rounded-none [&>*]:first:rounded-l-md [&>*]:last:rounded-r-md">
-                    <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-                      <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
-                        <Button
-                          size="icon"
-                          variant={theme === 'light' ? 'secondary' : 'ghost'}
-                          onClick={() => {
-                            posthog.capture('clicked_on_theme_mode', {
-                              mode: 'light',
-                            });
-                            setTheme('light');
-                          }}
-                        >
-                          <SunIcon className="size-3.5" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <span className="text-sm">Light</span>
-                      </TooltipContent>
-                    </Tooltip>
-                    <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-                      <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
-                        <Button
-                          size="icon"
-                          variant={theme === 'system' ? 'secondary' : 'ghost'}
-                          onClick={() => {
-                            posthog.capture('clicked_on_theme_mode', {
-                              mode: 'system',
-                            });
-                            setTheme('system');
-                          }}
-                        >
-                          <MonitorIcon className="size-3.5" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <span className="text-sm">System</span>
-                      </TooltipContent>
-                    </Tooltip>
-                    <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-                      <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
-                        <Button
-                          size="icon"
-                          variant={theme === 'dark' ? 'secondary' : 'ghost'}
-                          onClick={() => {
-                            posthog.capture('clicked_on_theme_mode', {
-                              mode: 'dark',
-                            });
-                            setTheme('dark');
-                          }}
-                        >
-                          <MoonIcon className="size-3.5" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <span className="text-sm">Dark</span>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
+                  <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
+                    <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => {
+                          const nextTheme = theme === 'light' ? 'system' : theme === 'system' ? 'dark' : 'light';
+                          posthog.capture('clicked_on_theme_mode', {
+                            mode: nextTheme,
+                          });
+                          setTheme(nextTheme);
+                        }}
+                      >
+                        {theme === 'light' && <SunIcon className="size-3.5" />}
+                        {theme === 'system' && <MonitorIcon className="size-3.5" />}
+                        {theme === 'dark' && <MoonIcon className="size-3.5" />}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-sm">Toggle theme mode</p>
+                      <span className="text-tiny">
+                        Current setting: <strong>{theme || 'system'}</strong>
+                      </span>
+                    </TooltipContent>
+                  </Tooltip>
                   <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
                     <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
                       <Link target="_blank" rel="noopener noreferrer" href="https://github.com/domhhv/textual">
