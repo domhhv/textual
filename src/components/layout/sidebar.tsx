@@ -106,7 +106,7 @@ export default function Sidebar({ documents, isAuthenticated, isDocumentsError }
             </Button>
             {mounted && isExpanded && (
               <TooltipProvider>
-                <div className="ml-auto flex flex-shrink-0 items-center gap-2">
+                <div className="flex basis-full items-center justify-between gap-2 px-1">
                   <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
                     <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
                       <Button
@@ -125,28 +125,47 @@ export default function Sidebar({ documents, isAuthenticated, isDocumentsError }
                         {theme === 'dark' && <MoonIcon className="size-3.5" />}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>
+                    <TooltipContent align="start">
                       <p className="text-sm">Toggle theme mode</p>
                       <span className="text-tiny">
                         Current setting: <strong>{theme || 'system'}</strong>
                       </span>
                     </TooltipContent>
                   </Tooltip>
-                  <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
-                    <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
-                      <Link target="_blank" rel="noopener noreferrer" href="https://github.com/domhhv/textual">
-                        <Button size="xs" variant="outline" className="h-8 w-8">
-                          <GithubIcon className="fill-muted-foreground size-4!" />
-                        </Button>
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <div className="flex items-center gap-1">
-                        <ExternalLinkIcon className="size-3" />
-                        <span>View source code on GitHub</span>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
+                  <div className="flex items-center gap-2">
+                    <div className="text-muted-foreground flex flex-col gap-0.5 text-[9px]">
+                      <span className="text-right text-slate-500">
+                        Built by{' '}
+                        <Link
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href="https://www.linkedin.com/in/domhhv"
+                          className="text-muted-foreground hover:text-accent-foreground text-[9px] font-medium"
+                        >
+                          Dom H.
+                        </Link>
+                      </span>
+                      <span className="rounded-full bg-slate-300 px-1 py-0.25 text-[8px] font-medium text-slate-800 dark:bg-slate-800 dark:text-slate-400">
+                        <span className="mr-1 inline-block size-1 rounded-full bg-slate-500 align-middle" />
+                        Available for hire
+                      </span>
+                    </div>
+                    <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
+                      <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
+                        <Link target="_blank" rel="noopener noreferrer" href="https://github.com/domhhv/textual">
+                          <Button size="xs" variant="outline" className="h-8 w-8">
+                            <GithubIcon className="fill-muted-foreground size-4!" />
+                          </Button>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <div className="flex items-center gap-1">
+                          <ExternalLinkIcon className="size-3" />
+                          <span>View source code on GitHub</span>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                 </div>
               </TooltipProvider>
             )}
