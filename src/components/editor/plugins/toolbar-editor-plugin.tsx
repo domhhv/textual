@@ -381,7 +381,7 @@ export default function ToolbarEditorPlugin() {
       <div
         ref={toolbarRef}
         onMouseLeave={tooltipGroup.onGroupMouseLeave}
-        className="scrollbar-hide bg-background/80 sticky top-0 z-10 flex items-center gap-2 overflow-x-auto p-2 backdrop-blur-md"
+        className="scrollbar-hide sticky top-0 z-10 flex items-center gap-2 overflow-x-auto p-2"
       >
         <TooltipButton
           {...tooltipGroup.getTooltipProps()}
