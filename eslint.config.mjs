@@ -22,7 +22,6 @@ const eslintConfig = [
   ...compat.extends('eslint:recommended'),
   ...nextCoreWebVitals,
   ...nextTypescript,
-  ...compat.extends('plugin:switch-case/recommended'),
   ...compat.extends('plugin:import/recommended'),
   ...compat.extends('plugin:@lexical/recommended'),
   ...compat.extends('prettier'),
