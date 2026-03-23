@@ -1,4 +1,4 @@
-import { CodeNode } from '@lexical/code';
+import { CodeNode } from '@lexical/code-core';
 import { LinkNode, AutoLinkNode } from '@lexical/link';
 import { ListNode, ListItemNode } from '@lexical/list';
 import type { InitialConfigType } from '@lexical/react/LexicalComposer';

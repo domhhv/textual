@@ -1,4 +1,4 @@
-import { $createCodeNode } from '@lexical/code';
+import { $createCodeNode } from '@lexical/code-core';
 import { INSERT_CHECK_LIST_COMMAND, INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND } from '@lexical/list';
 import { $isDecoratorBlockNode } from '@lexical/react/LexicalDecoratorBlockNode';
 import type { HeadingTagType } from '@lexical/rich-text';
