@@ -84,10 +84,7 @@ const getDocuments = React.cache(async (userId: string | null) => {
   }
 });
 
-export default async function RootLayout({ children }: Readonly<React.PropsWithChildren>) {
-  const { isAuthenticated, userId } = await auth();
-  const { documents, error } = await getDocuments(userId);
-
+export default function RootLayout({ children }: Readonly<React.PropsWithChildren>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${ubuntu.variable} ${montserrat.className} ${montserrat.variable} h-screen antialiased`}>
@@ -95,25 +92,34 @@ export default async function RootLayout({ children }: Readonly<React.PropsWithC
           <ClerkProvider appearance={{ cssLayerName: 'clerk', theme: shadcn, variables: { fontSize: { lg: '18px' } } }}>
             <ConfirmProvider>
               <LexicalComposerProvider>
-                <DocumentProvider documents={documents} isAuthenticated={isAuthenticated}>
-                  <SidebarProvider>
-                    <div className="bg-background relative flex h-full flex-col">
-                      <DevelopmentBanner />
-                      <div className="relative flex h-full flex-1">
-                        <Sidebar documents={documents} isDocumentsError={!!error} isAuthenticated={isAuthenticated} />
-                        <main className="flex-1 overflow-scroll">{children}</main>
-                      </div>
-                      <Analytics />
-                      <SpeedInsights />
-                      <Toaster richColors closeButton duration={10_000} />
-                    </div>
-                  </SidebarProvider>
-                </DocumentProvider>
+                <DocumentsProvider>{children}</DocumentsProvider>
               </LexicalComposerProvider>
             </ConfirmProvider>
           </ClerkProvider>
         </ThemeProvider>
       </body>
     </html>
+  );
+}
+
+async function DocumentsProvider({ children }: Readonly<React.PropsWithChildren>) {
+  const { isAuthenticated, userId } = await auth();
+  const { documents, error } = await getDocuments(userId);
+
+  return (
+    <DocumentProvider documents={documents} isAuthenticated={isAuthenticated}>
+      <SidebarProvider>
+        <div className="bg-background relative flex h-full flex-col">
+          <DevelopmentBanner />
+          <div className="relative flex h-full flex-1">
+            <Sidebar documents={documents} isDocumentsError={!!error} isAuthenticated={isAuthenticated} />
+            <main className="flex-1 overflow-scroll">{children}</main>
+          </div>
+          <Analytics />
+          <SpeedInsights />
+          <Toaster richColors closeButton duration={10_000} />
+        </div>
+      </SidebarProvider>
+    </DocumentProvider>
   );
 }
