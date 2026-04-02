@@ -17,7 +17,7 @@ export const ChatStatusContext = React.createContext<{
 
 export default function ChatStatusProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = React.useState<ChatStatus>('ready');
-  const [isChatVisible, setIsChatVisible] = React.useState(false);
+  const [isChatVisible, setIsChatVisible] = React.useState(true);
 
   const value = React.useMemo(() => {
     return { isChatVisible, setIsChatVisible, setStatus, status };
