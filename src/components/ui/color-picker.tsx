@@ -77,11 +77,14 @@ function ColorPicker({ className, defaultValue = 'rgba(0, 0, 0, 1)', onChange, v
   const isInternalUpdate = React.useRef(false);
   const previousValueRef = React.useRef(value);
 
-  const changeHue = React.useCallback((newHue: number, skipHistoryStack: boolean) => {
-    isInternalUpdate.current = true;
-    setHue(newHue);
-    setSkipHistoryStack(skipHistoryStack);
-  }, []);
+  const changeHue = React.useCallback(
+    (newHue: number, skipHistoryStack: boolean) => {
+      isInternalUpdate.current = true;
+      setHue(newHue);
+      setSkipHistoryStack(skipHistoryStack);
+    },
+    [setHue]
+  );
 
   const changeLightnessSaturation = React.useCallback(
     (newLightness: number, newSaturation: number, skipHistoryStack: boolean) => {
@@ -89,7 +92,7 @@ function ColorPicker({ className, defaultValue = 'rgba(0, 0, 0, 1)', onChange, v
       setLightnessSaturation(`${newLightness}-${newSaturation}`);
       setSkipHistoryStack(skipHistoryStack);
     },
-    []
+    [setLightnessSaturation]
   );
 
   const changeAlpha = React.useCallback((newAlpha: number, skipHistoryStack: boolean) => {
@@ -117,7 +120,7 @@ function ColorPicker({ className, defaultValue = 'rgba(0, 0, 0, 1)', onChange, v
 
       isInternalUpdate.current = false;
     }
-  }, [value]);
+  }, [setHue, value]);
 
   React.useEffect(() => {
     onChangeRef.current = onChange;
