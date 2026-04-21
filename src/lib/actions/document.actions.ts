@@ -1,6 +1,7 @@
 'use server';
 
 import camelcaseKeys from 'camelcase-keys';
+import decamelizeKeys from 'decamelize-keys';
 import { revalidatePath } from 'next/cache';
 
 import type { DocumentsInsert, DocumentsUpdate } from '@/lib/models/document.model';
@@ -9,7 +10,7 @@ import createClerkSupabaseClientSsr from '@/lib/utils/create-clerk-supabase-ssr-
 export async function createDocument(body: DocumentsInsert) {
   const client = await createClerkSupabaseClientSsr();
 
-  const { data, error } = await client.from('documents').insert(body).select();
+  const { data, error } = await client.from('documents').insert(decamelizeKeys(body)).select();
 
   if (error) {
     throw error;
@@ -35,7 +36,7 @@ export async function removeDocument(documentId: string) {
 export async function updateDocument(documentId: string, body: DocumentsUpdate) {
   const client = await createClerkSupabaseClientSsr();
 
-  const { error } = await client.from('documents').update(body).eq('id', documentId).select();
+  const { error } = await client.from('documents').update(decamelizeKeys(body)).eq('id', documentId).select();
 
   if (error) {
     throw error;

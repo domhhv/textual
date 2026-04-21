@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser, SignedIn, SignedOut, UserButton, SignInButton, SignUpButton } from '@clerk/nextjs';
+import { Show, useUser, UserButton, SignInButton, SignUpButton } from '@clerk/nextjs';
 import {
   KeyIcon,
   SunIcon,
@@ -262,7 +262,7 @@ export default function Sidebar({ documents, isAuthenticated, isDocumentsError }
 
         <div className={cn('border-border pt-2', isExpanded && 'border-t p-3')}>
           {!isLoaded && <Spinner className="mx-auto mb-2 size-6" />}
-          <SignedOut>
+          <Show when="signed-out">
             <div className="flex flex-col gap-2">
               {isExpanded ? (
                 <>
@@ -281,8 +281,8 @@ export default function Sidebar({ documents, isAuthenticated, isDocumentsError }
                 </SignInButton>
               )}
             </div>
-          </SignedOut>
-          <SignedIn>
+          </Show>
+          <Show when="signed-in">
             <div className={cn('flex items-center gap-3', !isExpanded && 'justify-center pb-2')}>
               <UserButton
                 userProfileUrl="/account"
@@ -306,7 +306,7 @@ export default function Sidebar({ documents, isAuthenticated, isDocumentsError }
                 </div>
               )}
             </div>
-          </SignedIn>
+          </Show>
         </div>
       </aside>
     </>

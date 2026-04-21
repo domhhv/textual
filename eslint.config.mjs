@@ -45,6 +45,7 @@ const eslintConfig = [
       'no-undef': 'off',
       'no-useless-rename': 'error',
       'object-shorthand': 'error',
+      'react-hooks/set-state-in-effect': 'off',
       'react/react-in-jsx-scope': 'off',
       'switch-case/newline-between-switch-case': ['error', 'always', { fallthrough: 'never' }],
       'switch-case/no-case-curly': 'off',

@@ -272,7 +272,7 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
         setDocumentIdBeingRemoved('');
       }
     },
-    [confirm, activeDocument?.id, closeActiveDocument, documentIdInteractedWith]
+    [confirm, activeDocument, closeActiveDocument, documentIdInteractedWith]
   );
 
   const value = React.useMemo(() => {
