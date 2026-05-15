@@ -101,10 +101,10 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex-1">
+      <div className="relative flex-1 overflow-hidden">
         {viewMode === 'split' ? (
           <ResizablePanelGroup className="h-full" orientation="vertical">
-            <ResizablePanel minSize="30%" defaultSize="50%">
+            <ResizablePanel minSize="45%" defaultSize="50%">
               {chat}
             </ResizablePanel>
             <ResizableHandle isWithHandle />
@@ -134,8 +134,8 @@ export default function AdaptiveLayout({ chat, editor }: AdaptiveLayoutProps) {
         )}
       </div>
 
-      <div className="space-y-0.5 border-t p-2 text-center">
-        <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 backdrop-blur" {...swipeHandlers}>
+      <div className="bg-background relative space-y-0.5 border-t p-2 text-center">
+        <div {...swipeHandlers}>
           <div className="flex items-center justify-center gap-1">
             <Button
               size="sm"
