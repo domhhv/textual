@@ -89,8 +89,8 @@ Textual takes a different approach:
 
 ### Prerequisites
 
-- Node.js 22.20.0 or higher
-- npm 10.9.3 or higher
+- Node.js 22.22.3 or higher
+- npm 10.9.8 or higher
 - OpenAI API key
 
 ### Setup
@@ -129,7 +129,7 @@ Textual takes a different approach:
 ### Essential Commands
 
 ```bash
-npm run dev              # Start development server with Turbopack
+npm run dev             # Start development server with Turbopack
 npm run build           # Build for production
 npm run typecheck       # TypeScript checking
 npm run eslint:check    # Code linting
