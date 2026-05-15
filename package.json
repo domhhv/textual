@@ -141,8 +141,8 @@
     "typescript": "^6.0.3"
   },
   "engines": {
-    "node": "^22.22.2",
-    "npm": "^10.9.7"
+    "node": "^22.22.3",
+    "npm": "^10.9.8"
   },
   "nextBundleAnalysis": {
     "budget": null,
