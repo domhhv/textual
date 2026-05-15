@@ -82,6 +82,35 @@ export default function DocumentProvider({ children, documents, isAuthenticated 
   const [documentIdInteractedWith, setDocumentIdInteractedWith] = React.useState('');
   const [isEditorEmpty, setIsEditorEmpty] = React.useState(true);
   const [hasUnsavedEditorChanges, setHasUnsavedEditorChanges] = React.useState(false);
+  const loadedDocumentIdRef = React.useRef<string | null | undefined>(undefined);
+
+  React.useEffect(() => {
+    const activeDocumentId = activeDocument?.id ?? null;
+
+    if (loadedDocumentIdRef.current === activeDocumentId) {
+      return;
+    }
+
+    loadedDocumentIdRef.current = activeDocumentId;
+
+    if (!activeDocument) {
+      return editor.update(() => {
+        const root = $getRoot();
+
+        if (!root.isEmpty()) {
+          $getRoot().clear();
+        }
+      });
+    }
+
+    if (typeof activeDocument.content !== 'string') {
+      return editor.update(() => {
+        $getRoot().clear();
+      });
+    }
+
+    editor.setEditorState(editor.parseEditorState(activeDocument.content || ''));
+  }, [editor, activeDocument]);
 
   React.useEffect(() => {
     setHasUnsavedEditorChanges(false);
