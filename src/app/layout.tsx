@@ -45,6 +45,20 @@ export const metadata: Metadata = {
   title: 'Rich Textual Editor',
 };
 
+async function getAuthState() {
+  try {
+    const { isAuthenticated, userId } = await auth();
+
+    return { isAuthenticated, userId };
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('clerkMiddleware()')) {
+      return { isAuthenticated: false, userId: null };
+    }
+
+    throw error;
+  }
+}
+
 const getDocuments = React.cache(async (userId: string | null) => {
   if (!userId) {
     return {
@@ -103,7 +117,7 @@ export default function RootLayout({ children }: Readonly<React.PropsWithChildre
 }
 
 async function DocumentsProvider({ children }: Readonly<React.PropsWithChildren>) {
-  const { isAuthenticated, userId } = await auth();
+  const { isAuthenticated, userId } = await getAuthState();
   const { documents, error } = await getDocuments(userId);
 
   return (
