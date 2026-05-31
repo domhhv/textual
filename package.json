@@ -1,5 +1,5 @@
 {
-  "name": "textual",
+  "name": "smartext",
   "version": "0.1.0",
   "private": true,
   "description": "An AI-powered rich-text editor assistant that helps you write better content.",
@@ -19,13 +19,13 @@
     "posthog",
     "vercel"
   ],
-  "homepage": "https://textual.chat",
+  "homepage": "https://smartext.app",
   "bugs": {
-    "url": "https://github.com/domhhv/textual/issues"
+    "url": "https://github.com/domhhv/smartext/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/domhhv/textual.git"
+    "url": "https://github.com/domhhv/smartext.git"
   },
   "license": "MIT",
   "author": "Dominik Hryshaiev <domhryshaiev@gmail.com>",

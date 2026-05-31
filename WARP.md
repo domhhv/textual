@@ -37,7 +37,7 @@ The `prebuild` script runs automatically before `build` and executes:
 
 ## Architecture Overview
 
-**Textual** is an AI-powered rich text editor built with Next.js 16 that combines Lexical editor with OpenAI's GPT models for intelligent, contextual content editing. The key innovation is using structured AI tool calling for precise text manipulation rather than full document regeneration.
+**Smartext** is an AI-powered rich text editor built with Next.js 16 that combines Lexical editor with OpenAI's GPT models for intelligent, contextual content editing. The key innovation is using structured AI tool calling for precise text manipulation rather than full document regeneration.
 
 ### Technology Stack
 

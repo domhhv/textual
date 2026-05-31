@@ -169,7 +169,7 @@ export default function Account({ hasOpenaiApiKey }: AccountProps) {
                 <ul className="list-disc space-y-1 pl-5">
                   <li>For security reasons, API keys are only stored encrypted and cannot be viewed once set</li>
                   <li>To change an existing API key, you will need to set a new key</li>
-                  <li>You can always remove an API key from Textual if you no longer wish to use it</li>
+                  <li>You can always remove an API key from Smartext if you no longer wish to use it</li>
                 </ul>
               </AlertDescription>
             </Alert>

@@ -1,6 +1,6 @@
-# Contributing to Textual
+# Contributing to Smartext
 
-Thank you for your interest in contributing to Textual! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to Smartext! This document provides guidelines and instructions for contributing.
 
 ## Code of Conduct
 
@@ -19,8 +19,8 @@ By participating in this project, you agree to maintain a respectful and inclusi
 1. Fork and clone the repository
 
    ```bash
-   git clone https://github.com/domhhv/textual.git
-   cd textual
+   git clone https://github.com/domhhv/smartext.git
+   cd smartext
    ```
 
 2. Install dependencies
@@ -254,4 +254,4 @@ Future: We plan to add automated testing (Vitest, Cypress).
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
-Thank you for contributing to Textual!
+Thank you for contributing to Smartext!

@@ -56,7 +56,7 @@ Include the following information:
 
 ### Best Practices for Users
 
-When using Textual:
+When using Smartext:
 
 - Use your own OpenAI API key (BYOK)
 - Don't share API keys or credentials
@@ -74,4 +74,4 @@ When using Textual:
 
 Security updates will be released as soon as possible after vulnerabilities are identified and fixed. Users should keep their installations up to date.
 
-Thank you for helping keep Textual secure!
+Thank you for helping keep Smartext secure!
