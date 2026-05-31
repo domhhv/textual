@@ -42,7 +42,7 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   description: 'LLM-powered rich text editor',
-  title: 'Rich Textual Editor',
+  title: 'Rich Smartext Editor',
 };
 
 async function getAuthState() {

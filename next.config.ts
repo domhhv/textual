@@ -10,7 +10,7 @@ const withBundleAnalyzer = analyzer({
 
 export default withSentryConfig(withBundleAnalyzer(nextConfig), {
   org: 'doms-org',
-  project: 'textual',
+  project: 'smartext',
   silent: !process.env.CI,
   tunnelRoute: '/monitoring',
   widenClientFileUpload: true,

@@ -331,9 +331,9 @@ Tables organize information into rows and columns, making complex data easy to c
 | Support | ⭐⭐⭐ | ⭐ | ⭐⭐ |
 | **Total** | **9** | **9** | **8** |`;
 
-const everything = `# Welcome to Textual: The Complete Guide
+const everything = `# Welcome to Smartext: The Complete Guide
 
-**Textual** is a _powerful_ AI-assisted rich text editor that combines the elegance of Lexical with the intelligence of OpenAI's GPT. This document showcases every formatting feature available.
+**Smartext** is a _powerful_ AI-assisted rich text editor that combines the elegance of Lexical with the intelligence of OpenAI's GPT. This document showcases every formatting feature available.
 
 ---
 
@@ -540,7 +540,7 @@ This document demonstrates how different formatting elements work together to cr
 3. Project plans with task lists and status tables
 4. Creative content with quotes and emphasis
 
-> Textual adapts to your needs, combining the power of AI with intuitive formatting tools.
+> Smartext adapts to your needs, combining the power of AI with intuitive formatting tools.
 
 ### Quick Reference
 

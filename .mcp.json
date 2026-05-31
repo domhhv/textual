@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "Sentry": {
-      "url": "https://mcp.sentry.dev/mcp/doms-org/textual"
+      "url": "https://mcp.sentry.dev/mcp/doms-org/smartext"
     },
     "next-devtools": {
       "command": "npx",
