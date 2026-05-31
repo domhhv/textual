@@ -20,7 +20,7 @@ export default function ChatHeader() {
             </Button>
           )}
           <h3 className="sansation-bold hidden scroll-m-20 truncate text-2xl font-semibold tracking-tight text-slate-600 md:block dark:text-slate-300">
-            <span className="border-b border-dashed border-slate-600 dark:border-slate-300">Textual</span> Chat
+            Smartext
           </h3>
         </div>
       </div>

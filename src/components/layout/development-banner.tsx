@@ -4,7 +4,7 @@ import { useCallback, useSyncExternalStore } from 'react';
 
 import { Button } from '@/components/ui/button';
 
-const STORAGE_KEY = 'textual-dev-banner-dismissed';
+const STORAGE_KEY = 'smartext-dev-banner-dismissed';
 
 function subscribe(callback: () => void) {
   window.addEventListener('storage', callback);

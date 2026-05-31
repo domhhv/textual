@@ -1,12 +1,12 @@
-# Textual
+# Smartext
 
-![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/domhhv/textual?utm_source=oss&utm_medium=github&utm_campaign=domhhv%2Ftextual&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/domhhv/smartext?utm_source=oss&utm_medium=github&utm_campaign=domhhv%2Fsmartext&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
 **An AI-powered rich text editor that transforms how you write and edit content.**
 
-Textual combines a professional-grade rich text editor with OpenAI's GPT models to provide intelligent writing assistance. Unlike traditional AI writing tools that generate entire documents, this application focuses on precise, contextual editing within your existing content.
+Smartext combines a professional-grade rich text editor with OpenAI's GPT models to provide intelligent writing assistance. Unlike traditional AI writing tools that generate entire documents, this application focuses on precise, contextual editing within your existing content.
 
-🌐 **[Try it live at textual.chat](https://textual.chat)**
+🌐 **[Try it live at smartext.chat](https://smartext.chat)**
 
 ## ✨ What Makes It Special
 
@@ -39,7 +39,7 @@ Most AI writing tools either:
 - Generate entire documents from scratch (losing your voice and style)
 - Provide generic suggestions that don't understand context
 
-Textual takes a different approach:
+Smartext takes a different approach:
 
 - **Precision Editing**: Make specific changes to exact locations in your text
 - **Contextual Understanding**: AI sees your entire document for better suggestions
@@ -98,8 +98,8 @@ Textual takes a different approach:
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/domhhv/textual.git
-   cd textual
+   git clone https://github.com/domhhv/smartext.git
+   cd smartext
    ```
 
 2. **Install dependencies**
@@ -176,14 +176,14 @@ We welcome contributions! This project demonstrates cutting-edge AI integration 
 
 ## 📝 License
 
-MIT License - see [LICENSE](https://github.com/domhhv/textual/blob/main/LICENSE.md) file for details.
+MIT License - see [LICENSE](https://github.com/domhhv/smartext/blob/main/LICENSE.md) file for details.
 
 ## 🐛 Issues
 
-Found a bug or have a feature request? Please [open an issue](https://github.com/domhhv/textual/issues).
+Found a bug or have a feature request? Please [open an issue](https://github.com/domhhv/smartext/issues).
 
 ---
 
-**Textual represents the future of AI-powered writing tools: intelligent, precise, and designed to enhance rather than replace human creativity.**
+**Smartext represents the future of AI-powered writing tools: intelligent, precise, and designed to enhance rather than replace human creativity.**
 
-Visit [textual.chat](https://textual.chat) to experience it yourself.
+Visit [smartext.chat](https://smartext.chat) to experience it yourself.

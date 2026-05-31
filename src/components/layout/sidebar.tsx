@@ -152,7 +152,7 @@ export default function Sidebar({ documents, isAuthenticated, isDocumentsError }
                     </div>
                     <Tooltip delayDuration={tooltipGroup.getTooltipProps().delayDuration}>
                       <TooltipTrigger asChild onMouseEnter={tooltipGroup.getTooltipProps().onMouseEnter}>
-                        <Link target="_blank" rel="noopener noreferrer" href="https://github.com/domhhv/textual">
+                        <Link target="_blank" rel="noopener noreferrer" href="https://github.com/domhhv/smartext">
                           <Button size="xs" variant="outline" className="h-8 w-8">
                             <GithubIcon className="fill-muted-foreground size-4!" />
                           </Button>
@@ -174,7 +174,7 @@ export default function Sidebar({ documents, isAuthenticated, isDocumentsError }
 
         {!isAuthenticated && isExpanded && (
           <div className="p-4">
-            <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Welcome to Textual</h3>
+            <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">Welcome to Smartext</h3>
             <p className="text-muted-foreground mt-2 text-sm">
               Sign in or create an account to start creating and managing your documents.
             </p>
