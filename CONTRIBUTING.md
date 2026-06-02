@@ -29,14 +29,23 @@ By participating in this project, you agree to maintain a respectful and inclusi
    npm install
    ```
 
-3. Set up environment variables
+3. **Configure environment**
 
    ```bash
    cp .env.example .env.local
-   # Add your OPENAI_API_KEY to .env.local
+   # Fill in required environment variables in .env.local
    ```
 
-4. Start development server
+4. **Boot local Supabase instance**
+
+   [Install Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started?queryGroups=platform&platform=macos), open Docker Desktop, and run:
+
+   ```bash
+   supabase start
+   ```
+
+5. Start the development server
+
    ```bash
    npm run dev
    ```
