@@ -39,15 +39,64 @@ const models = [
   {
     chef: 'OpenAI',
     chefSlug: 'openai',
-    id: 'gpt-4o',
-    name: 'GPT-4o',
+    id: 'gpt-5.5',
+    name: 'GPT-5.5',
     providers: ['openai'],
   },
   {
     chef: 'OpenAI',
     chefSlug: 'openai',
-    id: 'gpt-4o-mini',
-    name: 'GPT-4o Mini',
+    id: 'gpt-5.4',
+    name: 'GPT-5.4',
+    providers: ['openai'],
+  },
+  {
+    chef: 'OpenAI',
+    chefSlug: 'openai',
+    id: 'gpt-5.4-mini',
+    name: 'GPT-5.4 mini',
+    providers: ['openai'],
+  },
+  {
+    chef: 'OpenAI',
+    chefSlug: 'openai',
+    id: 'gpt-5.4-nano',
+    name: 'GPT-5.4 nano',
+    providers: ['openai'],
+  },
+  {
+    chef: 'OpenAI',
+    chefSlug: 'openai',
+    id: 'gpt-5.3-codex',
+    name: 'GPT-5.3 Codex',
+    providers: ['openai'],
+  },
+  {
+    chef: 'OpenAI',
+    chefSlug: 'openai',
+    id: 'gpt-5.2-pro',
+    name: 'GPT-5.2 pro',
+    providers: ['openai'],
+  },
+  {
+    chef: 'OpenAI',
+    chefSlug: 'openai',
+    id: 'gpt-5.2',
+    name: 'GPT-5.2',
+    providers: ['openai'],
+  },
+  {
+    chef: 'OpenAI',
+    chefSlug: 'openai',
+    id: 'gpt-5.1',
+    name: 'GPT-5.1',
+    providers: ['openai'],
+  },
+  {
+    chef: 'OpenAI',
+    chefSlug: 'openai',
+    id: 'gpt-5-pro',
+    name: 'GPT-5 pro',
     providers: ['openai'],
   },
   {
@@ -61,38 +110,48 @@ const models = [
     chef: 'OpenAI',
     chefSlug: 'openai',
     id: 'gpt-5-mini',
-    name: 'GPT-5 Mini',
+    name: 'GPT-5 mini',
     providers: ['openai'],
   },
   {
     chef: 'OpenAI',
     chefSlug: 'openai',
-    id: 'o1',
-    name: 'o1',
+    id: 'gpt-5-nano',
+    name: 'GPT-5 nano',
     providers: ['openai'],
   },
   {
     chef: 'OpenAI',
     chefSlug: 'openai',
-    id: 'o1-mini',
-    name: 'o1 Mini',
+    id: 'gpt-4.1',
+    name: 'GPT-4.1',
     providers: ['openai'],
   },
   {
     chef: 'OpenAI',
     chefSlug: 'openai',
-    id: 'o3',
-    name: 'o3',
+    id: 'gpt-4.1-mini',
+    name: 'GPT-4.1 mini',
     providers: ['openai'],
   },
   {
     chef: 'OpenAI',
     chefSlug: 'openai',
-    id: 'o3-mini',
-    name: 'o3 Mini',
+    id: 'gpt-4o',
+    name: 'GPT-4o',
     providers: ['openai'],
   },
 ];
+
+const MODELS_PER_CHEF_LIMIT = 3;
+
+const chefs = Array.from(
+  new Set(
+    models.map((m) => {
+      return m.chef;
+    })
+  )
+);
 
 type ChatPromptInputProps = {
   model?: string;
@@ -110,7 +169,17 @@ function ChatPromptInput({
   status,
 }: ChatPromptInputProps) {
   const [modelSelectorOpen, setModelSelectorOpen] = React.useState(false);
+  const [modelSearch, setModelSearch] = React.useState('');
+  const [expandedChefs, setExpandedChefs] = React.useState<Record<string, boolean>>({});
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+  const isSearching = modelSearch.trim().length > 0;
+
+  function toggleChefExpanded(chef: string) {
+    setExpandedChefs((prev) => {
+      return { ...prev, [chef]: !prev[chef] };
+    });
+  }
 
   const selectedModelData = models.find((m) => {
     return m.id === model;
@@ -156,41 +225,67 @@ function ChatPromptInput({
                   </PromptInputButton>
                 </ModelSelectorTrigger>
                 <ModelSelectorContent>
-                  <ModelSelectorInput placeholder="Search models..." />
+                  <ModelSelectorInput
+                    value={modelSearch}
+                    placeholder="Search models..."
+                    onValueChange={setModelSearch}
+                  />
                   <ModelSelectorList>
                     <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
-                    {['OpenAI'].map((chef) => {
+                    {chefs.map((chef) => {
+                      const chefModels = models.filter((m) => {
+                        return m.chef === chef;
+                      });
+                      const isExpanded = expandedChefs[chef];
+                      const canToggle = !isSearching && chefModels.length > MODELS_PER_CHEF_LIMIT;
+                      const visibleModels =
+                        canToggle && !isExpanded ? chefModels.slice(0, MODELS_PER_CHEF_LIMIT) : chefModels;
+
                       return (
-                        <ModelSelectorGroup key={chef} heading={chef}>
-                          {models
-                            .filter((m) => {
-                              return m.chef === chef;
-                            })
-                            .map((m) => {
-                              return (
-                                <ModelSelectorItem
-                                  key={m.id}
-                                  value={m.id}
-                                  onSelect={() => {
-                                    onModelChange?.(m.id);
-                                    setModelSelectorOpen(false);
+                        <ModelSelectorGroup
+                          key={chef}
+                          heading={
+                            <span className="flex items-center justify-between">
+                              {chef}
+                              {canToggle && (
+                                <button
+                                  type="button"
+                                  className="hover:text-foreground font-medium normal-case transition-colors"
+                                  onClick={() => {
+                                    return toggleChefExpanded(chef);
                                   }}
                                 >
-                                  <ModelSelectorLogo provider={m.chefSlug} />
-                                  <ModelSelectorName>{m.name}</ModelSelectorName>
-                                  <ModelSelectorLogoGroup>
-                                    {m.providers.map((provider) => {
-                                      return <ModelSelectorLogo key={provider} provider={provider} />;
-                                    })}
-                                  </ModelSelectorLogoGroup>
-                                  {model === m.id ? (
-                                    <CheckIcon className="ml-auto size-4" />
-                                  ) : (
-                                    <div className="ml-auto size-4" />
-                                  )}
-                                </ModelSelectorItem>
-                              );
-                            })}
+                                  {isExpanded ? 'See less' : 'See all'}
+                                </button>
+                              )}
+                            </span>
+                          }
+                        >
+                          {visibleModels.map((m) => {
+                            return (
+                              <ModelSelectorItem
+                                key={m.id}
+                                value={m.id}
+                                onSelect={() => {
+                                  onModelChange?.(m.id);
+                                  setModelSelectorOpen(false);
+                                }}
+                              >
+                                <ModelSelectorLogo provider={m.chefSlug} />
+                                <ModelSelectorName>{m.name}</ModelSelectorName>
+                                <ModelSelectorLogoGroup>
+                                  {m.providers.map((provider) => {
+                                    return <ModelSelectorLogo key={provider} provider={provider} />;
+                                  })}
+                                </ModelSelectorLogoGroup>
+                                {model === m.id ? (
+                                  <CheckIcon className="ml-auto size-4" />
+                                ) : (
+                                  <div className="ml-auto size-4" />
+                                )}
+                              </ModelSelectorItem>
+                            );
+                          })}
                         </ModelSelectorGroup>
                       );
                     })}
