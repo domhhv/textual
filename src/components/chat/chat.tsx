@@ -34,7 +34,7 @@ type ChatProps = {
 
 export default function Chat({ hasOpenaiApiKey, isAuthenticated }: ChatProps) {
   const [editor] = useLexicalComposerContext();
-  const [model, setModel] = React.useState('gpt-4o');
+  const [model, setModel] = React.useState('gpt-5.5');
   const { setStatus } = React.use(ChatStatusContext);
   const { addToolResult, error, messages, sendMessage, status } = useChat<
     UIMessage<unknown, UIDataTypes, EditorCommandTools>
