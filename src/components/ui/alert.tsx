@@ -15,7 +15,7 @@ const alertVariants = cva(
         destructive:
           'text-destructive *:data-[slot=alert-description]:text-destructive/90 border-destructive bg-destructive/5 [&>svg]:text-current',
         success:
-          'border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-300',
+          'text-success *:data-[slot=alert-description]:text-success/90 border-success bg-success/5 [&>svg]:text-current',
       },
     },
   }

@@ -53,6 +53,7 @@
     "@types/react-dom": "^19.2.3"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.81",
     "@ai-sdk/openai": "^3.0.67",
     "@ai-sdk/react": "^3.0.195",
     "@clerk/nextjs": "^7.4.2",

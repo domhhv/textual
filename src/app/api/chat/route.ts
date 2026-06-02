@@ -1,3 +1,4 @@
+import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
 import { currentUser } from '@clerk/nextjs/server';
 import { streamText, stepCountIs, type UIMessage, convertToModelMessages } from 'ai';
@@ -14,25 +15,31 @@ type RequestBody = {
   editorRootChildren: string;
   messages: UIMessage[];
   model: string;
+  providerName: 'openai' | 'claude';
 };
 
 export async function POST(req: Request) {
   const user = await currentUser();
-  const { editorMarkdownContent, editorRootChildren, messages, model }: RequestBody = await req.json();
+  const { editorMarkdownContent, editorRootChildren, messages, model, providerName }: RequestBody = await req.json();
 
-  const openaiApiKey = user?.privateMetadata.openaiApiKey;
+  if (providerName !== 'openai' && providerName !== 'claude') {
+    return new Response('Invalid provider', { status: 400 });
+  }
 
-  if (typeof openaiApiKey !== 'string' || openaiApiKey.length === 0) {
+  const providerApiKey =
+    providerName === 'openai' ? user?.privateMetadata.openaiApiKey : user?.privateMetadata.claudeApiKey;
+
+  if (typeof providerApiKey !== 'string') {
     return new Response('API key is required', { status: 400 });
   }
 
-  const openaiProvider = createOpenAI({
-    apiKey: decryptKey(openaiApiKey),
-  });
+  const apiKey = decryptKey(providerApiKey);
+
+  const provider = providerName === 'openai' ? createOpenAI({ apiKey }) : createAnthropic({ apiKey });
 
   const result = streamText({
     messages: await convertToModelMessages(messages),
-    model: openaiProvider(model),
+    model: provider(model),
     stopWhen: stepCountIs(5),
     system: wrapEditorPrompt(editorMarkdownContent, editorRootChildren),
     tools,

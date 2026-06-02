@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 
 import { encryptKey } from '@/lib/utils/encryption';
 
-export async function updateUserApiKey(provider: 'openai', apiKey: string) {
+export async function updateUserApiKey(provider: 'openai' | 'claude', apiKey: string) {
   const { userId } = await auth();
   const client = await clerkClient();
 

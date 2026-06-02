@@ -1,6 +1,6 @@
 export default async function validateApiKeyWithServer(
   apiKey: string,
-  providerName: string
+  providerName: 'openai' | 'claude'
 ): Promise<{
   error?: string;
   isValid: boolean;

@@ -1,8 +1,10 @@
-import { Eye, EyeOff, ExternalLink, KeyRoundIcon, CircleAlertIcon, CircleCheckIcon } from 'lucide-react';
+import { Eye, EyeOff, CircleXIcon, ExternalLink, CircleAlertIcon, CircleCheckIcon } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
 import { useWatch, type UseFormReturn } from 'react-hook-form';
 
+import ClaudeIcon from '@/components/icons/claude';
+import OpenAiIcon from '@/components/icons/openai';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Form, FormItem, FormField, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
@@ -10,6 +12,7 @@ import HelixLoader from '@/components/ui/helix-loader';
 import { Input } from '@/components/ui/input';
 
 type ApiKeyRowProps = {
+  isDisabled?: boolean;
   isEditing: boolean;
   isInputValueShown: boolean;
   isRemoving: boolean;
@@ -34,8 +37,14 @@ type ApiKeyRowProps = {
   } | null;
 };
 
+const icons: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
+  claude: ClaudeIcon,
+  openai: OpenAiIcon,
+};
+
 function ApiKeyRow({
   form,
+  isDisabled = false,
   isEditing,
   isInputValueShown,
   isRemoving,
@@ -61,18 +70,32 @@ function ApiKeyRow({
     name: 'apiKey',
   });
 
+  const Icon = icons[providerLabel.toLowerCase()];
+
   if (!isEditing) {
     return (
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <KeyRoundIcon />
+          <Icon className="size-5" />
           <div>
             <div className="font-medium">{providerLabel} API Key</div>
-            <div className="text-muted-foreground text-sm">{isSet ? 'Set' : 'Not Set'}</div>
+            <div className="text-muted-foreground flex items-center gap-1 text-sm">
+              {isSet ? (
+                <>
+                  <span>Set</span>
+                  <CircleCheckIcon size={14} />
+                </>
+              ) : (
+                <>
+                  <span>Not set</span>
+                  <CircleXIcon size={14} />
+                </>
+              )}
+            </div>
           </div>
         </div>
-        <Button size="sm" variant="outline" onClick={onEditToggle}>
-          Edit
+        <Button size="sm" variant="outline" disabled={isDisabled} onClick={onEditToggle}>
+          {isSet ? 'Edit' : 'Set'}
         </Button>
       </div>
     );
@@ -87,27 +110,27 @@ function ApiKeyRow({
           render={({ field }) => {
             return (
               <FormItem>
-                <FormLabel>{providerLabel}</FormLabel>
+                <FormLabel htmlFor={`${providerLabel}-api-key`}>{providerLabel}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Input
+                      autoFocus
                       className="pr-10"
                       autoComplete="off"
                       placeholder="sk-..."
+                      id={`${providerLabel}-api-key`}
                       type={isInputValueShown ? 'text' : 'password'}
                       {...field}
                     />
-                    {!!apiKeyValue && (
-                      <Button
-                        size="xs"
-                        type="button"
-                        variant="ghost"
-                        onClick={onShowInputValueToggle}
-                        className="absolute top-1.5 right-1.5 px-3"
-                      >
-                        {isInputValueShown ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
-                    )}
+                    <Button
+                      size="xs"
+                      type="button"
+                      variant="ghost"
+                      onClick={onShowInputValueToggle}
+                      className="absolute top-1.5 right-1.5 px-3"
+                    >
+                      {isInputValueShown ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </Button>
                   </div>
                 </FormControl>
                 <FormDescription>

@@ -15,9 +15,11 @@ export async function POST(req: Request) {
 
   const { apiKey }: RequestBody = await req.json();
 
-  const response = await fetch(`https://api.openai.com/v1/models`, {
+  const response = await fetch(`https://api.anthropic.com/v1/models`, {
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
     },
   });
 
@@ -27,16 +29,14 @@ export async function POST(req: Request) {
 
   let errorMessage = 'Invalid API key';
 
+  const raw = await response.text();
+
   try {
-    const data = await response.json();
-    errorMessage = data.error?.message || errorMessage;
+    const data = JSON.parse(raw);
+    const apiErrorMessage = data.error?.message?.includes('x-api-key') ? 'Invalid API key' : data.error?.message;
+    errorMessage = apiErrorMessage || errorMessage;
   } catch {
-    try {
-      const text = await response.text();
-      errorMessage = text || errorMessage;
-    } catch {
-      errorMessage = response.statusText || errorMessage;
-    }
+    errorMessage = raw || response.statusText || errorMessage;
   }
 
   return Response.json({

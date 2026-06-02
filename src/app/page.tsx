@@ -9,16 +9,13 @@ import MobileLayoutProvider from '@/components/providers/mobile-layout-provider'
 
 export default async function Home() {
   const user = await currentUser();
-  const hasOpenaiApiKey = Boolean(user?.privateMetadata.openaiApiKey);
+  const hasApiKey = Boolean(user?.privateMetadata.openaiApiKey) || Boolean(user?.privateMetadata.claudeApiKey);
 
   return (
     <ChatStatusProvider>
       <EditorToolbarStateProvider>
         <MobileLayoutProvider>
-          <AdaptiveLayout
-            editor={<Editor />}
-            chat={<Chat isAuthenticated={!!user} hasOpenaiApiKey={hasOpenaiApiKey} />}
-          />
+          <AdaptiveLayout editor={<Editor />} chat={<Chat hasApiKey={hasApiKey} isAuthenticated={!!user} />} />
         </MobileLayoutProvider>
       </EditorToolbarStateProvider>
     </ChatStatusProvider>
