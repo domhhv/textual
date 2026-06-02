@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Form, FormItem, FormField, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
 import HelixLoader from '@/components/ui/helix-loader';
 import { Input } from '@/components/ui/input';
-import cn from '@/lib/utils/cn';
 
 type ApiKeyRowProps = {
   isDisabled?: boolean;
@@ -80,7 +79,7 @@ function ApiKeyRow({
           <Icon className="size-5" />
           <div>
             <div className="font-medium">{providerLabel} API Key</div>
-            <div className={cn('flex items-center gap-1 text-sm', isSet ? 'text-success' : 'text-warning')}>
+            <div className="text-muted-foreground flex items-center gap-1 text-sm">
               {isSet ? (
                 <>
                   <span>Set</span>
@@ -96,7 +95,7 @@ function ApiKeyRow({
           </div>
         </div>
         <Button size="sm" variant="outline" disabled={isDisabled} onClick={onEditToggle}>
-          Edit
+          {isSet ? 'Edit' : 'Set'}
         </Button>
       </div>
     );
@@ -115,11 +114,11 @@ function ApiKeyRow({
                 <FormControl>
                   <div className="relative">
                     <Input
+                      autoFocus
                       className="pr-10"
                       autoComplete="off"
                       placeholder="sk-..."
                       id={`${providerLabel}-api-key`}
-                      aria-labelledby={`${providerLabel}-api-key`}
                       type={isInputValueShown ? 'text' : 'password'}
                       {...field}
                     />

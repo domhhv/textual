@@ -6,7 +6,7 @@
 
 Smartext combines a professional-grade rich text editor with OpenAI's GPT models to provide intelligent writing assistance. Unlike traditional AI writing tools that generate entire documents, this application focuses on precise, contextual editing within your existing content.
 
-🌐 **[Try it live at smartext.chat](https://smartext.chat)**
+🌐 **[Try it live at smartext.app](https://smartext.app)**
 
 ## ✨ What Makes It Special
 
@@ -186,4 +186,4 @@ Found a bug or have a feature request? Please [open an issue](https://github.com
 
 **Smartext represents the future of AI-powered writing tools: intelligent, precise, and designed to enhance rather than replace human creativity.**
 
-Visit [smartext.chat](https://smartext.chat) to experience it yourself.
+Visit [smartext.app](https://smartext.app) to experience it yourself.

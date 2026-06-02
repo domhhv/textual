@@ -2,8 +2,8 @@ export default function OpenAiIcon({ className }: { className?: string }) {
   return (
     <svg
       role="img"
-      fill="#080808"
       stroke-width="0"
+      fill="currentColor"
       viewBox="0 0 24 24"
       stroke="currentColor"
       className={className}

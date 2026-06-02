@@ -28,11 +28,11 @@ import getErrorMessage from '@/lib/utils/get-error-message';
 import $getNextEditorState from '@/lib/utils/get-next-editor-state';
 
 type ChatProps = {
-  hasOpenaiApiKey: boolean;
+  hasApiKey: boolean;
   isAuthenticated: boolean;
 };
 
-export default function Chat({ hasOpenaiApiKey, isAuthenticated }: ChatProps) {
+export default function Chat({ hasApiKey, isAuthenticated }: ChatProps) {
   const [editor] = useLexicalComposerContext();
   const [model, setModel] = React.useState('gpt-5.5');
   const { setStatus } = React.use(ChatStatusContext);
@@ -111,7 +111,7 @@ export default function Chat({ hasOpenaiApiKey, isAuthenticated }: ChatProps) {
     [editor, sendMessage, model]
   );
 
-  if (!hasOpenaiApiKey) {
+  if (!hasApiKey) {
     return (
       <div className="flex h-full flex-col">
         <ChatHeader />

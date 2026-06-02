@@ -4,6 +4,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-5.5',
     name: 'GPT-5.5',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -11,6 +12,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-5.4',
     name: 'GPT-5.4',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -18,6 +20,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-5.4-mini',
     name: 'GPT-5.4 mini',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -25,6 +28,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-5.4-nano',
     name: 'GPT-5.4 nano',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -32,6 +36,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-5.3-codex',
     name: 'GPT-5.3 Codex',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -39,6 +44,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-5.2-pro',
     name: 'GPT-5.2 pro',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -46,6 +52,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-5.2',
     name: 'GPT-5.2',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -53,6 +60,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-5.1',
     name: 'GPT-5.1',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -60,6 +68,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-5-pro',
     name: 'GPT-5 pro',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -67,6 +76,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-5',
     name: 'GPT-5',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -74,6 +84,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-5-mini',
     name: 'GPT-5 mini',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -81,6 +92,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-5-nano',
     name: 'GPT-5 nano',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -88,6 +100,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-4.1',
     name: 'GPT-4.1',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -95,6 +108,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-4.1-mini',
     name: 'GPT-4.1 mini',
+    providerId: 'openai',
     providers: [],
   },
   {
@@ -102,6 +116,7 @@ const openAiModels = [
     chefSlug: 'openai',
     id: 'gpt-4o',
     name: 'GPT-4o',
+    providerId: 'openai',
     providers: [],
   },
 ];
@@ -112,6 +127,7 @@ const claudeModels = [
     chefSlug: 'anthropic',
     id: 'claude-opus-4-8',
     name: 'Claude Opus 4.8',
+    providerId: 'claude',
     providers: [],
   },
   {
@@ -119,6 +135,7 @@ const claudeModels = [
     chefSlug: 'anthropic',
     id: 'claude-sonnet-4-6',
     name: 'Claude Sonnet 4.6',
+    providerId: 'claude',
     providers: [],
   },
   {
@@ -126,6 +143,7 @@ const claudeModels = [
     chefSlug: 'anthropic',
     id: 'claude-haiku-4-5-20251001',
     name: 'Claude Haiku 4.5',
+    providerId: 'claude',
     providers: [],
   },
   {
@@ -133,6 +151,7 @@ const claudeModels = [
     chefSlug: 'anthropic',
     id: 'claude-opus-4-7',
     name: 'Claude Opus 4.7',
+    providerId: 'claude',
     providers: [],
   },
   {
@@ -140,6 +159,7 @@ const claudeModels = [
     chefSlug: 'anthropic',
     id: 'claude-opus-4-6',
     name: 'Claude Opus 4.6',
+    providerId: 'claude',
     providers: [],
   },
   {
@@ -147,6 +167,7 @@ const claudeModels = [
     chefSlug: 'anthropic',
     id: 'claude-opus-4-5',
     name: 'Claude Opus 4.5',
+    providerId: 'claude',
     providers: [],
   },
   {
@@ -154,6 +175,7 @@ const claudeModels = [
     chefSlug: 'anthropic',
     id: 'claude-sonnet-4-5',
     name: 'Claude Sonnet 4.5',
+    providerId: 'claude',
     providers: [],
   },
   {
@@ -161,6 +183,7 @@ const claudeModels = [
     chefSlug: 'anthropic',
     id: 'claude-opus-4-1',
     name: 'Claude Opus 4.1',
+    providerId: 'claude',
     providers: [],
   },
 ];

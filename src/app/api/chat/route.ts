@@ -22,21 +22,20 @@ export async function POST(req: Request) {
   const user = await currentUser();
   const { editorMarkdownContent, editorRootChildren, messages, model, providerName }: RequestBody = await req.json();
 
-  const openaiApiKey = user?.privateMetadata.openaiApiKey;
-  const claudeApiKey = user?.privateMetadata.claudeApiKey;
+  if (providerName !== 'openai' && providerName !== 'claude') {
+    return new Response('Invalid provider', { status: 400 });
+  }
 
-  if (typeof openaiApiKey !== 'string' || typeof claudeApiKey !== 'string') {
+  const providerApiKey =
+    providerName === 'openai' ? user?.privateMetadata.openaiApiKey : user?.privateMetadata.claudeApiKey;
+
+  if (typeof providerApiKey !== 'string') {
     return new Response('API key is required', { status: 400 });
   }
 
-  const apiKey = decryptKey(providerName === 'openai' ? openaiApiKey : claudeApiKey);
+  const apiKey = decryptKey(providerApiKey);
 
-  const provider =
-    providerName === 'openai'
-      ? createOpenAI({
-          apiKey,
-        })
-      : createAnthropic({ apiKey });
+  const provider = providerName === 'openai' ? createOpenAI({ apiKey }) : createAnthropic({ apiKey });
 
   const result = streamText({
     messages: await convertToModelMessages(messages),

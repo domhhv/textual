@@ -18,7 +18,6 @@ export async function POST(req: Request) {
   const response = await fetch(`https://api.openai.com/v1/models`, {
     headers: {
       Authorization: `Bearer ${apiKey}`,
-      'x-api-key': apiKey,
     },
   });
 

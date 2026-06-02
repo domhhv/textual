@@ -64,9 +64,10 @@ function ChatPromptInput({
     });
   }
 
-  const selectedModelData = aiChatModels.find((m) => {
-    return m.id === model;
-  })!;
+  const selectedModelData =
+    aiChatModels.find((m) => {
+      return m.id === model;
+    }) ?? aiChatModels[0];
 
   function handleSubmit(message: PromptInputMessage) {
     const hasText = Boolean(message.text);
@@ -76,7 +77,11 @@ function ChatPromptInput({
       return;
     }
 
-    onSubmit?.(message, selectedModelData.chef);
+    if (!selectedModelData) {
+      return;
+    }
+
+    onSubmit?.(message, selectedModelData.providerId);
   }
 
   return (
