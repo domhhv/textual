@@ -93,7 +93,7 @@ export default function Chat({ hasOpenaiApiKey, isAuthenticated }: ChatProps) {
   }, [status, setStatus]);
 
   const submitMessage = React.useCallback(
-    async (message: PromptInputMessage) => {
+    async (message: PromptInputMessage, providerName: string) => {
       editor.read(() => {
         const { nextEditorMarkdownContent: editorMarkdownContent, nextEditorRootChildren: editorRootChildren } =
           $getNextEditorState();
@@ -103,6 +103,7 @@ export default function Chat({ hasOpenaiApiKey, isAuthenticated }: ChatProps) {
             editorMarkdownContent,
             editorRootChildren,
             model,
+            providerName,
           },
         });
       });

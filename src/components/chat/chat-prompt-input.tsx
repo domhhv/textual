@@ -34,131 +34,14 @@ import {
   PromptInputActionMenuTrigger,
   PromptInputActionAddAttachments,
 } from '@/components/ai-elements/prompt-input';
-
-const models = [
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-5.5',
-    name: 'GPT-5.5',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-5.4',
-    name: 'GPT-5.4',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-5.4-mini',
-    name: 'GPT-5.4 mini',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-5.4-nano',
-    name: 'GPT-5.4 nano',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-5.3-codex',
-    name: 'GPT-5.3 Codex',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-5.2-pro',
-    name: 'GPT-5.2 pro',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-5.2',
-    name: 'GPT-5.2',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-5.1',
-    name: 'GPT-5.1',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-5-pro',
-    name: 'GPT-5 pro',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-5',
-    name: 'GPT-5',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-5-mini',
-    name: 'GPT-5 mini',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-5-nano',
-    name: 'GPT-5 nano',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-4.1',
-    name: 'GPT-4.1',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-4.1-mini',
-    name: 'GPT-4.1 mini',
-    providers: ['openai'],
-  },
-  {
-    chef: 'OpenAI',
-    chefSlug: 'openai',
-    id: 'gpt-4o',
-    name: 'GPT-4o',
-    providers: ['openai'],
-  },
-];
-
-const MODELS_PER_CHEF_LIMIT = 3;
-
-const chefs = Array.from(
-  new Set(
-    models.map((m) => {
-      return m.chef;
-    })
-  )
-);
+import { aiChatModels, aiChatModelsChefs, MODELS_PER_CHEF_LIMIT } from '@/lib/constants/ai-chat-models';
 
 type ChatPromptInputProps = {
   model?: string;
   placeholder?: string;
   status?: 'submitted' | 'streaming' | 'ready' | 'error';
   onModelChange?: (model: string) => void;
-  onSubmit?: (message: PromptInputMessage) => void;
+  onSubmit?: (message: PromptInputMessage, providerName: string) => void;
 };
 
 function ChatPromptInput({
@@ -181,9 +64,9 @@ function ChatPromptInput({
     });
   }
 
-  const selectedModelData = models.find((m) => {
+  const selectedModelData = aiChatModels.find((m) => {
     return m.id === model;
-  });
+  })!;
 
   function handleSubmit(message: PromptInputMessage) {
     const hasText = Boolean(message.text);
@@ -193,7 +76,7 @@ function ChatPromptInput({
       return;
     }
 
-    onSubmit?.(message);
+    onSubmit?.(message, selectedModelData.chef);
   }
 
   return (
@@ -232,8 +115,8 @@ function ChatPromptInput({
                   />
                   <ModelSelectorList>
                     <ModelSelectorEmpty>No models found.</ModelSelectorEmpty>
-                    {chefs.map((chef) => {
-                      const chefModels = models.filter((m) => {
+                    {aiChatModelsChefs.map((chef) => {
+                      const chefModels = aiChatModels.filter((m) => {
                         return m.chef === chef;
                       });
                       const isExpanded = expandedChefs[chef];

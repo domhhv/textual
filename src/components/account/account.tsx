@@ -2,7 +2,7 @@
 
 import { UserProfile } from '@clerk/nextjs';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { InfoIcon, KeyRoundIcon } from 'lucide-react';
+import { KeyIcon, InfoIcon } from 'lucide-react';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -15,6 +15,7 @@ import validateApiKeyWithServer from '@/lib/utils/validate-api-key';
 import ApiKeyRow from './api-key-row';
 
 type AccountProps = {
+  hasClaudeApiKey: boolean;
   hasOpenaiApiKey: boolean;
 };
 
@@ -24,7 +25,8 @@ type ServerValidation = {
   tested?: boolean;
 };
 
-const providerLabels: Record<'openai', string> = {
+const providerLabels: Record<'openai' | 'claude', string> = {
+  claude: 'Claude',
   openai: 'OpenAI',
 };
 
@@ -32,7 +34,7 @@ const apiFormSchema = z.object({
   apiKey: z.string().nonempty('Please enter an API Key'),
 });
 
-function useApiKeyRow(provider: 'openai') {
+function useApiKeyRow(provider: 'openai' | 'claude') {
   const [isInputValueShown, setIsInputValueShown] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
@@ -140,8 +142,9 @@ function useApiKeyRow(provider: 'openai') {
   };
 }
 
-export default function Account({ hasOpenaiApiKey }: AccountProps) {
+export default function Account({ hasClaudeApiKey, hasOpenaiApiKey }: AccountProps) {
   const openAiApiKeyRow = useApiKeyRow('openai');
+  const claudeApiKeyRow = useApiKeyRow('claude');
 
   return (
     <UserProfile
@@ -152,17 +155,25 @@ export default function Account({ hasOpenaiApiKey }: AccountProps) {
         },
       }}
     >
-      <UserProfile.Page url="/api-keys" label="API Keys" labelIcon={<KeyRoundIcon size={16} />}>
+      <UserProfile.Page url="/api-keys" label="API Keys" labelIcon={<KeyIcon size={16} />}>
         <div className="space-y-4 [&>*:not(:last-child)]:border-b [&>*:not(:last-child)]:pb-4">
           <h1 className="text-lg">API Keys</h1>
 
           <ApiKeyRow
             {...openAiApiKeyRow}
             isSet={hasOpenaiApiKey}
+            isDisabled={claudeApiKeyRow.isEditing}
             providerPlatformUrl="https://platform.openai.com/account/api-keys"
           />
 
-          {openAiApiKeyRow.isEditing && (
+          <ApiKeyRow
+            {...claudeApiKeyRow}
+            isSet={hasClaudeApiKey}
+            isDisabled={openAiApiKeyRow.isEditing}
+            providerPlatformUrl="https://platform.claude.com/settings/keys"
+          />
+
+          {(openAiApiKeyRow.isEditing || claudeApiKeyRow.isEditing) && (
             <Alert>
               <InfoIcon />
               <AlertDescription>
